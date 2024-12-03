@@ -22,7 +22,7 @@ export function PropertyCalculator() {
 
   const purchaseCosts = usePurchaseCosts(propertyDetails, conveyancingFee, buildingAndPestFee);
   const calculationResults = usePropertyCalculator(propertyDetails, marketData, costStructure);
-  const financialMetrics = useFinancialMetrics(
+  useFinancialMetrics(
     propertyDetails,
     marketData,
     costStructure,
@@ -130,7 +130,6 @@ export function PropertyCalculator() {
                   <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
                     <PurchaseSummary
                       propertyDetails={propertyDetails}
-                      marketData={marketData}
                       purchaseCosts={purchaseCosts}
                     />
                   </div>
@@ -139,7 +138,6 @@ export function PropertyCalculator() {
                   <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
                     <KeyMetrics
                       calculationResults={calculationResults}
-                      financialMetrics={financialMetrics}
                       costStructure={costStructure}
                     />
                   </div>

@@ -1,13 +1,12 @@
 import { Card } from '../../ui/card';
-import { PropertyDetails, MarketData, PurchaseCosts } from '../types';
+import { PropertyDetails, PurchaseCosts } from '../types';
 
 interface PurchaseSummaryProps {
   propertyDetails: PropertyDetails;
-  marketData: MarketData;
   purchaseCosts: PurchaseCosts;
 }
 
-export function PurchaseSummary({ propertyDetails, marketData, purchaseCosts }: PurchaseSummaryProps) {
+export function PurchaseSummary({ propertyDetails, purchaseCosts }: PurchaseSummaryProps) {
   return (
     <Card className="p-4 border rounded-lg">
       <h3 className="text-lg font-semibold mb-2">Purchase Summary</h3>

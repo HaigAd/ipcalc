@@ -1,9 +1,8 @@
-import { CalculationResults, FinancialMetrics, CostStructure } from '../types';
+import { CalculationResults, CostStructure } from '../types';
 import { OffsetBenefits } from './OffsetBenefits';
 
 interface KeyMetricsProps {
   calculationResults: CalculationResults;
-  financialMetrics: FinancialMetrics;
   costStructure?: CostStructure;
 }
 
@@ -17,7 +16,7 @@ function formatLargeNumber(num: number): string {
   return Math.round(num).toLocaleString();
 }
 
-export function KeyMetrics({ calculationResults, financialMetrics, costStructure }: KeyMetricsProps) {
+export function KeyMetrics({ calculationResults, costStructure }: KeyMetricsProps) {
   const monthlyExpenses = costStructure?.annualPropertyCosts ? costStructure.annualPropertyCosts / 12 : 0;
   const lastProjection = calculationResults.yearlyProjections[calculationResults.yearlyProjections.length - 1];
   const totalEquityPaid = lastProjection?.cumulativePrincipalPaid || 0;
@@ -64,8 +63,6 @@ export function KeyMetrics({ calculationResults, financialMetrics, costStructure
               </p>
             </div>
           </div>
-
-          
         </div>
 
         <div className="pt-2">

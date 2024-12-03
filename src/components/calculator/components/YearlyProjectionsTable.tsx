@@ -45,17 +45,6 @@ export function YearlyProjectionsTable({ yearlyProjections, propertyDetails, mar
       render: (projection) => `$${Math.round(projection.loanBalance).toLocaleString()}`
     },
     {
-      id: 'yearlyPrincipalPaid',
-      header: 'Principal Paid',
-      tooltip: 'Amount of loan principal paid this year',
-      group: 'Loan Details',
-      render: (projection) => (
-        <span className="text-green-700">
-          ${Math.round(projection.yearlyPrincipalPaid).toLocaleString()}
-        </span>
-      )
-    },
-    {
       id: 'cumulativePrincipalPaid',
       header: 'Total Principal',
       tooltip: 'Total amount of principal paid to date',
@@ -63,6 +52,17 @@ export function YearlyProjectionsTable({ yearlyProjections, propertyDetails, mar
       render: (projection) => (
         <span className="text-green-800 font-medium">
           ${Math.round(projection.cumulativePrincipalPaid).toLocaleString()}
+        </span>
+      )
+    },
+    {
+      id: 'equityPosition',
+      header: 'Equity Position',
+      tooltip: 'Equity available in the home (current value minus loan liabilitiies)',
+      group: 'Loan Details',
+      render: (projection) => (
+        <span className="text-green-800 font-medium">
+          ${Math.round(projection.propertyValue - projection.loanBalance).toLocaleString()}
         </span>
       )
     },
@@ -92,7 +92,7 @@ export function YearlyProjectionsTable({ yearlyProjections, propertyDetails, mar
       id: 'yearlyOpportunityCost',
       header: 'Annual Returns',
       tooltip: `Returns earned this year at ${marketData.opportunityCostRate}% on the investment pool`,
-      group: 'Investment Returns',
+      group: 'Rental Scenario',
       render: (projection) => (
         <span className="text-blue-600">
           ${Math.round(projection.yearlyOpportunityCost).toLocaleString()}
@@ -103,7 +103,7 @@ export function YearlyProjectionsTable({ yearlyProjections, propertyDetails, mar
       id: 'cumulativeOpportunityCost',
       header: 'Total Returns',
       tooltip: `Total investment returns accumulated to date at ${marketData.opportunityCostRate}%`,
-      group: 'Investment Returns',
+      group: 'Rental Scenario',
       render: (projection) => (
         <span className="text-blue-700 font-medium">
           ${Math.round(projection.cumulativeOpportunityCost).toLocaleString()}
@@ -114,7 +114,7 @@ export function YearlyProjectionsTable({ yearlyProjections, propertyDetails, mar
       id: 'cumulativeInvestmentReserves',
       header: 'Investment Pool',
       tooltip: `Total amount available for investment if renting:\n• Initial deposit & costs\n• Annual cash flow savings\n• Compound returns at ${marketData.opportunityCostRate}%`,
-      group: 'Investment Returns',
+      group: 'Rental Scenario',
       render: (projection) => (
         <span className="text-blue-800 font-medium">
           ${Math.round(projection.cumulativeInvestmentReserves).toLocaleString()}
