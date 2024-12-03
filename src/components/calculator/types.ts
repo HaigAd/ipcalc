@@ -48,17 +48,20 @@ export interface YearlyProjection {
   cumulativeBuyingCosts: number;
   cumulativeRentalCosts: number;
   yearlyOpportunityCost: number;
+  cumulativeOpportunityCost: number;  // Total opportunity cost accumulated to date
   offsetBalance: number;
   interestSaved: number;
   cumulativeInterestSaved: number;
   effectiveLoanBalance: number;
   originalLoanBalance: number;
-  existingPPORValue: number;  // New field: value of existing PPOR for this year
-  yearlyCGT: number;  // New field: CGT payable for this year
+  existingPPORValue: number;  // Value of existing PPOR for this year
+  yearlyCGT: number;  // CGT payable for this year
   yearlyPrincipalPaid: number;  // Principal paid this year
   cumulativePrincipalPaid: number;  // Total principal paid to date
   yearlyPrincipalSavingsOpportunityCost: number;  // Opportunity cost on equivalent principal savings
   cumulativePrincipalSavingsOpportunityCost: number;  // Total opportunity cost on principal savings
+  yearlyRentVsBuyCashFlow: number;  // Annual cash flow difference between renting vs buying
+  cumulativeInvestmentReserves: number;  // Cumulative amount available for investment if renting
 }
 
 export interface CalculationResults {

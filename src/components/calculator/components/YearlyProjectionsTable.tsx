@@ -78,34 +78,56 @@ export function YearlyProjectionsTable({ yearlyProjections, propertyDetails, mar
       )
     },
     {
-      id: 'cumulativeRentalCosts',
-      header: 'Total Rent Paid',
-      tooltip: 'Cumulative rental costs to date',
+      id: 'yearlyRentVsBuyCashFlow',
+      header: 'Cash Flow Diff',
+      tooltip: 'Annual cash flow difference between renting vs buying (positive means renting saves money)',
       group: 'Rental Scenario',
       render: (projection) => (
-        <span className="text-purple-800">
-          ${Math.round(projection.cumulativeRentalCosts).toLocaleString()}
+        <span className={projection.yearlyRentVsBuyCashFlow >= 0 ? 'text-purple-700' : 'text-red-700'}>
+          ${Math.round(projection.yearlyRentVsBuyCashFlow).toLocaleString()}
         </span>
       )
     },
     {
-      id: 'opportunityCost',
-      header: 'Investment Returns',
-      tooltip: `Cumulative returns at ${marketData.opportunityCostRate}% from investing:\n• Deposit and purchase costs\n• Offset account balance\n\nCompound interest is calculated yearly`,
-      group: 'Rental Scenario',
+      id: 'yearlyOpportunityCost',
+      header: 'Annual Returns',
+      tooltip: `Returns earned this year at ${marketData.opportunityCostRate}% on the investment pool`,
+      group: 'Investment Returns',
       render: (projection) => (
-        <span className="text-purple-800 font-medium">
-          ${Math.round(projection.cumulativePrincipalSavingsOpportunityCost).toLocaleString()}
+        <span className="text-blue-600">
+          ${Math.round(projection.yearlyOpportunityCost).toLocaleString()}
+        </span>
+      )
+    },
+    {
+      id: 'cumulativeOpportunityCost',
+      header: 'Total Returns',
+      tooltip: `Total investment returns accumulated to date at ${marketData.opportunityCostRate}%`,
+      group: 'Investment Returns',
+      render: (projection) => (
+        <span className="text-blue-700 font-medium">
+          ${Math.round(projection.cumulativeOpportunityCost).toLocaleString()}
+        </span>
+      )
+    },
+    {
+      id: 'cumulativeInvestmentReserves',
+      header: 'Investment Pool',
+      tooltip: `Total amount available for investment if renting:\n• Initial deposit & costs\n• Annual cash flow savings\n• Compound returns at ${marketData.opportunityCostRate}%`,
+      group: 'Investment Returns',
+      render: (projection) => (
+        <span className="text-blue-800 font-medium">
+          ${Math.round(projection.cumulativeInvestmentReserves).toLocaleString()}
         </span>
       )
     },
     {
       id: 'netPosition',
       header: 'Net Position',
-      tooltip: 'Overall financial position comparing buying vs renting',
+      tooltip: 'Total investment returns plus rental costs, minus property equity (value minus loan and selling costs)',
       group: 'Comparative Analysis',
       render: (projection) => (
-        <span className={projection.netPosition >= 0 ? 'text-blue-700' : 'text-red-700'}>
+        <span className={projection.netPosition >= 0 ? 'text-green-700 font-medium' : 'text-red-700 font-medium'}>
           ${Math.round(projection.netPosition).toLocaleString()}
         </span>
       )
@@ -237,12 +259,11 @@ export function YearlyProjectionsTable({ yearlyProjections, propertyDetails, mar
       </div>
 
       <div className="mt-6 space-y-1.5 text-sm text-slate-500">
-        <p>• Principal Paid shows the amount of loan principal paid down each year</p>
-        <p>• Total Principal shows the cumulative amount of principal paid to date</p>
-        <p>• Yearly Rent shows the annual cost of renting instead of buying</p>
-        <p>• Total Rent Paid shows the cumulative rental costs to date</p>
-        <p>• Investment Returns shows cumulative returns at {marketData.opportunityCostRate}% from investing the deposit, purchase costs, and offset balance (with compound interest)</p>
-        <p>• Net Position compares rental costs plus investment returns against buying costs plus equity (property value minus loan and sale costs)</p>
+        <p>• Cash Flow Diff shows annual savings from renting vs buying (positive means renting saves money)</p>
+        <p>• Annual Returns shows investment returns earned this year at {marketData.opportunityCostRate}%</p>
+        <p>• Total Returns shows cumulative investment returns earned to date</p>
+        <p>• Investment Pool shows total amount available (initial costs + savings + returns)</p>
+        <p>• Net Position compares total returns plus rental costs against property equity</p>
       </div>
     </Card>
   );

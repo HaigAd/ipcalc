@@ -51,6 +51,7 @@ export const usePropertyProjections = (
         cumulativeBuyingCosts: 0, // Will be calculated by useComparativeMetrics
         cumulativeRentalCosts: 0, // Will be calculated by useComparativeMetrics
         yearlyOpportunityCost: 0, // Will be calculated by useComparativeMetrics
+        cumulativeOpportunityCost: 0, // Will be calculated by useComparativeMetrics
         offsetBalance: 0, // Will be set by useOffsetCalculations
         interestSaved: 0, // Will be set by useOffsetCalculations
         cumulativeInterestSaved: 0, // Will be set by useOffsetCalculations
@@ -61,7 +62,9 @@ export const usePropertyProjections = (
         yearlyPrincipalPaid, // Principal paid this year
         cumulativePrincipalPaid, // Total principal paid
         yearlyPrincipalSavingsOpportunityCost: 0, // Will be calculated by useComparativeMetrics
-        cumulativePrincipalSavingsOpportunityCost: 0 // Will be calculated by useComparativeMetrics
+        cumulativePrincipalSavingsOpportunityCost: 0, // Will be calculated by useComparativeMetrics
+        yearlyRentVsBuyCashFlow: 0, // Will be calculated by useComparativeMetrics
+        cumulativeInvestmentReserves: 0 // Will be calculated by useComparativeMetrics
       });
     }
 
