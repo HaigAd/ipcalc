@@ -11,8 +11,8 @@ interface PropertyDetailsFormProps {
 export function PropertyDetailsForm({ propertyDetails, setPropertyDetails, purchaseCosts }: PropertyDetailsFormProps) {
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-6 text-slate-900">Property Details</h2>
-      <div className="space-y-8">
+      <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-slate-900">Property Details</h2>
+      <div className="space-y-6 sm:space-y-8">
         <PropertyPriceForm
           propertyDetails={propertyDetails}
           setPropertyDetails={setPropertyDetails}

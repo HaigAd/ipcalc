@@ -24,18 +24,22 @@ export function PropertyPriceForm({ propertyDetails, setPropertyDetails, purchas
     return Math.min(Math.max(currentDeposit, minDeposit), maxDeposit);
   };
 
+  const inputClasses = "h-12 sm:h-11 px-4 text-base sm:text-sm border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow w-full touch-manipulation";
+  const labelClasses = "text-base sm:text-sm font-medium text-slate-700 mb-2 block";
+
   return (
-    <div className="grid grid-cols-1 gap-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-3">
-          <Label htmlFor="purchasePrice" className="text-sm font-medium text-slate-700">
+    <div className="grid grid-cols-1 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+        <div className="space-y-2">
+          <Label htmlFor="purchasePrice" className={labelClasses}>
             Purchase Price ($)
           </Label>
           <Input
             id="purchasePrice"
             type="number"
+            inputMode="decimal"
             value={propertyDetails.purchasePrice}
-            className="h-11 px-4 border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
+            className={inputClasses}
             onChange={(e) => {
               const newPrice = Number(e.target.value);
               const newDepositAmount = calculateValidDepositAmount(
@@ -53,15 +57,16 @@ export function PropertyPriceForm({ propertyDetails, setPropertyDetails, purchas
           />
         </div>
 
-        <div className="space-y-3">
-          <Label htmlFor="weeklyRent" className="text-sm font-medium text-slate-700">
+        <div className="space-y-2">
+          <Label htmlFor="weeklyRent" className={labelClasses}>
             Weekly Rent Comparator ($)
           </Label>
           <Input
             id="weeklyRent"
             type="number"
+            inputMode="decimal"
             value={propertyDetails.weeklyRent}
-            className="h-11 px-4 border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
+            className={inputClasses}
             onChange={(e) => {
               setPropertyDetails({
                 ...propertyDetails,
@@ -72,15 +77,16 @@ export function PropertyPriceForm({ propertyDetails, setPropertyDetails, purchas
         </div>
       </div>
 
-      <div className="space-y-3">
-        <Label htmlFor="availableSavings" className="text-sm font-medium text-slate-700">
+      <div className="space-y-2">
+        <Label htmlFor="availableSavings" className={labelClasses}>
           Available Savings ($)
         </Label>
         <Input
           id="availableSavings"
           type="number"
+          inputMode="decimal"
           value={propertyDetails.availableSavings}
-          className="h-11 px-4 border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
+          className={inputClasses}
           onChange={(e) => {
             const newSavings = Number(e.target.value);
             const newDepositAmount = calculateValidDepositAmount(
@@ -98,7 +104,7 @@ export function PropertyPriceForm({ propertyDetails, setPropertyDetails, purchas
         />
       </div>
 
-      <div className="py-2">
+      <div className="py-2 sm:py-3">
         <DepositSlider
           propertyDetails={propertyDetails}
           purchaseCosts={purchaseCosts}

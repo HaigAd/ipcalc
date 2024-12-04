@@ -1,16 +1,29 @@
 import { useState, useEffect } from 'react';
-import { PropertyDetails, MarketData, CostStructure, PurchaseCosts, CalculationResults } from '../types';
+import { PropertyDetails, MarketData, CostStructure } from '../types';
 import { defaultPropertyDetails, defaultMarketData, defaultCostStructure } from '../config/defaults';
 import { usePropertyCalculator } from './usePropertyCalculator';
 import { useFinancialMetrics } from './useFinancialMetrics';
 import { usePurchaseCosts } from './usePurchaseCosts';
+import { useFormPersistence, getStoredState } from './useFormPersistence';
 
 export function useCalculatorState() {
-  const [propertyDetails, setPropertyDetails] = useState<PropertyDetails>(defaultPropertyDetails);
-  const [marketData, setMarketData] = useState<MarketData>(defaultMarketData);
-  const [costStructure, setCostStructure] = useState<CostStructure>(defaultCostStructure);
-  const [conveyancingFee, setConveyancingFee] = useState(defaultCostStructure.purchaseCosts.conveyancingFee);
-  const [buildingAndPestFee, setBuildingAndPestFee] = useState(defaultCostStructure.purchaseCosts.buildingAndPestFee);
+  const storedState = getStoredState();
+  
+  const [propertyDetails, setPropertyDetails] = useState<PropertyDetails>(
+    storedState?.propertyDetails || defaultPropertyDetails
+  );
+  const [marketData, setMarketData] = useState<MarketData>(
+    storedState?.marketData || defaultMarketData
+  );
+  const [costStructure, setCostStructure] = useState<CostStructure>(
+    storedState?.costStructure || defaultCostStructure
+  );
+  const [conveyancingFee, setConveyancingFee] = useState(
+    storedState?.costStructure.purchaseCosts.conveyancingFee || defaultCostStructure.purchaseCosts.conveyancingFee
+  );
+  const [buildingAndPestFee, setBuildingAndPestFee] = useState(
+    storedState?.costStructure.purchaseCosts.buildingAndPestFee || defaultCostStructure.purchaseCosts.buildingAndPestFee
+  );
 
   const purchaseCosts = usePurchaseCosts(propertyDetails, conveyancingFee, buildingAndPestFee);
   const calculationResults = usePropertyCalculator(propertyDetails, marketData, costStructure);
@@ -68,6 +81,15 @@ export function useCalculatorState() {
     setCostStructure(newCostStructure);
   };
 
+  const { resetToDefaults } = useFormPersistence({
+    propertyDetails,
+    setPropertyDetails,
+    marketData,
+    setMarketData,
+    costStructure,
+    updateCostStructure,
+  });
+
   return {
     propertyDetails,
     setPropertyDetails,
@@ -80,6 +102,7 @@ export function useCalculatorState() {
     buildingAndPestFee,
     setBuildingAndPestFee,
     purchaseCosts,
-    calculationResults
+    calculationResults,
+    resetToDefaults
   };
 }

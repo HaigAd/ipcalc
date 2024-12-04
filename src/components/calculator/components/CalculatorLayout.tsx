@@ -7,14 +7,12 @@ interface CalculatorLayoutProps {
 
 export function CalculatorLayout({ components, renderComponent }: CalculatorLayoutProps) {
   return (
-    <div className="flex flex-wrap gap-6">
+    <div className="flex flex-wrap gap-4 sm:gap-6">
       {components.map((component) => (
         <div 
           key={component.id} 
-          className={`mb-6 ${
-            component.isFullWidth 
-              ? 'w-full' 
-              : 'w-full md:grow md:basis-[calc(50%-12px)] min-w-[450px]'
+          className={`mb-4 sm:mb-6 w-full ${
+            !component.isFullWidth && 'lg:basis-[calc(50%-12px)] lg:grow'
           }`}
         >
           {renderComponent(component.id)}

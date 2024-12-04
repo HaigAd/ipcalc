@@ -133,8 +133,10 @@ export function YearlyProjectionsTable({ yearlyProjections, propertyDetails, mar
     }
   ];
 
+  // Default to showing only the most important columns on mobile
+  const defaultMobileColumns = ['year', 'propertyValue', 'loanBalance', 'netPosition'];
   const [visibleColumns, setVisibleColumns] = useState<string[]>(
-    columns.map(col => col.id)
+    window.innerWidth < 640 ? defaultMobileColumns : columns.map(col => col.id)
   );
 
   const toggleColumn = (columnId: string) => {
@@ -147,23 +149,23 @@ export function YearlyProjectionsTable({ yearlyProjections, propertyDetails, mar
 
   const columnGroups = Array.from(new Set(columns.map(col => col.group)));
 
-  // Get visible columns for a specific group
   const getVisibleColumnsForGroup = (group: string) => {
     return columns.filter(col => col.group === group && visibleColumns.includes(col.id));
   };
 
   return (
     <div className="w-full">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Yearly Projections</h2>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
+        <h2 className="text-lg sm:text-xl font-semibold">Yearly Projections</h2>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2">
+            <Button variant="outline" size="sm" className="gap-2 h-9 sm:h-8 px-3 sm:px-2">
               <Settings2 className="h-4 w-4" />
-              <span>Customize View</span>
+              <span className="sm:hidden">Customize Columns</span>
+              <span className="hidden sm:inline">Customize View</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuContent align="end" className="w-64 sm:w-56">
             {columnGroups.map((group, index) => (
               <div key={group}>
                 {index > 0 && <DropdownMenuSeparator />}
@@ -177,7 +179,7 @@ export function YearlyProjectionsTable({ yearlyProjections, propertyDetails, mar
                       key={col.id}
                       checked={visibleColumns.includes(col.id)}
                       onCheckedChange={() => toggleColumn(col.id)}
-                      className="text-sm"
+                      className="text-sm py-2"
                     >
                       {col.header}
                     </DropdownMenuCheckboxItem>
@@ -194,7 +196,7 @@ export function YearlyProjectionsTable({ yearlyProjections, propertyDetails, mar
         marketData={marketData}
       />
 
-      <div className="overflow-x-auto mt-6 rounded-lg border w-full">
+      <div className="overflow-x-auto mt-4 sm:mt-6 rounded-lg border w-full">
         <div className="inline-block min-w-full align-middle">
           <div className="overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200">
@@ -207,7 +209,7 @@ export function YearlyProjectionsTable({ yearlyProjections, propertyDetails, mar
                       <th
                         key={group}
                         colSpan={groupColumns.length}
-                        className="text-xs text-slate-500 font-normal p-2 text-left border-b border-l first:border-l-0"
+                        className="text-[10px] sm:text-xs text-slate-500 font-normal p-1.5 sm:p-2 text-left border-b border-l first:border-l-0"
                       >
                         {group}
                       </th>
@@ -220,7 +222,7 @@ export function YearlyProjectionsTable({ yearlyProjections, propertyDetails, mar
                     .map((col, index) => (
                       <th 
                         key={col.id} 
-                        className={`text-left p-3 text-sm font-medium text-slate-700
+                        className={`text-left p-2 sm:p-3 text-xs sm:text-sm font-medium text-slate-700
                           ${index > 0 && columns[index - 1].group !== col.group ? 'border-l' : ''}
                         `}
                       >
@@ -229,7 +231,7 @@ export function YearlyProjectionsTable({ yearlyProjections, propertyDetails, mar
                             <TooltipTrigger className="text-left font-medium hover:cursor-help">
                               {col.header}
                             </TooltipTrigger>
-                            <TooltipContent side="top" className="text-xs whitespace-pre-line">
+                            <TooltipContent side="top" className="text-xs whitespace-pre-line max-w-[200px] sm:max-w-none">
                               {col.tooltip}
                             </TooltipContent>
                           </Tooltip>
@@ -246,7 +248,7 @@ export function YearlyProjectionsTable({ yearlyProjections, propertyDetails, mar
                       .map((col, index) => (
                         <td 
                           key={col.id} 
-                          className={`p-3 text-sm
+                          className={`p-2 sm:p-3 text-xs sm:text-sm
                             ${index > 0 && columns[index - 1].group !== col.group ? 'border-l' : ''}
                           `}
                         >
@@ -261,7 +263,7 @@ export function YearlyProjectionsTable({ yearlyProjections, propertyDetails, mar
         </div>
       </div>
 
-      <div className="mt-6 space-y-1.5 text-sm text-slate-500">
+      <div className="mt-4 sm:mt-6 space-y-1 sm:space-y-1.5 text-xs sm:text-sm text-slate-500">
         <p>• Cash Flow Diff shows annual savings from renting vs buying (positive means renting saves money)</p>
         <p>• Annual Returns shows investment returns earned this year at {marketData.opportunityCostRate}%</p>
         <p>• Total Returns shows cumulative investment returns earned to date</p>

@@ -10,8 +10,8 @@ interface Component {
 
 const defaultOrder: Component[] = [
   { id: 'price', title: 'Property Price & Deposit' },
-  { id: 'loan', title: 'Loan Details & Options' },
   { id: 'metrics', title: 'Key Metrics' },
+  { id: 'loan', title: 'Loan Details & Options' },
   { id: 'graph', title: 'Financial Projections' },
   { id: 'table', title: 'Yearly Projections', isFullWidth: true },
 ];

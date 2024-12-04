@@ -23,48 +23,48 @@ export function KeyMetrics({ calculationResults, costStructure }: KeyMetricsProp
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-6 text-slate-900">Key Metrics</h2>
-      <div className="space-y-8">
-        <div className="grid grid-cols-2 gap-4 max-w-3xl">
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 min-w-[180px]">
-            <p className="text-sm font-medium text-blue-600 mb-1">Break-even Timeline</p>
-            <div className="flex items-baseline space-x-1">
+      <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-slate-900">Key Metrics</h2>
+      <div className="space-y-4 sm:space-y-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 w-full sm:max-w-3xl">
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-3 sm:p-4">
+            <p className="text-xs sm:text-sm font-medium text-blue-600 mb-0.5 sm:mb-1">Break-even Timeline</p>
+            <div className="flex items-baseline gap-1">
               {calculationResults.breakEvenYear === -1 ? (
-                <p className="text-3xl font-bold text-red-600">NEVER</p>
+                <p className="text-2xl sm:text-3xl font-bold text-red-600">NEVER</p>
               ) : (
                 <>
-                  <p className="text-3xl font-bold text-blue-900">{calculationResults.breakEvenYear}</p>
-                  <p className="text-lg text-blue-700">years</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-blue-900">{calculationResults.breakEvenYear}</p>
+                  <p className="text-base sm:text-lg text-blue-700">years</p>
                 </>
               )}
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4 min-w-[180px]">
-            <p className="text-sm font-medium text-green-600 mb-1">Total Loan Amount</p>
-            <div className="flex items-baseline space-x-1">
-              <span className="text-lg text-green-700">$</span>
-              <p className="text-3xl font-bold text-green-900 whitespace-nowrap">
+          <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-3 sm:p-4">
+            <p className="text-xs sm:text-sm font-medium text-green-600 mb-0.5 sm:mb-1">Total Loan Amount</p>
+            <div className="flex items-baseline gap-1">
+              <span className="text-base sm:text-lg text-green-700">$</span>
+              <p className="text-2xl sm:text-3xl font-bold text-green-900 whitespace-nowrap">
                 {formatLargeNumber(totalEquityPaid)}
               </p>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-4 min-w-[180px]">
-            <p className="text-sm font-medium text-slate-600 mb-1">Monthly Mortgage</p>
-            <div className="flex items-baseline space-x-1">
-              <span className="text-lg text-slate-700">$</span>
-              <p className="text-3xl font-bold text-slate-900 whitespace-nowrap">
+          <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg p-3 sm:p-4">
+            <p className="text-xs sm:text-sm font-medium text-slate-600 mb-0.5 sm:mb-1">Monthly Mortgage</p>
+            <div className="flex items-baseline gap-1">
+              <span className="text-base sm:text-lg text-slate-700">$</span>
+              <p className="text-2xl sm:text-3xl font-bold text-slate-900 whitespace-nowrap">
                 {formatLargeNumber(calculationResults.monthlyMortgagePayment)}
               </p>
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg p-4 min-w-[180px]">
-            <p className="text-sm font-medium text-amber-600 mb-1">Monthly Expenses</p>
-            <div className="flex items-baseline space-x-1">
-              <span className="text-lg text-amber-700">$</span>
-              <p className="text-3xl font-bold text-amber-900 whitespace-nowrap">
+          <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-lg p-3 sm:p-4">
+            <p className="text-xs sm:text-sm font-medium text-amber-600 mb-0.5 sm:mb-1">Monthly Expenses</p>
+            <div className="flex items-baseline gap-1">
+              <span className="text-base sm:text-lg text-amber-700">$</span>
+              <p className="text-2xl sm:text-3xl font-bold text-amber-900 whitespace-nowrap">
                 {formatLargeNumber(monthlyExpenses)}
               </p>
             </div>
