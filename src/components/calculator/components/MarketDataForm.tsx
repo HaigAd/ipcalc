@@ -84,23 +84,6 @@ export function MarketDataForm({ marketData, setMarketData }: MarketDataFormProp
             {marketData.opportunityCostRate.toFixed(1)}%
           </div>
         </div>
-
-        <div className="space-y-3 sm:space-y-2">
-          <Label htmlFor="otherPropertyValue" className="text-sm font-medium">
-            Other Property Value ($)
-          </Label>
-          <Input
-            id="otherPropertyValue"
-            type="number"
-            inputMode="decimal"
-            value={marketData.otherPropertyValue}
-            className={inputClasses}
-            onChange={(e) => setMarketData({
-              ...marketData,
-              otherPropertyValue: Number(e.target.value)
-            })}
-          />
-        </div>
       </div>
     </Card>
   );

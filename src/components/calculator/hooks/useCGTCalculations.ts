@@ -11,8 +11,8 @@ export const useCGTCalculations = (
 ) => {
   return useMemo(() => {
     const { yearlyProjections } = baseProjections;
-    let previousPPORValue = marketData.otherPropertyValue;
-    let existingPPORValue = marketData.otherPropertyValue;
+    let previousPPORValue = propertyDetails.otherPropertyValue;
+    let existingPPORValue = propertyDetails.otherPropertyValue;
 
     const updatedProjections = yearlyProjections.map(projection => {
       let yearlyCGT = 0;

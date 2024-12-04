@@ -8,13 +8,13 @@ export interface PropertyDetails {
   isFirstHomeBuyer: boolean;
   considerPPORTax: boolean;  // New field: flag to consider tax implications of PPOR change
   weeklyRent: number;  // Moved from MarketData
+  otherPropertyValue: number;  // Value of the other property for CGT calculations - moved from MarketData
 }
 
 export interface MarketData {
   propertyGrowthRate: number;
   rentIncreaseRate: number;
   opportunityCostRate: number;
-  otherPropertyValue: number;  // Value of the other property for CGT calculations
 }
 
 export interface PurchaseCosts {

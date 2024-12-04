@@ -9,14 +9,14 @@ export const defaultPropertyDetails: PropertyDetails = {
   isPPOR: false,
   isFirstHomeBuyer: false,
   considerPPORTax: false,
-  weeklyRent: 750 // Moved from MarketData
+  weeklyRent: 750, // Moved from MarketData
+  otherPropertyValue: 1200000 // Moved from MarketData
 };
 
 export const defaultMarketData: MarketData = {
   propertyGrowthRate: 3,
   rentIncreaseRate: 3,
-  opportunityCostRate: 3,
-  otherPropertyValue: 1200000
+  opportunityCostRate: 3
 };
 
 export const defaultCostStructure: CostStructure = {

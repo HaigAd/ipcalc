@@ -24,7 +24,7 @@ export function TaxImplications({ yearlyProjections, propertyDetails, marketData
       <p className="mt-1">Total extra CGT over first 6 years: ${Math.round(totalCGT).toLocaleString()}</p>
       <div className="mt-3 text-xs text-gray-500">
         <p className="font-medium">Assumptions:</p>
-        <p className="mt-0.5">Other Property Value: ${Math.round(marketData.otherPropertyValue).toLocaleString()}</p>
+        <p className="mt-0.5">Other Property Value: ${Math.round(propertyDetails.otherPropertyValue).toLocaleString()}</p>
         <p className="mt-0.5">Yearly Appreciation: {marketData.propertyGrowthRate.toFixed(1)}%</p>
       </div>
     </div>
