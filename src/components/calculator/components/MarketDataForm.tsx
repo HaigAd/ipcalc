@@ -1,6 +1,7 @@
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
 import { Card } from '../../ui/card';
+import { Slider } from '../../ui/slider';
 import { MarketData } from '../types';
 
 interface MarketDataFormProps {
@@ -15,42 +16,60 @@ export function MarketDataForm({ marketData, setMarketData }: MarketDataFormProp
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="propertyGrowthRate">Property Growth Rate (%)</Label>
-          <Input
-            id="propertyGrowthRate"
-            type="number"
-            step="0.1"
-            value={marketData.propertyGrowthRate}
-            onChange={(e) => setMarketData({
-              ...marketData,
-              propertyGrowthRate: Number(e.target.value)
-            })}
-          />
+          <div className="pt-2">
+            <Slider
+              id="propertyGrowthRate"
+              min={-3}
+              max={10}
+              step={0.1}
+              value={[marketData.propertyGrowthRate]}
+              onValueChange={(value) => setMarketData({
+                ...marketData,
+                propertyGrowthRate: value[0]
+              })}
+            />
+          </div>
+          <div className="text-sm text-muted-foreground text-right">
+            {marketData.propertyGrowthRate.toFixed(1)}%
+          </div>
         </div>
         <div className="space-y-2">
           <Label htmlFor="rentIncreaseRate">Rent Increase Rate (%)</Label>
-          <Input
-            id="rentIncreaseRate"
-            type="number"
-            step="0.1"
-            value={marketData.rentIncreaseRate}
-            onChange={(e) => setMarketData({
-              ...marketData,
-              rentIncreaseRate: Number(e.target.value)
-            })}
-          />
+          <div className="pt-2">
+            <Slider
+              id="rentIncreaseRate"
+              min={-3}
+              max={10}
+              step={0.1}
+              value={[marketData.rentIncreaseRate]}
+              onValueChange={(value) => setMarketData({
+                ...marketData,
+                rentIncreaseRate: value[0]
+              })}
+            />
+          </div>
+          <div className="text-sm text-muted-foreground text-right">
+            {marketData.rentIncreaseRate.toFixed(1)}%
+          </div>
         </div>
         <div className="space-y-2">
           <Label htmlFor="opportunityCostRate">Opportunity Cost Rate (%)</Label>
-          <Input
-            id="opportunityCostRate"
-            type="number"
-            step="0.1"
-            value={marketData.opportunityCostRate}
-            onChange={(e) => setMarketData({
-              ...marketData,
-              opportunityCostRate: Number(e.target.value)
-            })}
-          />
+          <div className="pt-2">
+            <Slider
+              id="opportunityCostRate"
+              min={-3}
+              max={10}
+              step={0.1}
+              value={[marketData.opportunityCostRate]}
+              onValueChange={(value) => setMarketData({
+                ...marketData,
+                opportunityCostRate: value[0]
+              })}
+            />
+          </div>
+          <div className="text-sm text-muted-foreground text-right">
+            {marketData.opportunityCostRate.toFixed(1)}%
+          </div>
         </div>
         <div className="space-y-2">
           <Label htmlFor="otherPropertyValue">Other Property Value ($)</Label>

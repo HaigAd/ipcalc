@@ -1,84 +1,81 @@
-import { useState, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { PropertyDetails, MarketData, CostStructure } from './types';
-import { usePropertyCalculator } from './hooks/usePropertyCalculator';
-import { useFinancialMetrics } from './hooks/useFinancialMetrics';
-import { usePurchaseCosts } from './hooks/usePurchaseCosts';
-import { PropertyDetailsForm } from './components/PropertyDetailsForm';
-import { MarketDataForm } from './components/MarketDataForm';
-import { CostStructureForm } from './components/CostStructureForm';
-import { PurchaseCostsForm } from './components/PurchaseCostsForm';
+import { useComponentOrder } from './hooks/useComponentOrder';
+import { useCalculatorState } from './hooks/useCalculatorState';
+import { PropertyPriceForm } from './components/PropertyPriceForm';
+import { LoanDetailsForm } from './components/LoanDetailsForm';
 import { KeyMetrics } from './components/KeyMetrics';
+import { ProjectionsGraph } from './components/ProjectionsGraph';
 import { YearlyProjectionsTable } from './components/YearlyProjectionsTable';
-import { PurchaseSummary } from './components/PurchaseSummary';
-import { defaultPropertyDetails, defaultMarketData, defaultCostStructure } from './config/defaults';
+import { CalculatorTabs } from './components/CalculatorTabs';
+import { ComponentId } from './hooks/useComponentOrder';
 
 export function PropertyCalculator() {
-  const [propertyDetails, setPropertyDetails] = useState<PropertyDetails>(defaultPropertyDetails);
-  const [marketData, setMarketData] = useState<MarketData>(defaultMarketData);
-  const [costStructure, setCostStructure] = useState<CostStructure>(defaultCostStructure);
-  const [conveyancingFee, setConveyancingFee] = useState(defaultCostStructure.purchaseCosts.conveyancingFee);
-  const [buildingAndPestFee, setBuildingAndPestFee] = useState(defaultCostStructure.purchaseCosts.buildingAndPestFee);
-
-  const purchaseCosts = usePurchaseCosts(propertyDetails, conveyancingFee, buildingAndPestFee);
-  const calculationResults = usePropertyCalculator(propertyDetails, marketData, costStructure);
-  useFinancialMetrics(
+  const {
     propertyDetails,
+    setPropertyDetails,
     marketData,
+    setMarketData,
     costStructure,
-    calculationResults.yearlyProjections
-  );
+    updateCostStructure,
+    conveyancingFee,
+    setConveyancingFee,
+    buildingAndPestFee,
+    setBuildingAndPestFee,
+    purchaseCosts,
+    calculationResults
+  } = useCalculatorState();
 
-  // Update cost structure whenever purchase costs change
-  useEffect(() => {
-    setCostStructure(prev => ({
-      ...prev,
-      purchaseCosts
-    }));
-  }, [purchaseCosts]);
+  const { components } = useComponentOrder();
 
-  // Update maintenance cost when property price changes
-  useEffect(() => {
-    const maintenanceCost = (propertyDetails.purchasePrice * costStructure.maintenancePercentage) / 100;
-    const newAnnualPropertyCosts = costStructure.waterCost + costStructure.ratesCost + maintenanceCost + costStructure.insuranceCost;
-    
-    setCostStructure(prev => ({
-      ...prev,
-      maintenanceCost,
-      annualPropertyCosts: newAnnualPropertyCosts
-    }));
-  }, [propertyDetails.purchasePrice, costStructure.maintenancePercentage, costStructure.waterCost, costStructure.ratesCost, costStructure.insuranceCost]);
-
-  // Update future sell costs whenever final property value changes
-  useEffect(() => {
-    if (calculationResults.yearlyProjections.length > 0) {
-      const finalPropertyValue = calculationResults.yearlyProjections[calculationResults.yearlyProjections.length - 1].propertyValue;
-      const newFutureSellCosts = (finalPropertyValue * costStructure.futureSellCostsPercentage) / 100;
-      
-      if (newFutureSellCosts !== costStructure.futureSellCosts) {
-        setCostStructure(prev => ({
-          ...prev,
-          futureSellCosts: newFutureSellCosts
-        }));
-      }
+  const renderComponent = (id: ComponentId) => {
+    switch (id) {
+      case 'price':
+        return (
+          <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
+            <h2 className="text-2xl font-semibold mb-6 text-slate-900">Property Price & Deposit</h2>
+            <PropertyPriceForm
+              propertyDetails={propertyDetails}
+              setPropertyDetails={setPropertyDetails}
+              purchaseCosts={purchaseCosts}
+            />
+          </div>
+        );
+      case 'loan':
+        return (
+          <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
+            <h2 className="text-2xl font-semibold mb-6 text-slate-900">Loan Details & Options</h2>
+            <LoanDetailsForm
+              propertyDetails={propertyDetails}
+              setPropertyDetails={setPropertyDetails}
+            />
+          </div>
+        );
+      case 'metrics':
+        return (
+          <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
+            <KeyMetrics
+              calculationResults={calculationResults}
+              costStructure={costStructure}
+            />
+          </div>
+        );
+      case 'graph':
+        return (
+          <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
+            <h2 className="text-2xl font-semibold mb-6">Financial Projections</h2>
+            <ProjectionsGraph yearlyProjections={calculationResults.yearlyProjections} />
+          </div>
+        );
+      case 'table':
+        return (
+          <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
+            <YearlyProjectionsTable
+              yearlyProjections={calculationResults.yearlyProjections}
+              propertyDetails={propertyDetails}
+              marketData={marketData}
+            />
+          </div>
+        );
     }
-  }, [calculationResults.yearlyProjections, costStructure.futureSellCostsPercentage]);
-  
-  // Update cost structure whenever purchase costs change
-  const updateCostStructure = (costs: Partial<CostStructure>) => {
-    const newCostStructure = {
-      ...costStructure,
-      ...costs,
-      purchaseCosts: purchaseCosts
-    };
-
-    // If futureSellCostsPercentage is updated, recalculate futureSellCosts
-    if (costs.futureSellCostsPercentage !== undefined && calculationResults.yearlyProjections.length > 0) {
-      const finalPropertyValue = calculationResults.yearlyProjections[calculationResults.yearlyProjections.length - 1].propertyValue;
-      newCostStructure.futureSellCosts = (finalPropertyValue * costs.futureSellCostsPercentage) / 100;
-    }
-
-    setCostStructure(newCostStructure);
   };
 
   return (
@@ -89,99 +86,19 @@ export function PropertyCalculator() {
         </h1>
         
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-          <Tabs defaultValue="property" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 mb-6 bg-slate-100 p-1 rounded-lg">
-              <TabsTrigger 
-                value="property" 
-                className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm rounded-md"
-              >
-                Property Details
-              </TabsTrigger>
-              <TabsTrigger 
-                value="market"
-                className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm rounded-md"
-              >
-                Market Data
-              </TabsTrigger>
-              <TabsTrigger 
-                value="purchase"
-                className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm rounded-md"
-              >
-                Purchase Costs
-              </TabsTrigger>
-              <TabsTrigger 
-                value="costs"
-                className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm rounded-md"
-              >
-                Cost Structure
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="property" className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="space-y-6">
-                  <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-                    <PropertyDetailsForm
-                      propertyDetails={propertyDetails}
-                      setPropertyDetails={setPropertyDetails}
-                      purchaseCosts={purchaseCosts}
-                    />
-                  </div>
-                  <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-                    <PurchaseSummary
-                      propertyDetails={propertyDetails}
-                      purchaseCosts={purchaseCosts}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-6">
-                  <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-                    <KeyMetrics
-                      calculationResults={calculationResults}
-                      costStructure={costStructure}
-                    />
-                  </div>
-                  <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-                    <YearlyProjectionsTable
-                      yearlyProjections={calculationResults.yearlyProjections}
-                      propertyDetails={propertyDetails}
-                      marketData={marketData}
-                    />
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="market">
-              <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-                <MarketDataForm
-                  marketData={marketData}
-                  setMarketData={setMarketData}
-                />
-              </div>
-            </TabsContent>
-
-            <TabsContent value="purchase">
-              <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-                <PurchaseCostsForm
-                  purchaseCosts={purchaseCosts}
-                  onConveyancingFeeChange={setConveyancingFee}
-                  onBuildingAndPestFeeChange={setBuildingAndPestFee}
-                />
-              </div>
-            </TabsContent>
-
-            <TabsContent value="costs">
-              <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-                <CostStructureForm
-                  costStructure={costStructure}
-                  setCostStructure={updateCostStructure}
-                  yearlyProjections={calculationResults.yearlyProjections}
-                  propertyDetails={propertyDetails}
-                />
-              </div>
-            </TabsContent>
-          </Tabs>
+          <CalculatorTabs
+            propertyDetails={propertyDetails}
+            marketData={marketData}
+            costStructure={costStructure}
+            purchaseCosts={purchaseCosts}
+            calculationResults={calculationResults}
+            components={components}
+            onMarketDataChange={setMarketData}
+            onConveyancingFeeChange={setConveyancingFee}
+            onBuildingAndPestFeeChange={setBuildingAndPestFee}
+            onCostStructureChange={updateCostStructure}
+            renderComponent={renderComponent}
+          />
         </div>
       </div>
     </div>

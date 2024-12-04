@@ -29,8 +29,14 @@ export function KeyMetrics({ calculationResults, costStructure }: KeyMetricsProp
           <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-4 min-w-[180px]">
             <p className="text-sm font-medium text-blue-600 mb-1">Break-even Timeline</p>
             <div className="flex items-baseline space-x-1">
-              <p className="text-3xl font-bold text-blue-900">{calculationResults.breakEvenYear}</p>
-              <p className="text-lg text-blue-700">years</p>
+              {calculationResults.breakEvenYear === -1 ? (
+                <p className="text-3xl font-bold text-red-600">NEVER</p>
+              ) : (
+                <>
+                  <p className="text-3xl font-bold text-blue-900">{calculationResults.breakEvenYear}</p>
+                  <p className="text-lg text-blue-700">years</p>
+                </>
+              )}
             </div>
           </div>
 

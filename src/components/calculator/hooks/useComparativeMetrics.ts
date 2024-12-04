@@ -60,6 +60,9 @@ export const useComparativeMetrics = (
       // Calculate potential sale costs
       const potentialSaleCosts = projection.propertyValue * 
                                 (costStructure.futureSellCostsPercentage / 100);
+
+      //const overallRentalScenarioEquity = cumulativeInvestmentReserves;
+      //const overallBuyingScenarioEquity = offsetAmount + houseAppreciation - projection.loanBalance - 
       
       // Calculate net position comparing property investment vs renting and investing
       // Now using cumulative opportunity cost instead of total investment reserves
@@ -109,7 +112,7 @@ export const useComparativeMetrics = (
 
     return {
       yearlyProjections: updatedProjections,
-      breakEvenYear: breakEvenYear === -1 ? propertyDetails.loanTerm + 1 : breakEvenYear,
+      breakEvenYear: breakEvenYear === -1 ? -1 : breakEvenYear, // Return -1 to indicate "NEVER"
       totalCostDifference,
       netPositionAtEnd: lastProjection.netPosition
     };

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Card } from '../../ui/card';
 import { CalculationResults, PropertyDetails, MarketData } from '../types';
 import { TaxImplications } from './TaxImplications';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuCheckboxItem, DropdownMenuSeparator } from '../../ui/dropdown-menu';
@@ -154,8 +153,8 @@ export function YearlyProjectionsTable({ yearlyProjections, propertyDetails, mar
   };
 
   return (
-    <Card className="p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="w-full">
+      <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">Yearly Projections</h2>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -195,67 +194,71 @@ export function YearlyProjectionsTable({ yearlyProjections, propertyDetails, mar
         marketData={marketData}
       />
 
-      <div className="overflow-x-auto mt-6 rounded-lg border">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-slate-50">
-              {columnGroups.map((group) => {
-                const groupColumns = getVisibleColumnsForGroup(group);
-                if (groupColumns.length === 0) return null;
-                return (
-                  <th
-                    key={group}
-                    colSpan={groupColumns.length}
-                    className="text-xs text-slate-500 font-normal p-2 text-left border-b border-l first:border-l-0"
-                  >
-                    {group}
-                  </th>
-                );
-              })}
-            </tr>
-            <tr className="bg-slate-50 border-b">
-              {columns
-                .filter(col => visibleColumns.includes(col.id))
-                .map((col, index) => (
-                  <th 
-                    key={col.id} 
-                    className={`text-left p-3 text-sm font-medium text-slate-700
-                      ${index > 0 && columns[index - 1].group !== col.group ? 'border-l' : ''}
-                    `}
-                  >
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger className="text-left font-medium hover:cursor-help">
-                          {col.header}
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="text-xs whitespace-pre-line">
-                          {col.tooltip}
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </th>
+      <div className="overflow-x-auto mt-6 rounded-lg border w-full">
+        <div className="inline-block min-w-full align-middle">
+          <div className="overflow-hidden">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead>
+                <tr className="bg-slate-50">
+                  {columnGroups.map((group) => {
+                    const groupColumns = getVisibleColumnsForGroup(group);
+                    if (groupColumns.length === 0) return null;
+                    return (
+                      <th
+                        key={group}
+                        colSpan={groupColumns.length}
+                        className="text-xs text-slate-500 font-normal p-2 text-left border-b border-l first:border-l-0"
+                      >
+                        {group}
+                      </th>
+                    );
+                  })}
+                </tr>
+                <tr className="bg-slate-50 border-b">
+                  {columns
+                    .filter(col => visibleColumns.includes(col.id))
+                    .map((col, index) => (
+                      <th 
+                        key={col.id} 
+                        className={`text-left p-3 text-sm font-medium text-slate-700
+                          ${index > 0 && columns[index - 1].group !== col.group ? 'border-l' : ''}
+                        `}
+                      >
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger className="text-left font-medium hover:cursor-help">
+                              {col.header}
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="text-xs whitespace-pre-line">
+                              {col.tooltip}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </th>
+                    ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {yearlyProjections.map((projection) => (
+                  <tr key={projection.year} className="hover:bg-slate-50">
+                    {columns
+                      .filter(col => visibleColumns.includes(col.id))
+                      .map((col, index) => (
+                        <td 
+                          key={col.id} 
+                          className={`p-3 text-sm
+                            ${index > 0 && columns[index - 1].group !== col.group ? 'border-l' : ''}
+                          `}
+                        >
+                          {col.render(projection)}
+                        </td>
+                      ))}
+                  </tr>
                 ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {yearlyProjections.map((projection) => (
-              <tr key={projection.year} className="hover:bg-slate-50">
-                {columns
-                  .filter(col => visibleColumns.includes(col.id))
-                  .map((col, index) => (
-                    <td 
-                      key={col.id} 
-                      className={`p-3 text-sm
-                        ${index > 0 && columns[index - 1].group !== col.group ? 'border-l' : ''}
-                      `}
-                    >
-                      {col.render(projection)}
-                    </td>
-                  ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
       <div className="mt-6 space-y-1.5 text-sm text-slate-500">
@@ -265,6 +268,6 @@ export function YearlyProjectionsTable({ yearlyProjections, propertyDetails, mar
         <p>• Investment Pool shows total amount available (initial costs + savings + returns)</p>
         <p>• Net Position compares total returns plus rental costs against property equity</p>
       </div>
-    </Card>
+    </div>
   );
 }
