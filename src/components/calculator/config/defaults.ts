@@ -10,7 +10,8 @@ export const defaultPropertyDetails: PropertyDetails = {
   isFirstHomeBuyer: false,
   considerPPORTax: false,
   weeklyRent: 750, // Moved from MarketData
-  otherPropertyValue: 1200000 // Moved from MarketData
+  otherPropertyValue: 1200000, // Moved from MarketData
+  otherPropertyCostBase: 1258000 // Cost base of the other property for CGT calculations
 };
 
 export const defaultMarketData: MarketData = {
@@ -26,7 +27,8 @@ export const defaultCostStructure: CostStructure = {
     transferFee: 0,
     stampDuty: 0,
     mortgageRegistrationFee: 224,
-    total: 2500
+    total: 2500,
+    state: 'NSW'
   },
   waterCost: 800,
   ratesCost: 3000,

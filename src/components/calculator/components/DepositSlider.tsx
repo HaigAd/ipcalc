@@ -1,15 +1,17 @@
 import { Label } from '../../ui/label';
 import { Slider } from '../../ui/slider';
 import { PropertyDetails, PurchaseCosts } from '../types';
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
+import { cn } from '../../../lib/utils';
 
 interface DepositSliderProps {
   propertyDetails: PropertyDetails;
   purchaseCosts: PurchaseCosts;
   onDepositChange: (value: number[]) => void;
+  onStateClick: () => void;
 }
 
-export function DepositSlider({ propertyDetails, purchaseCosts, onDepositChange }: DepositSliderProps) {
+export function DepositSlider({ propertyDetails, purchaseCosts, onDepositChange, onStateClick }: DepositSliderProps) {
   const minDepositAmount = useMemo(() => {
     return Math.max(propertyDetails.purchasePrice * 0.05, 0);
   }, [propertyDetails.purchasePrice]);
@@ -30,6 +32,11 @@ export function DepositSlider({ propertyDetails, purchaseCosts, onDepositChange 
   const cashRemaining = useMemo(() => {
     return propertyDetails.availableSavings - totalUpfrontCosts;
   }, [propertyDetails.availableSavings, totalUpfrontCosts]);
+
+  const handleStateClick = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    onStateClick();
+  }, [onStateClick]);
 
   // Ensure deposit amount stays within bounds
   const handleDepositChange = (value: number[]) => {
@@ -80,7 +87,18 @@ export function DepositSlider({ propertyDetails, purchaseCosts, onDepositChange 
           <h3 className="text-sm font-medium text-slate-700">Cost Breakdown</h3>
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-slate-600">Purchase Costs</span>
+              <span className="text-slate-600">
+                Purchase Costs{' '}
+                <button
+                  onClick={handleStateClick}
+                  className={cn(
+                    "inline-flex items-center text-slate-500 hover:text-slate-700 transition-colors",
+                    "underline decoration-dotted underline-offset-4"
+                  )}
+                >
+                  [{purchaseCosts.state}]
+                </button>
+              </span>
               <span className="font-medium text-slate-900">${purchaseCosts.total.toLocaleString()}</span>
             </div>
             <div className="flex justify-between text-sm">

@@ -7,9 +7,10 @@ interface PropertyPriceFormProps {
   propertyDetails: PropertyDetails;
   setPropertyDetails: (details: PropertyDetails) => void;
   purchaseCosts: PurchaseCosts;
+  onStateClick: () => void;
 }
 
-export function PropertyPriceForm({ propertyDetails, setPropertyDetails, purchaseCosts }: PropertyPriceFormProps) {
+export function PropertyPriceForm({ propertyDetails, setPropertyDetails, purchaseCosts, onStateClick }: PropertyPriceFormProps) {
   const handleDepositChange = (value: number[]) => {
     setPropertyDetails({
       ...propertyDetails,
@@ -109,6 +110,7 @@ export function PropertyPriceForm({ propertyDetails, setPropertyDetails, purchas
           propertyDetails={propertyDetails}
           purchaseCosts={purchaseCosts}
           onDepositChange={handleDepositChange}
+          onStateClick={onStateClick}
         />
       </div>
     </div>

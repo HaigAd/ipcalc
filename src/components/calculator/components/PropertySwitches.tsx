@@ -66,22 +66,41 @@ export function PropertySwitches({ propertyDetails, onPropertyDetailsChange }: P
       </div>
 
       {propertyDetails.considerPPORTax && (
-        <div className="space-y-2">
-          <Label htmlFor="otherPropertyValue" className={labelClasses}>
-            Other Property Value ($)
-          </Label>
-          <Input
-            id="otherPropertyValue"
-            type="number"
-            inputMode="decimal"
-            value={propertyDetails.otherPropertyValue}
-            className={inputClasses}
-            onChange={(e) => onPropertyDetailsChange({
-              ...propertyDetails,
-              otherPropertyValue: Number(e.target.value)
-            })}
-          />
-        </div>
+        <>
+          <div className="space-y-2">
+            <Label htmlFor="otherPropertyValue" className={labelClasses}>
+              Other Property Value ($)
+            </Label>
+            <Input
+              id="otherPropertyValue"
+              type="number"
+              inputMode="decimal"
+              value={propertyDetails.otherPropertyValue}
+              className={inputClasses}
+              onChange={(e) => onPropertyDetailsChange({
+                ...propertyDetails,
+                otherPropertyValue: Number(e.target.value)
+              })}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="otherPropertyCostBase" className={labelClasses}>
+              Other Property Cost Base ($)
+            </Label>
+            <Input
+              id="otherPropertyCostBase"
+              type="number"
+              inputMode="decimal"
+              value={propertyDetails.otherPropertyCostBase}
+              className={inputClasses}
+              onChange={(e) => onPropertyDetailsChange({
+                ...propertyDetails,
+                otherPropertyCostBase: Number(e.target.value)
+              })}
+            />
+          </div>
+        </>
       )}
     </div>
   );

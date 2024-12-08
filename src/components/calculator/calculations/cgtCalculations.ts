@@ -9,8 +9,9 @@ export const calculateCGT = (
   baseProjections: { yearlyProjections: YearlyProjection[] }
 ) => {
   const { yearlyProjections } = baseProjections;
-  let previousPPORValue = propertyDetails.otherPropertyValue;
-  let existingPPORValue = propertyDetails.otherPropertyValue;
+  const costBase = propertyDetails.otherPropertyCostBase;
+  let previousPPORValue = costBase; // Start from cost base
+  let existingPPORValue = costBase; // Start from cost base
 
   const updatedProjections = yearlyProjections.map(projection => {
     let yearlyCGT = 0;
@@ -18,9 +19,12 @@ export const calculateCGT = (
     if (propertyDetails.considerPPORTax) {
       previousPPORValue = existingPPORValue;
       existingPPORValue *= (1 + marketData.propertyGrowthRate / 100);
+      
+      // Calculate yearly gain directly from previous value
       const yearlyGain = existingPPORValue - previousPPORValue;
       
       if (projection.year <= TAX_FREE_YEARS) {
+        // All gains are taxable since we're starting from cost base
         yearlyCGT = yearlyGain * CGT_RATE;
       }
     }

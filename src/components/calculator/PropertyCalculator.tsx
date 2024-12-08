@@ -7,6 +7,7 @@ import { ProjectionsGraph } from './components/ProjectionsGraph';
 import { YearlyProjectionsTable } from './components/YearlyProjectionsTable';
 import { CalculatorTabs } from './components/CalculatorTabs';
 import { ComponentId } from './hooks/useComponentOrder';
+import { useCallback } from 'react';
 
 export function PropertyCalculator() {
   const {
@@ -20,12 +21,13 @@ export function PropertyCalculator() {
     setBuildingAndPestFee,
     purchaseCosts,
     calculationResults,
-    resetToDefaults
+    resetToDefaults,
+    setState
   } = useCalculatorState();
 
   const { components } = useComponentOrder();
 
-  const renderComponent = (id: ComponentId) => {
+  const renderComponent = useCallback((id: ComponentId, extraProps?: any) => {
     switch (id) {
       case 'price':
         return (
@@ -35,6 +37,7 @@ export function PropertyCalculator() {
               propertyDetails={propertyDetails}
               setPropertyDetails={setPropertyDetails}
               purchaseCosts={purchaseCosts}
+              onStateClick={extraProps?.onStateClick}
             />
           </div>
         );
@@ -75,7 +78,7 @@ export function PropertyCalculator() {
           </div>
         );
     }
-  };
+  }, [propertyDetails, setPropertyDetails, marketData, costStructure, calculationResults, purchaseCosts]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 py-8">
@@ -117,6 +120,7 @@ export function PropertyCalculator() {
             onConveyancingFeeChange={setConveyancingFee}
             onBuildingAndPestFeeChange={setBuildingAndPestFee}
             onCostStructureChange={updateCostStructure}
+            onStateChange={setState}
             renderComponent={renderComponent}
           />
         </div>

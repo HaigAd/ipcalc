@@ -9,6 +9,7 @@ export interface PropertyDetails {
   considerPPORTax: boolean;  // New field: flag to consider tax implications of PPOR change
   weeklyRent: number;  // Moved from MarketData
   otherPropertyValue: number;  // Value of the other property for CGT calculations - moved from MarketData
+  otherPropertyCostBase: number;  // Cost base of the other property for CGT calculations
 }
 
 export interface MarketData {
@@ -17,6 +18,8 @@ export interface MarketData {
   opportunityCostRate: number;
 }
 
+export type AustralianState = 'NSW' | 'VIC' | 'QLD' | 'SA' | 'WA' | 'TAS' | 'NT' | 'ACT';
+
 export interface PurchaseCosts {
   conveyancingFee: number;
   buildingAndPestFee: number;
@@ -24,6 +27,7 @@ export interface PurchaseCosts {
   stampDuty: number;
   total: number;
   mortgageRegistrationFee: number;
+  state: AustralianState;
 }
 
 export interface CostStructure {

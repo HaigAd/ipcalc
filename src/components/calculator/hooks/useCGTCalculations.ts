@@ -23,12 +23,19 @@ export const useCGTCalculations = (
         // Apply the same growth rate to existing PPOR
         existingPPORValue *= (1 + marketData.propertyGrowthRate / 100);
         
-        // Calculate gain for this year only
+        // Calculate gain for this year only. 
         const yearlyGain = existingPPORValue - previousPPORValue;
-        
-        if (projection.year <= TAX_FREE_YEARS) {
-          yearlyCGT = yearlyGain * CGT_RATE;
+
+        //only apply CGT for amounts above the cost base
+        if(existingPPORValue > propertyDetails.otherPropertyCostBase && projection.year <= TAX_FREE_YEARS) {
+          if(previousPPORValue > propertyDetails.otherPropertyCostBase) { //entire amount above the cost base
+            yearlyCGT = yearlyGain * CGT_RATE;
+          } else {
+            yearlyCGT = (existingPPORValue - propertyDetails.otherPropertyCostBase) * CGT_RATE;
+          }
         }
+        
+
       }
 
       return {

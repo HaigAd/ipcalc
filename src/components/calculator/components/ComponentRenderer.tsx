@@ -5,21 +5,19 @@ import { LoanDetailsForm } from './LoanDetailsForm';
 import { KeyMetrics } from './KeyMetrics';
 import { ProjectionsGraph } from './ProjectionsGraph';
 import { YearlyProjectionsTable } from './YearlyProjectionsTable';
-import { MarketScenarios } from './MarketScenarios';
 
 interface ComponentRendererProps {
   id: ComponentId;
+  extraProps?: any;
 }
 
-export function ComponentRenderer({ id }: ComponentRendererProps) {
+export function ComponentRenderer({ id, extraProps }: ComponentRendererProps) {
   const {
     propertyDetails,
     setPropertyDetails,
     marketData,
     costStructure,
     calculationResults,
-    scenarios,
-    setScenarios,
   } = useCalculator();
 
   const renderContent = () => {
@@ -32,6 +30,7 @@ export function ComponentRenderer({ id }: ComponentRendererProps) {
               propertyDetails={propertyDetails}
               setPropertyDetails={setPropertyDetails}
               purchaseCosts={costStructure.purchaseCosts}
+              onStateClick={extraProps?.onStateClick}
             />
           </div>
         );
@@ -54,26 +53,12 @@ export function ComponentRenderer({ id }: ComponentRendererProps) {
             />
           </div>
         );
-      case 'scenarios':
-        return (
-          <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-            <h2 className="text-2xl font-semibold mb-6 text-slate-900">Market Scenarios</h2>
-            <MarketScenarios
-              propertyDetails={propertyDetails}
-              baseMarketData={marketData}
-              scenarios={scenarios}
-              onScenarioChange={setScenarios}
-            />
-          </div>
-        );
       case 'graph':
         return (
           <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
             <h2 className="text-2xl font-semibold mb-6">Financial Projections</h2>
             <ProjectionsGraph 
               yearlyProjections={calculationResults.yearlyProjections}
-              scenarios={scenarios}
-              scenarioProjections={calculationResults.scenarioProjections}
             />
           </div>
         );

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { PropertyDetails, MarketData, CostStructure } from '../types';
+import { PropertyDetails, MarketData, CostStructure, AustralianState } from '../types';
 import { defaultPropertyDetails, defaultMarketData, defaultCostStructure } from '../config/defaults';
 import { usePropertyCalculator } from './usePropertyCalculator';
 import { useFinancialMetrics } from './useFinancialMetrics';
@@ -24,8 +24,11 @@ export function useCalculatorState() {
   const [buildingAndPestFee, setBuildingAndPestFee] = useState(
     storedState?.costStructure.purchaseCosts.buildingAndPestFee || defaultCostStructure.purchaseCosts.buildingAndPestFee
   );
+  const [state, setState] = useState<AustralianState>(
+    storedState?.costStructure.purchaseCosts.state || defaultCostStructure.purchaseCosts.state
+  );
 
-  const purchaseCosts = usePurchaseCosts(propertyDetails, conveyancingFee, buildingAndPestFee);
+  const purchaseCosts = usePurchaseCosts(propertyDetails, conveyancingFee, buildingAndPestFee, state);
   const calculationResults = usePropertyCalculator(propertyDetails, marketData, costStructure);
   useFinancialMetrics(
     propertyDetails,
@@ -103,6 +106,8 @@ export function useCalculatorState() {
     setBuildingAndPestFee,
     purchaseCosts,
     calculationResults,
-    resetToDefaults
+    resetToDefaults,
+    state,
+    setState
   };
 }
