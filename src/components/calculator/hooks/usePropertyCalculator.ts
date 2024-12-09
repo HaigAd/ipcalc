@@ -6,7 +6,6 @@ import {
   CalculationResults
 } from '../types';
 import { usePropertyProjections } from './usePropertyProjections';
-import { useOffsetCalculations } from './useOffsetCalculations';
 import { useCGTCalculations } from './useCGTCalculations';
 import { useComparativeMetrics } from './useComparativeMetrics';
 
@@ -15,15 +14,17 @@ export const usePropertyCalculator = (
   marketData: MarketData,
   costStructure: CostStructure
 ): CalculationResults => {
-  // Get base projections with property value and loan balance calculations
-  const baseProjections = usePropertyProjections(propertyDetails, marketData);
+  // Calculate offset amount first
+  // Offset is what's left from savings after deposit and purchase costs
+  const totalUpfrontCosts = propertyDetails.depositAmount + costStructure.purchaseCosts.total;
+  const offsetAmount = Math.max(0, propertyDetails.availableSavings - totalUpfrontCosts);
 
-  // Calculate offset benefits and interest savings
-  const offsetResults = useOffsetCalculations(propertyDetails, baseProjections, costStructure);
+  // Get base projections with property value, loan balance, and offset calculations
+  const baseProjections = usePropertyProjections(propertyDetails, marketData, offsetAmount);
 
   // Calculate CGT implications
   const cgtResults = useCGTCalculations(marketData, propertyDetails, {
-    yearlyProjections: offsetResults.yearlyProjections
+    yearlyProjections: baseProjections.yearlyProjections
   });
 
   // Calculate comparative metrics and final projections
@@ -33,7 +34,7 @@ export const usePropertyCalculator = (
     costStructure,
     {
       yearlyProjections: cgtResults.yearlyProjections,
-      offsetAmount: offsetResults.offsetAmount
+      offsetAmount
     }
   );
 
@@ -42,9 +43,11 @@ export const usePropertyCalculator = (
     breakEvenYear: comparativeResults.breakEvenYear,
     totalCostDifference: comparativeResults.totalCostDifference,
     netPositionAtEnd: comparativeResults.netPositionAtEnd,
-    offsetAmount: offsetResults.offsetAmount,
-    totalInterestSaved: offsetResults.totalInterestSaved,
-    yearsReducedFromLoan: offsetResults.yearsReducedFromLoan,
-    monthlyMortgagePayment: baseProjections.monthlyMortgagePayment
-  }), [baseProjections, offsetResults, cgtResults, comparativeResults]);
+    offsetAmount,
+    totalInterestSaved: baseProjections.totalInterestSaved,
+    yearsReducedFromLoan: baseProjections.yearsReducedFromLoan,
+    monthsReducedFromLoan: baseProjections.monthsReducedFromLoan,
+    monthlyMortgagePayment: baseProjections.monthlyMortgagePayment,
+    principal: baseProjections.principal
+  }), [baseProjections, cgtResults, comparativeResults, offsetAmount]);
 };

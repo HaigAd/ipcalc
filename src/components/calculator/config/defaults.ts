@@ -11,7 +11,11 @@ export const defaultPropertyDetails: PropertyDetails = {
   considerPPORTax: false,
   weeklyRent: 750, // Moved from MarketData
   otherPropertyValue: 1200000, // Moved from MarketData
-  otherPropertyCostBase: 1258000 // Cost base of the other property for CGT calculations
+  otherPropertyCostBase: 1258000, // Cost base of the other property for CGT calculations
+  offsetContribution: {
+    amount: 0,
+    frequency: 'monthly'
+  }
 };
 
 export const defaultMarketData: MarketData = {

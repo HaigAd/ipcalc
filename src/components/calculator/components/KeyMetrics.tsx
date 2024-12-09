@@ -19,7 +19,6 @@ function formatLargeNumber(num: number): string {
 export function KeyMetrics({ calculationResults, costStructure }: KeyMetricsProps) {
   const monthlyExpenses = costStructure?.annualPropertyCosts ? costStructure.annualPropertyCosts / 12 : 0;
   const lastProjection = calculationResults.yearlyProjections[calculationResults.yearlyProjections.length - 1];
-  const totalEquityPaid = lastProjection?.cumulativePrincipalPaid || 0;
 
   return (
     <div>
@@ -45,7 +44,7 @@ export function KeyMetrics({ calculationResults, costStructure }: KeyMetricsProp
             <div className="flex items-baseline gap-1">
               <span className="text-base sm:text-lg text-green-700">$</span>
               <p className="text-2xl sm:text-3xl font-bold text-green-900 whitespace-nowrap">
-                {formatLargeNumber(totalEquityPaid)}
+                {formatLargeNumber(calculationResults.principal)}
               </p>
             </div>
           </div>

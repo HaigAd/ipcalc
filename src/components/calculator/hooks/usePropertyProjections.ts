@@ -8,9 +8,28 @@ const calculateMonthlyPayment = (principal: number, annualRate: number, years: n
          (Math.pow(1 + monthlyRate, totalMonths) - 1);
 };
 
+const getMonthlyContribution = (offsetContribution: PropertyDetails['offsetContribution']) => {
+  // Handle case where offsetContribution might be undefined (backward compatibility)
+  if (!offsetContribution) {
+    return 0;
+  }
+
+  const { amount, frequency } = offsetContribution;
+  switch (frequency) {
+    case 'weekly':
+      return (amount * 52) / 12;
+    case 'yearly':
+      return amount / 12;
+    case 'monthly':
+    default:
+      return amount;
+  }
+};
+
 export const usePropertyProjections = (
   propertyDetails: PropertyDetails,
-  marketData: MarketData
+  marketData: MarketData,
+  offsetAmount: number
 ) => {
   return useMemo(() => {
     const principal = propertyDetails.purchasePrice - propertyDetails.depositAmount;
@@ -22,56 +41,169 @@ export const usePropertyProjections = (
 
     const yearlyProjections: YearlyProjection[] = [];
     let currentPropertyValue = propertyDetails.purchasePrice;
-    let loanBalance = principal;
     let annualRent = propertyDetails.weeklyRent * 52;
     let cumulativePrincipalPaid = 0;
+    let cumulativeInterestSaved = 0;
+    let cumulativeOffsetContributions = 0;
+    let isLoanPaidOff = false;
+    let monthsToPayoff = 0;
+
+    const monthlyRate = propertyDetails.interestRate / 100 / 12;
+    const totalLoanMonths = propertyDetails.loanTerm * 12;
+    let currentMonth = 0;
+
+    // Initialize loan balances
+    let loanBalance = principal;
+    let currentOffsetAmount = offsetAmount;
+    let effectiveBalance = Math.max(0, loanBalance - currentOffsetAmount);
+    const originalLoanBalance = principal; // The actual initial loan amount, never changes
+    let noOffsetLoanBalance = principal; // Tracks hypothetical loan balance without offset
+
+    // Calculate monthly contribution
+    const monthlyContribution = getMonthlyContribution(propertyDetails.offsetContribution);
 
     for (let year = 1; year <= propertyDetails.loanTerm; year++) {
-      // Calculate yearly interest and principal payments
-      const yearlyInterestCost = loanBalance * (propertyDetails.interestRate / 100);
-      const yearlyPrincipalPaid = (monthlyMortgagePayment * 12) - yearlyInterestCost;
-      loanBalance = Math.max(0, loanBalance - yearlyPrincipalPaid);
-      
-      // Update cumulative principal paid
-      cumulativePrincipalPaid += yearlyPrincipalPaid;
-
-      // Calculate property appreciation
+      // Calculate property appreciation and rent increase at the start of each year
       currentPropertyValue *= (1 + marketData.propertyGrowthRate / 100);
-      
-      // Calculate rent increase
       annualRent *= (1 + marketData.rentIncreaseRate / 100);
+
+      let yearlyOffsetContributions = 0;
+
+      // If loan is already paid off, only track no-offset scenario for interest saved calculation
+      if (isLoanPaidOff) {
+        // Calculate interest that would have been paid without offset
+        let yearlyNoOffsetInterest = 0;
+        for (let month = 0; month < 12; month++) {
+          const noOffsetInterest = noOffsetLoanBalance * monthlyRate;
+          const noOffsetPrincipal = monthlyMortgagePayment - noOffsetInterest;
+          noOffsetLoanBalance = Math.max(0, noOffsetLoanBalance - noOffsetPrincipal);
+          yearlyNoOffsetInterest += noOffsetInterest;
+
+          // Still track contributions even after loan payoff
+          yearlyOffsetContributions += monthlyContribution;
+          currentOffsetAmount += monthlyContribution;
+        }
+
+        // All of this interest is saved since loan is paid off
+        cumulativeInterestSaved += yearlyNoOffsetInterest;
+        cumulativeOffsetContributions += yearlyOffsetContributions;
+
+        yearlyProjections.push({
+          year,
+          propertyValue: currentPropertyValue,
+          loanBalance: 0,
+          totalCosts: 0,
+          rentalCosts: annualRent,
+          netPosition: 0,
+          cumulativeBuyingCosts: 0,
+          cumulativeRentalCosts: 0,
+          yearlyOpportunityCost: 0,
+          cumulativeOpportunityCost: 0,
+          offsetBalance: currentOffsetAmount,
+          interestSaved: yearlyNoOffsetInterest,
+          cumulativeInterestSaved,
+          effectiveLoanBalance: 0,
+          originalLoanBalance,
+          existingPPORValue: 0,
+          yearlyCGT: 0,
+          yearlyPrincipalPaid: 0,
+          cumulativePrincipalPaid,
+          yearlyPrincipalSavingsOpportunityCost: 0,
+          cumulativePrincipalSavingsOpportunityCost: 0,
+          yearlyRentVsBuyCashFlow: 0,
+          cumulativeInvestmentReserves: 0,
+          yearlyInterestPaid: 0,
+          yearlyOffsetContributions,
+          cumulativeOffsetContributions
+        });
+
+        continue;
+      }
+
+      let yearlyInterestPaid = 0;
+      let yearlyPrincipalPaid = 0;
+      let yearlyNoOffsetInterest = 0;
+
+      // Calculate monthly payments for more accurate compounding
+      for (let month = 0; month < 12 && !isLoanPaidOff; month++) {
+        currentMonth++;
+        
+        // Add monthly contribution to offset
+        yearlyOffsetContributions += monthlyContribution;
+        currentOffsetAmount += monthlyContribution;
+        
+        // Calculate hypothetical loan payments (without offset)
+        const noOffsetInterest = noOffsetLoanBalance * monthlyRate;
+        const noOffsetPrincipal = monthlyMortgagePayment - noOffsetInterest;
+        noOffsetLoanBalance = Math.max(0, noOffsetLoanBalance - noOffsetPrincipal);
+        yearlyNoOffsetInterest += noOffsetInterest;
+        
+        // Calculate actual payments with offset
+        effectiveBalance = Math.max(0, loanBalance - currentOffsetAmount);
+        const monthlyInterest = effectiveBalance * monthlyRate;
+        const principalPaid = monthlyMortgagePayment - monthlyInterest;
+        
+        // Update balances
+        loanBalance = Math.max(0, loanBalance - principalPaid);
+        
+        // Accumulate yearly totals
+        yearlyInterestPaid += monthlyInterest;
+        yearlyPrincipalPaid += principalPaid;
+
+        if (loanBalance === 0) {
+          isLoanPaidOff = true;
+          monthsToPayoff = currentMonth;
+        }
+      }
+
+      // Calculate interest saved and update running totals
+      const yearlyInterestSaved = yearlyNoOffsetInterest - yearlyInterestPaid;
+      cumulativeInterestSaved += yearlyInterestSaved;
+      cumulativePrincipalPaid += yearlyPrincipalPaid;
+      cumulativeOffsetContributions += yearlyOffsetContributions;
 
       yearlyProjections.push({
         year,
         propertyValue: currentPropertyValue,
         loanBalance,
-        totalCosts: 0, // Will be calculated by useComparativeMetrics
+        totalCosts: 0,
         rentalCosts: annualRent,
-        netPosition: 0, // Will be calculated by useComparativeMetrics
-        cumulativeBuyingCosts: 0, // Will be calculated by useComparativeMetrics
-        cumulativeRentalCosts: 0, // Will be calculated by useComparativeMetrics
-        yearlyOpportunityCost: 0, // Will be calculated by useComparativeMetrics
-        cumulativeOpportunityCost: 0, // Will be calculated by useComparativeMetrics
-        offsetBalance: 0, // Will be set by useOffsetCalculations
-        interestSaved: 0, // Will be set by useOffsetCalculations
-        cumulativeInterestSaved: 0, // Will be set by useOffsetCalculations
-        effectiveLoanBalance: loanBalance, // Will be updated by useOffsetCalculations
-        originalLoanBalance: principal,
-        existingPPORValue: 0, // Will be set by useCGTCalculations
-        yearlyCGT: 0, // Will be set by useCGTCalculations
-        yearlyPrincipalPaid, // Principal paid this year
-        cumulativePrincipalPaid, // Total principal paid
-        yearlyPrincipalSavingsOpportunityCost: 0, // Will be calculated by useComparativeMetrics
-        cumulativePrincipalSavingsOpportunityCost: 0, // Will be calculated by useComparativeMetrics
-        yearlyRentVsBuyCashFlow: 0, // Will be calculated by useComparativeMetrics
-        cumulativeInvestmentReserves: 0 // Will be calculated by useComparativeMetrics
+        netPosition: 0,
+        cumulativeBuyingCosts: 0,
+        cumulativeRentalCosts: 0,
+        yearlyOpportunityCost: 0,
+        cumulativeOpportunityCost: 0,
+        offsetBalance: currentOffsetAmount,
+        interestSaved: yearlyInterestSaved,
+        cumulativeInterestSaved,
+        effectiveLoanBalance: effectiveBalance,
+        originalLoanBalance,
+        existingPPORValue: 0,
+        yearlyCGT: 0,
+        yearlyPrincipalPaid,
+        cumulativePrincipalPaid,
+        yearlyPrincipalSavingsOpportunityCost: 0,
+        cumulativePrincipalSavingsOpportunityCost: 0,
+        yearlyRentVsBuyCashFlow: 0,
+        cumulativeInvestmentReserves: 0,
+        yearlyInterestPaid,
+        yearlyOffsetContributions,
+        cumulativeOffsetContributions
       });
     }
+
+    // Calculate years and months reduced
+    const monthsReduced = monthsToPayoff > 0 ? totalLoanMonths - monthsToPayoff : 0;
+    const yearsReducedFromLoan = Math.floor(monthsReduced / 12);
+    const monthsReducedFromLoan = monthsReduced % 12;
 
     return {
       yearlyProjections,
       monthlyMortgagePayment,
-      principal
+      principal,
+      totalInterestSaved: cumulativeInterestSaved,
+      yearsReducedFromLoan,
+      monthsReducedFromLoan
     };
-  }, [propertyDetails, marketData]);
+  }, [propertyDetails, marketData, offsetAmount]);
 };

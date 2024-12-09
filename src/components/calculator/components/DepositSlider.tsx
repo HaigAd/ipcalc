@@ -1,8 +1,10 @@
 import { Label } from '../../ui/label';
 import { Slider } from '../../ui/slider';
 import { PropertyDetails, PurchaseCosts } from '../types';
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useState, useEffect, useRef } from 'react';
 import { cn } from '../../../lib/utils';
+import { Input } from '../../ui/input';
+import { Pencil } from 'lucide-react';
 
 interface DepositSliderProps {
   propertyDetails: PropertyDetails;
@@ -12,6 +14,10 @@ interface DepositSliderProps {
 }
 
 export function DepositSlider({ propertyDetails, purchaseCosts, onDepositChange, onStateClick }: DepositSliderProps) {
+  const [inputValue, setInputValue] = useState(propertyDetails.depositAmount.toLocaleString());
+  const [isEditing, setIsEditing] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const minDepositAmount = useMemo(() => {
     return Math.max(propertyDetails.purchasePrice * 0.05, 0);
   }, [propertyDetails.purchasePrice]);
@@ -38,7 +44,39 @@ export function DepositSlider({ propertyDetails, purchaseCosts, onDepositChange,
     onStateClick();
   }, [onStateClick]);
 
-  // Ensure deposit amount stays within bounds
+  // Update input value when deposit amount changes externally
+  useEffect(() => {
+    if (!isEditing) {
+      setInputValue(propertyDetails.depositAmount.toLocaleString());
+    }
+  }, [propertyDetails.depositAmount, isEditing]);
+
+  // Handle direct input changes
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^0-9]/g, '');
+    setInputValue(value);
+  };
+
+  // Handle input blur - validate and update deposit
+  const handleInputBlur = () => {
+    setIsEditing(false);
+    const numericValue = Number(inputValue.replace(/,/g, '')) || 0;
+    const newDeposit = Math.min(Math.max(numericValue, minDepositAmount), maxDepositAmount);
+    onDepositChange([newDeposit]);
+  };
+
+  // Handle input focus
+  const handleInputFocus = () => {
+    setIsEditing(true);
+    setInputValue(propertyDetails.depositAmount.toString());
+  };
+
+  // Handle pencil click
+  const handlePencilClick = () => {
+    inputRef.current?.focus();
+  };
+
+  // Handle slider changes
   const handleDepositChange = (value: number[]) => {
     const newDeposit = Math.min(Math.max(value[0], minDepositAmount), maxDepositAmount);
     onDepositChange([newDeposit]);
@@ -47,11 +85,32 @@ export function DepositSlider({ propertyDetails, purchaseCosts, onDepositChange,
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label className="text-sm font-medium text-slate-700">Deposit Amount</Label>
+        <div className="flex items-center space-x-2">
+          <Label className="text-sm font-medium text-slate-700">Deposit Amount</Label>
+          <button
+            onClick={handlePencilClick}
+            className="p-1 hover:bg-slate-100 rounded-md transition-colors"
+            aria-label="Edit deposit amount"
+          >
+            <Pencil className="w-4 h-4 text-slate-400" />
+          </button>
+        </div>
         <div className="flex items-baseline space-x-2">
-          <span className="text-2xl font-semibold text-slate-900">
-            ${propertyDetails.depositAmount.toLocaleString()}
-          </span>
+          <div className="flex items-center">
+            <span className="text-2xl font-semibold text-slate-900 mr-1">$</span>
+            <Input
+              ref={inputRef}
+              value={isEditing ? inputValue : Number(inputValue.replace(/,/g, '')).toLocaleString()}
+              onChange={handleInputChange}
+              onBlur={handleInputBlur}
+              onFocus={handleInputFocus}
+              className={cn(
+                "w-[140px] text-2xl font-semibold text-slate-900 border-none p-0 h-auto",
+                "focus-visible:ring-0 hover:border-b-2 hover:border-slate-200 transition-all",
+                isEditing ? "border-b-2 border-slate-300" : ""
+              )}
+            />
+          </div>
           <span className="text-sm font-medium text-slate-500">
             ({depositPercentage.toFixed(1)}%)
           </span>

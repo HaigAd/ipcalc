@@ -15,7 +15,7 @@ export const useComparativeMetrics = (
     
     // Initial investment that would be required for property
     const initialInvestment = propertyDetails.depositAmount + 
-                            costStructure.purchaseCosts.total
+                            costStructure.purchaseCosts.total;
 
     let cumulativeInvestmentReserves = initialInvestment + offsetAmount;
     let cumulativeBuyingCosts = 0;
@@ -24,23 +24,26 @@ export const useComparativeMetrics = (
     let cumulativeOpportunityCost = 0;
 
     const updatedProjections = yearlyProjections.map(projection => {
-      
-      const yearlyMortgageCashflow = projection.yearlyPrincipalPaid + 
-                                    (projection.effectiveLoanBalance * (propertyDetails.interestRate / 100));
-      const yearlyMortgageCost = projection.effectiveLoanBalance * (propertyDetails.interestRate / 100);
+      // Use the yearlyInterestPaid value from usePropertyProjections which uses monthly compounding
+      const yearlyMortgageCost = projection.yearlyInterestPaid;
 
       // Calculate total yearly property ownership costs
       const yearlyPropertyCosts = yearlyMortgageCost + 
                                 costStructure.annualPropertyCosts + 
                                 projection.yearlyCGT;
 
-      const yearlyPropertyCashflow = yearlyMortgageCashflow + costStructure.annualPropertyCosts
+      // Use the appreciated rental costs from projections
+      const yearlyRentalIncome = projection.rentalCosts;
 
-      // Calculate yearly cash flow difference (what a renter saves by not buying)
-      const yearlyRentVsBuyCashFlow = yearlyPropertyCashflow - projection.rentalCosts;
+      // For cashflow calculations, use rental income minus total mortgage payment (principal + interest) minus annual costs
+      const yearlyMortgagePayment = projection.yearlyPrincipalPaid + yearlyMortgageCost;
+      const yearlyPropertyCashflow = yearlyMortgagePayment + costStructure.annualPropertyCosts - yearlyRentalIncome;
 
-      // Add this year's savings to investment reserves
-      cumulativeInvestmentReserves += yearlyRentVsBuyCashFlow;
+      // Calculate yearly cash flow difference
+      const yearlyRentVsBuyCashFlow = yearlyPropertyCashflow;
+
+      // Add this year's savings and offset contributions to investment reserves
+      cumulativeInvestmentReserves += yearlyRentVsBuyCashFlow + projection.yearlyOffsetContributions;
 
       // Calculate opportunity cost on cumulative investment reserves
       const yearlyOpportunityCost = cumulativeInvestmentReserves * 
@@ -54,35 +57,44 @@ export const useComparativeMetrics = (
       cumulativeBuyingCosts += yearlyPropertyCosts;
       cumulativeRentalCosts += projection.rentalCosts;
 
-      //
-      const houseAppreciation = projection.propertyValue - propertyDetails.depositAmount - projection.originalLoanBalance
+      // Calculate house appreciation as current value minus original purchase price
+      const houseAppreciation = projection.propertyValue - propertyDetails.purchasePrice;
 
       // Calculate potential sale costs
       const potentialSaleCosts = projection.propertyValue * 
                                 (costStructure.futureSellCostsPercentage / 100);
 
-      //const overallRentalScenarioEquity = cumulativeInvestmentReserves;
-      //const overallBuyingScenarioEquity = offsetAmount + houseAppreciation - projection.loanBalance - 
-      
       // Calculate net position comparing property investment vs renting and investing
-      // Now using cumulative opportunity cost instead of total investment reserves
+      // Now includes the offset contributions in both scenarios:
+      // - For buying: they reduce the effective loan balance (reflected in yearlyInterestPaid)
+      // - For renting: they're added to the investment pool (reflected in cumulativeInvestmentReserves)
       const netPosition = -cumulativeOpportunityCost - cumulativeBuyingCosts - costStructure.purchaseCosts.total +
-                        + cumulativeRentalCosts + houseAppreciation - potentialSaleCosts;
-                         console.log(`Net Position Calculation:
-                          Year: ${projection.year}
-                          Cumulative Opportunity Cost: ${cumulativeOpportunityCost}
-                          Cumulative Rental Costs: ${cumulativeRentalCosts}
-                          Cumulative Buying Costs: ${cumulativeBuyingCosts}
-                           -- Mortgage Cost: ${yearlyMortgageCost}
-                           -- Other costs: ${costStructure.annualPropertyCosts}
-                           -- CGT: ${projection.yearlyCGT}
-                          Cashflow: ${yearlyRentVsBuyCashFlow}
-                          Property Value: ${projection.propertyValue}
-                          House Appreciation: ${houseAppreciation}
-                          Original Loan Balance: ${projection.originalLoanBalance}
-                          Potential Sale Costs: ${potentialSaleCosts}
-                          Final Net Position: ${netPosition}
-                        `);
+                        cumulativeRentalCosts + houseAppreciation - potentialSaleCosts;
+
+      console.log(`Net Position Calculation:
+        Year: ${projection.year}
+        Cumulative Opportunity Cost: ${cumulativeOpportunityCost}
+        Cumulative Rental Costs: ${cumulativeRentalCosts}
+        Cumulative Buying Costs: ${cumulativeBuyingCosts}
+         -- Yearly Mortgage Payment: ${yearlyMortgagePayment}
+         -- Yearly Mortgage Cost: ${yearlyMortgageCost}
+         -- Annual Property Costs: ${costStructure.annualPropertyCosts}
+         -- CGT: ${projection.yearlyCGT}
+        Yearly Cashflow: ${yearlyRentVsBuyCashFlow}
+        Property Value: ${projection.propertyValue}
+        House Appreciation: ${houseAppreciation}
+        Original Loan Balance: ${projection.originalLoanBalance}
+        Loan Balance: ${projection.loanBalance}
+        Effective Loan Balance: ${projection.effectiveLoanBalance}
+        Offset Amount: ${projection.offsetBalance}
+        Interest Saved: ${projection.interestSaved}
+        Cumulative Interest Saved: ${projection.cumulativeInterestSaved}
+        Yearly Offset Contributions: ${projection.yearlyOffsetContributions}
+        Cumulative Offset Contributions: ${projection.cumulativeOffsetContributions}
+        Investment Reserves: ${cumulativeInvestmentReserves}
+        Potential Sale Costs: ${potentialSaleCosts}
+        Final Net Position: ${netPosition}
+      `);
 
       // Check for break-even - now checking for when netPosition becomes positive
       if (breakEvenYear === -1 && netPosition >= 0) {
@@ -112,7 +124,7 @@ export const useComparativeMetrics = (
 
     return {
       yearlyProjections: updatedProjections,
-      breakEvenYear: breakEvenYear === -1 ? -1 : breakEvenYear, // Return -1 to indicate "NEVER"
+      breakEvenYear: breakEvenYear === -1 ? -1 : breakEvenYear,
       totalCostDifference,
       netPositionAtEnd: lastProjection.netPosition
     };

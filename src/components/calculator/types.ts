@@ -10,6 +10,10 @@ export interface PropertyDetails {
   weeklyRent: number;  // Moved from MarketData
   otherPropertyValue: number;  // Value of the other property for CGT calculations - moved from MarketData
   otherPropertyCostBase: number;  // Cost base of the other property for CGT calculations
+  offsetContribution: {
+    amount: number;
+    frequency: 'weekly' | 'monthly' | 'yearly';
+  };
 }
 
 export interface MarketData {
@@ -66,6 +70,9 @@ export interface YearlyProjection {
   cumulativePrincipalSavingsOpportunityCost: number;  // Total opportunity cost on principal savings
   yearlyRentVsBuyCashFlow: number;  // Annual cash flow difference between renting vs buying
   cumulativeInvestmentReserves: number;  // Cumulative amount available for investment if renting
+  yearlyInterestPaid: number;  // Interest paid this year (calculated with monthly compounding)
+  yearlyOffsetContributions: number;  // Total offset contributions made this year
+  cumulativeOffsetContributions: number;  // Total offset contributions made to date
 }
 
 export interface CalculationResults {
@@ -76,7 +83,9 @@ export interface CalculationResults {
   offsetAmount: number;
   totalInterestSaved: number;
   yearsReducedFromLoan: number;
+  monthsReducedFromLoan: number;  // Additional months beyond full years
   monthlyMortgagePayment: number;
+  principal: number;  // Initial loan amount (purchase price minus deposit)
 }
 
 export interface MortgageCalculation {
