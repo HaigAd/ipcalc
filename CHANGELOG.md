@@ -175,3 +175,8 @@
   - src/components/calculator/calculations/offsetCalculations.ts - Consolidated into usePropertyProjections
   - src/components/calculator/hooks/useOffsetCalculations.ts - Consolidated into usePropertyProjections
   - src/components/calculator/components/ProjectionsGraph.tsx - Duplicate of ProjectionsGraph/index.tsx with older implementation
+
+## [2024-01-09]
+### Added
+- Created a copy of ts-playground as ip-calc to serve as a base for a similar project
+- This copy includes all source files, configurations, and dependencies
