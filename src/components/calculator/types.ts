@@ -6,14 +6,22 @@ export interface PropertyDetails {
   loanTerm: number;
   isPPOR: boolean;
   isFirstHomeBuyer: boolean;
-  considerPPORTax: boolean;  // New field: flag to consider tax implications of PPOR change
-  weeklyRent: number;  // Moved from MarketData
-  otherPropertyValue: number;  // Value of the other property for CGT calculations - moved from MarketData
-  otherPropertyCostBase: number;  // Cost base of the other property for CGT calculations
+  considerPPORTax: boolean;
+  weeklyRent: number;
+  otherPropertyValue: number;
+  otherPropertyCostBase: number;
   offsetContribution: {
     amount: number;
     frequency: 'weekly' | 'monthly' | 'yearly';
   };
+  // New investment property fields
+  managementFee: {
+    type: 'percentage' | 'fixed';
+    value: number;
+  };
+  capitalWorksDepreciation: number;  // Annual amount for building depreciation
+  plantEquipmentDepreciation: number;  // Annual amount for plant and equipment
+  taxableIncome: number;  // User's taxable income for negative gearing calculations
 }
 
 export interface MarketData {
@@ -41,7 +49,7 @@ export interface CostStructure {
   maintenancePercentage: number;
   maintenanceCost: number;
   insuranceCost: number;
-  annualPropertyCosts: number; // Computed total of water, rates, maintenance, and insurance
+  annualPropertyCosts: number;
   futureSellCosts: number;
   futureSellCostsPercentage: number;
 }
@@ -51,28 +59,33 @@ export interface YearlyProjection {
   propertyValue: number;
   loanBalance: number;
   totalCosts: number;
-  rentalCosts: number;
+  rentalIncome: number;  // Renamed from rentalCosts for clarity
   netPosition: number;
-  cumulativeBuyingCosts: number;
-  cumulativeRentalCosts: number;
   yearlyOpportunityCost: number;
-  cumulativeOpportunityCost: number;  // Total opportunity cost accumulated to date
+  cumulativeOpportunityCost: number;
   offsetBalance: number;
   interestSaved: number;
   cumulativeInterestSaved: number;
   effectiveLoanBalance: number;
   originalLoanBalance: number;
-  existingPPORValue: number;  // Value of existing PPOR for this year
-  yearlyCGT: number;  // CGT payable for this year
-  yearlyPrincipalPaid: number;  // Principal paid this year
-  cumulativePrincipalPaid: number;  // Total principal paid to date
-  yearlyPrincipalSavingsOpportunityCost: number;  // Opportunity cost on equivalent principal savings
-  cumulativePrincipalSavingsOpportunityCost: number;  // Total opportunity cost on principal savings
-  yearlyRentVsBuyCashFlow: number;  // Annual cash flow difference between renting vs buying
-  cumulativeInvestmentReserves: number;  // Cumulative amount available for investment if renting
-  yearlyInterestPaid: number;  // Interest paid this year (calculated with monthly compounding)
-  yearlyOffsetContributions: number;  // Total offset contributions made this year
-  cumulativeOffsetContributions: number;  // Total offset contributions made to date
+  existingPPORValue: number;
+  yearlyCGT: number;
+  yearlyPrincipalPaid: number;
+  cumulativePrincipalPaid: number;
+  yearlyInterestPaid: number;
+  yearlyOffsetContributions: number;
+  cumulativeOffsetContributions: number;
+  // New investment property fields
+  managementFees: number;
+  capitalWorksDepreciation: number;
+  plantEquipmentDepreciation: number;
+  totalDepreciation: number;
+  yearlyExpenses: number;  // All expenses including interest, management fees, maintenance etc.
+  taxableIncome: number;  // Rental income minus deductible expenses
+  taxBenefit: number;     // Tax savings from negative gearing if applicable
+  cashFlow: number;       // Net cash position after all income, expenses and tax benefits
+  equity: number;         // Property value minus loan balance
+  roi: number;           // Return on investment percentage
 }
 
 export interface CalculationResults {
@@ -83,9 +96,9 @@ export interface CalculationResults {
   offsetAmount: number;
   totalInterestSaved: number;
   yearsReducedFromLoan: number;
-  monthsReducedFromLoan: number;  // Additional months beyond full years
+  monthsReducedFromLoan: number;
   monthlyMortgagePayment: number;
-  principal: number;  // Initial loan amount (purchase price minus deposit)
+  principal: number;
 }
 
 export interface MortgageCalculation {

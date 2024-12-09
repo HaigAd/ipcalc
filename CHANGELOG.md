@@ -180,3 +180,14 @@
 ### Added
 - Created a copy of ts-playground as ip-calc to serve as a base for a similar project
 - This copy includes all source files, configurations, and dependencies
+
+### Changed
+- Refactored property calculator for investment property analysis:
+  - Removed rent vs buy comparison functionality
+  - Added new investment-specific calculations including management fees, depreciation, and tax benefits
+  - Created new components:
+    * ManagementFeeSlider: Configurable property management fees (percentage or fixed)
+    * DepreciationForm: Capital works and plant/equipment depreciation inputs
+    * InvestmentMetrics: Display of key investment metrics (cash flow, ROI, tax position)
+  - Added investment property fields to PropertyDetails type
+  - Created useInvestmentMetrics hook for investment-specific calculations
