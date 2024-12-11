@@ -12,10 +12,11 @@ export const usePurchaseCosts = (
   state: AustralianState = 'NSW'
 ): PurchaseCosts => {
   return useMemo(() => {
+    // Always pass false for isPPOR and isFirstHomeBuyer since this is an investment property calculator
     const stampDuty = calculateStampDuty(
       propertyDetails.purchasePrice,
-      propertyDetails.isPPOR,
-      propertyDetails.isFirstHomeBuyer,
+      false, // isPPOR
+      false, // isFirstHomeBuyer
       state
     );
 

@@ -233,3 +233,10 @@
   - calculations/states/* (PPOR and first home buyer logic)
   - TaxImplications.tsx (PPOR references)
   - Any other components that might reference rent vs buy comparisons
+
+### Changed
+- Completed removal of rent vs buy functionality:
+  - Removed weeklyRent field from PropertyPriceForm
+  - Updated TaxImplications to focus on investment property tax benefits
+  - Updated usePurchaseCosts to always pass false for isPPOR and isFirstHomeBuyer
+  - Kept state calculation files unchanged for compatibility with other calculators

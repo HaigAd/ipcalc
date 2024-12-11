@@ -6,36 +6,59 @@ interface TaxImplicationsProps {
   marketData: MarketData;
 }
 
-export function TaxImplications({ yearlyProjections, propertyDetails, marketData }: TaxImplicationsProps) {
-  const totalCGT = propertyDetails.considerPPORTax
-    ? yearlyProjections
-        .slice(0, 6) // Only first 6 years
-        .reduce((sum, projection) => sum + projection.yearlyCGT, 0)
-    : 0;
+export function TaxImplications({ yearlyProjections, propertyDetails }: TaxImplicationsProps) {
+  if (!yearlyProjections.length) return null;
 
-  if (!propertyDetails.considerPPORTax) {
-    return null;
-  }
+  const latestYear = yearlyProjections[yearlyProjections.length - 1];
+  const firstYear = yearlyProjections[0];
 
-  const finalValue = yearlyProjections[5]?.existingPPORValue || propertyDetails.otherPropertyCostBase;
-  const totalGain = finalValue - propertyDetails.otherPropertyCostBase;
+  const totalDepreciation = yearlyProjections.reduce(
+    (sum, projection) => sum + projection.totalDepreciation,
+    0
+  );
+
+  const totalTaxBenefit = yearlyProjections.reduce(
+    (sum, projection) => sum + projection.taxBenefit,
+    0
+  );
 
   return (
     <div className="mb-4 p-3 bg-gray-100 rounded-md text-sm">
-      <p className="font-medium mb-1">Tax Implications on change of PPOR:</p>
-      <p>Considering loss of "6 year" CGT free period on other residence: </p>
-      <p className="mt-1">Total extra CGT over first 6 years: ${Math.round(totalCGT).toLocaleString()}</p>
-      <div className="mt-3 text-xs text-gray-500">
-        <p className="font-medium">Details:</p>
-        <p className="mt-0.5">Cost Base: ${Math.round(propertyDetails.otherPropertyCostBase).toLocaleString()}</p>
-        <p className="mt-0.5">Projected Value After 6 Years: ${Math.round(finalValue).toLocaleString()}</p>
-        <p className="mt-0.5">Total Capital Gain: ${Math.round(totalGain).toLocaleString()}</p>
-        <p className="mt-0.5">Yearly Appreciation: {marketData.propertyGrowthRate.toFixed(1)}%</p>
-        <p className="mt-2 text-xs italic">Note: CGT is calculated on all gains from the cost base during the 6 year period. 
-          It is assumed that the owner moves back in at 6 years so CGT does not continue to accumulate.
+      <p className="font-medium mb-1">Investment Property Tax Benefits:</p>
+      
+      <div className="mt-2">
+        <p>Annual Depreciation: ${Math.round(propertyDetails.capitalWorksDepreciation + propertyDetails.plantEquipmentDepreciation).toLocaleString()}</p>
+        <p className="text-xs text-gray-500 mt-0.5">
+          - Capital Works: ${Math.round(propertyDetails.capitalWorksDepreciation).toLocaleString()}/year
         </p>
-
+        <p className="text-xs text-gray-500">
+          - Plant & Equipment: ${Math.round(propertyDetails.plantEquipmentDepreciation).toLocaleString()}/year
+        </p>
       </div>
+
+      <div className="mt-3">
+        <p>First Year Tax Position:</p>
+        <p className="text-xs text-gray-500 mt-0.5">
+          - Taxable Income: ${Math.round(firstYear.taxableIncome).toLocaleString()}
+        </p>
+        <p className="text-xs text-gray-500">
+          - Tax Benefit: ${Math.round(firstYear.taxBenefit).toLocaleString()}
+        </p>
+      </div>
+
+      <div className="mt-3">
+        <p>Cumulative Benefits:</p>
+        <p className="text-xs text-gray-500 mt-0.5">
+          - Total Depreciation: ${Math.round(totalDepreciation).toLocaleString()}
+        </p>
+        <p className="text-xs text-gray-500">
+          - Total Tax Benefits: ${Math.round(totalTaxBenefit).toLocaleString()}
+        </p>
+      </div>
+
+      <p className="mt-3 text-xs italic">
+        Note: Tax benefits are calculated based on your marginal tax rate and include both depreciation and negative gearing benefits.
+      </p>
     </div>
   );
 }

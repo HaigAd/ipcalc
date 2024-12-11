@@ -30,52 +30,31 @@ export function PropertyPriceForm({ propertyDetails, setPropertyDetails, purchas
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:gap-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-        <div className="space-y-2">
-          <Label htmlFor="purchasePrice" className={labelClasses}>
-            Purchase Price ($)
-          </Label>
-          <Input
-            id="purchasePrice"
-            type="number"
-            inputMode="decimal"
-            value={propertyDetails.purchasePrice}
-            className={inputClasses}
-            onChange={(e) => {
-              const newPrice = Number(e.target.value);
-              const newDepositAmount = calculateValidDepositAmount(
-                newPrice,
-                propertyDetails.availableSavings,
-                propertyDetails.depositAmount
-              );
-              
-              setPropertyDetails({
-                ...propertyDetails,
-                purchasePrice: newPrice,
-                depositAmount: newDepositAmount
-              });
-            }}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="weeklyRent" className={labelClasses}>
-            Weekly Rent Comparator ($)
-          </Label>
-          <Input
-            id="weeklyRent"
-            type="number"
-            inputMode="decimal"
-            value={propertyDetails.weeklyRent}
-            className={inputClasses}
-            onChange={(e) => {
-              setPropertyDetails({
-                ...propertyDetails,
-                weeklyRent: Number(e.target.value)
-              });
-            }}
-          />
-        </div>
+      <div className="space-y-2">
+        <Label htmlFor="purchasePrice" className={labelClasses}>
+          Purchase Price ($)
+        </Label>
+        <Input
+          id="purchasePrice"
+          type="number"
+          inputMode="decimal"
+          value={propertyDetails.purchasePrice}
+          className={inputClasses}
+          onChange={(e) => {
+            const newPrice = Number(e.target.value);
+            const newDepositAmount = calculateValidDepositAmount(
+              newPrice,
+              propertyDetails.availableSavings,
+              propertyDetails.depositAmount
+            );
+            
+            setPropertyDetails({
+              ...propertyDetails,
+              purchasePrice: newPrice,
+              depositAmount: newDepositAmount
+            });
+          }}
+        />
       </div>
 
       <div className="space-y-2">
