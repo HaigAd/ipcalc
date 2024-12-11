@@ -35,6 +35,17 @@ export const getColumns = (marketData: MarketData): ColumnDef[] => [
     )
   },
   {
+    id: 'yearlyInterestPaid',
+    header: 'Interest Expense',
+    tooltip: 'Annual interest paid on the loan',
+    group: 'Expenses',
+    render: (projection) => (
+      <span className="text-red-600">
+        ${Math.round(projection.yearlyInterestPaid).toLocaleString()}
+      </span>
+    )
+  },
+  {
     id: 'managementFees',
     header: 'Management Fees',
     tooltip: 'Property management fees',
@@ -42,6 +53,17 @@ export const getColumns = (marketData: MarketData): ColumnDef[] => [
     render: (projection) => (
       <span className="text-red-600">
         ${Math.round(projection.managementFees).toLocaleString()}
+      </span>
+    )
+  },
+  {
+    id: 'otherExpenses',
+    header: 'Other Expenses',
+    tooltip: 'Other expenses including maintenance, insurance, rates etc.',
+    group: 'Expenses',
+    render: (projection) => (
+      <span className="text-red-600">
+        ${Math.round(projection.yearlyExpenses - projection.yearlyInterestPaid - projection.managementFees).toLocaleString()}
       </span>
     )
   },

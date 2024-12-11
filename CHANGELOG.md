@@ -279,3 +279,9 @@
   - Removed context dependency and added proper prop types
   - Updated TableFooter explanations to focus on investment metrics
   - Removed outdated rent vs buy references from table footer
+
+### Changed
+- Added interest expenses and other expenses columns to projections table
+  - Split expenses into Interest, Management, Other, and Total categories
+  - Other expenses calculated as total minus interest and management fees
+  - Improved expense breakdown visibility for better analysis
