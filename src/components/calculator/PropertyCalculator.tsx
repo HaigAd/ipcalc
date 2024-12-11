@@ -121,6 +121,7 @@ export function PropertyCalculator() {
             onBuildingAndPestFeeChange={setBuildingAndPestFee}
             onCostStructureChange={updateCostStructure}
             onStateChange={setState}
+            setPropertyDetails={setPropertyDetails}
             renderComponent={renderComponent}
           />
         </div>

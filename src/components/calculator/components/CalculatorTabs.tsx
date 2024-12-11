@@ -22,6 +22,7 @@ interface CalculatorTabsProps {
   onBuildingAndPestFeeChange: (fee: number) => void;
   onCostStructureChange: (costs: Partial<CostStructure>) => void;
   onStateChange: (state: AustralianState) => void;
+  setPropertyDetails: (details: PropertyDetails) => void;
   renderComponent: (id: ComponentId, extraProps?: any) => React.ReactNode;
 }
 
@@ -37,6 +38,7 @@ export function CalculatorTabs({
   onBuildingAndPestFeeChange,
   onCostStructureChange,
   onStateChange,
+  setPropertyDetails,
   renderComponent
 }: CalculatorTabsProps) {
   const [activeTab, setActiveTab] = useState('property');
@@ -60,10 +62,6 @@ export function CalculatorTabs({
       />
     );
   }, [components, renderComponent, navigateToPurchaseTab]);
-
-  // Get the price component to extract setPropertyDetails
-  const priceComponent = renderComponent('price') as React.ReactElement;
-  const setPropertyDetails = priceComponent.props.setPropertyDetails;
 
   return (
     <>

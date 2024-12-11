@@ -247,3 +247,9 @@
   - Removed PropertySwitches component and its usage in LoanDetailsForm
   - Simplified usePropertyCalculator to focus on investment property calculations
   - These changes resolve 404 errors from missing files that were meant to be removed in previous cleanup
+
+### Fixed
+- Fixed setPropertyDetails not being passed correctly to InvestmentTab
+  - Removed anti-pattern of extracting setPropertyDetails from rendered component
+  - Added setPropertyDetails as direct prop to CalculatorTabs
+  - Fixed investment rent input functionality
