@@ -18,21 +18,24 @@ export const usePropertyCalculator = (
   const totalUpfrontCosts = propertyDetails.depositAmount + costStructure.purchaseCosts.total;
   const offsetAmount = Math.max(0, propertyDetails.availableSavings - totalUpfrontCosts);
 
-  // Get base projections with property value, loan balance, and offset calculations
-  const baseProjections = usePropertyProjections(propertyDetails, marketData, offsetAmount);
+  // Get projections with all calculations including investment metrics
+  const projections = usePropertyProjections(propertyDetails, marketData, costStructure, offsetAmount);
 
   // Calculate CGT implications
   const cgtResults = useCGTCalculations(marketData, propertyDetails, {
-    yearlyProjections: baseProjections.yearlyProjections
+    yearlyProjections: projections.yearlyProjections
   });
 
   return useMemo(() => ({
     yearlyProjections: cgtResults.yearlyProjections,
     offsetAmount,
-    totalInterestSaved: baseProjections.totalInterestSaved,
-    yearsReducedFromLoan: baseProjections.yearsReducedFromLoan,
-    monthsReducedFromLoan: baseProjections.monthsReducedFromLoan,
-    monthlyMortgagePayment: baseProjections.monthlyMortgagePayment,
-    principal: baseProjections.principal
-  }), [baseProjections, cgtResults, offsetAmount]);
+    totalInterestSaved: projections.totalInterestSaved,
+    yearsReducedFromLoan: projections.yearsReducedFromLoan,
+    monthsReducedFromLoan: projections.monthsReducedFromLoan,
+    monthlyMortgagePayment: projections.monthlyMortgagePayment,
+    principal: projections.principal,
+    netPositionAtEnd: projections.netPositionAtEnd,
+    totalDepreciation: projections.totalDepreciation,
+    averageROI: projections.averageROI
+  }), [projections, cgtResults, offsetAmount]);
 };

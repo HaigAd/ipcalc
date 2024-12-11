@@ -1,16 +1,15 @@
-import { PropertyDetails } from '../types';
+import { PropertyDetails, MarketData, CostStructure, CalculationResults } from '../types';
 import { ManagementFeeSlider } from './ManagementFeeSlider';
 import { DepreciationForm } from './DepreciationForm';
 import { InvestmentMetrics } from './InvestmentMetrics';
 import { InvestmentRentInput } from './InvestmentRentInput';
-import { useInvestmentMetrics } from '../hooks/useInvestmentMetrics';
 import { Card } from '../../ui/card';
 
 interface InvestmentTabProps {
   propertyDetails: PropertyDetails;
-  marketData: any;
-  costStructure: any;
-  calculationResults: any;
+  marketData: MarketData;
+  costStructure: CostStructure;
+  calculationResults: CalculationResults;
   setPropertyDetails: (details: PropertyDetails) => void;
 }
 
@@ -21,13 +20,6 @@ export function InvestmentTab({
   calculationResults,
   setPropertyDetails
 }: InvestmentTabProps) {
-  const { yearlyProjections, averageROI } = useInvestmentMetrics(
-    propertyDetails,
-    marketData,
-    costStructure,
-    calculationResults
-  );
-
   const handleInvestmentRentChange = (value: number) => {
     setPropertyDetails({
       ...propertyDetails,
@@ -83,10 +75,9 @@ export function InvestmentTab({
       </Card>
 
       <Card className="p-4 sm:p-6">
-        <h2 className="text-lg sm:text-xl font-semibold mb-4">Investment Metrics</h2>
         <InvestmentMetrics
-          yearlyProjections={yearlyProjections}
-          averageROI={averageROI}
+          yearlyProjections={calculationResults.yearlyProjections}
+          averageROI={calculationResults.averageROI}
         />
       </Card>
     </div>

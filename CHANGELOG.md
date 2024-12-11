@@ -253,3 +253,12 @@
   - Removed anti-pattern of extracting setPropertyDetails from rendered component
   - Added setPropertyDetails as direct prop to CalculatorTabs
   - Fixed investment rent input functionality
+
+### Changed
+- Consolidated investment property calculations
+  - Merged useInvestmentMetrics functionality into usePropertyProjections
+  - Enhanced amortization calculations to include investment metrics
+  - Added tax benefit, depreciation, and ROI calculations directly in projections
+  - Improved accuracy by calculating all metrics in the same loop
+  - Added netPositionAtEnd, totalDepreciation, and averageROI to results
+  - This consolidation ensures consistent calculations and better maintainability

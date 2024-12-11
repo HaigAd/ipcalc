@@ -83,6 +83,9 @@ export interface CalculationResults {
   monthsReducedFromLoan: number;
   monthlyMortgagePayment: number;
   principal: number;
+  netPositionAtEnd: number;     // Total equity plus final year cash flow
+  totalDepreciation: number;    // Total depreciation benefits over loan term
+  averageROI: number;          // Average return on investment over loan term
 }
 
 export interface MortgageCalculation {

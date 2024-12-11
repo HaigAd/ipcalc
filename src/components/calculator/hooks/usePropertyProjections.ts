@@ -1,5 +1,24 @@
 import { useMemo } from 'react';
-import { PropertyDetails, MarketData, YearlyProjection } from '../types';
+import { PropertyDetails, MarketData, YearlyProjection, CostStructure } from '../types';
+
+// Australian tax brackets for 2023-2024
+const TAX_BRACKETS = [
+  { min: 0, max: 18200, rate: 0, base: 0 },
+  { min: 18201, max: 45000, rate: 0.19, base: 0 },
+  { min: 45001, max: 120000, rate: 0.325, base: 5092 },
+  { min: 120001, max: 180000, rate: 0.37, base: 29467 },
+  { min: 180001, max: Infinity, rate: 0.45, base: 51667 }
+];
+
+const calculateTaxBenefit = (taxableIncome: number, negativeIncome: number) => {
+  const bracket = TAX_BRACKETS.find(b => 
+    taxableIncome >= b.min && taxableIncome <= b.max
+  );
+  
+  if (!bracket || negativeIncome >= 0) return 0;
+  
+  return Math.abs(negativeIncome) * bracket.rate;
+};
 
 const calculateMonthlyPayment = (principal: number, annualRate: number, years: number) => {
   const monthlyRate = (annualRate / 100) / 12;
@@ -28,6 +47,7 @@ const getMonthlyContribution = (offsetContribution: PropertyDetails['offsetContr
 export const usePropertyProjections = (
   propertyDetails: PropertyDetails,
   marketData: MarketData,
+  costStructure: CostStructure,
   offsetAmount: number
 ) => {
   return useMemo(() => {
@@ -37,6 +57,9 @@ export const usePropertyProjections = (
       propertyDetails.interestRate,
       propertyDetails.loanTerm
     );
+
+    // Calculate initial investment
+    const initialInvestment = propertyDetails.depositAmount + costStructure.purchaseCosts.total;
 
     const yearlyProjections: YearlyProjection[] = [];
     let currentPropertyValue = propertyDetails.purchasePrice;
@@ -60,6 +83,8 @@ export const usePropertyProjections = (
 
     // Calculate monthly contribution
     const monthlyContribution = getMonthlyContribution(propertyDetails.offsetContribution);
+
+    let previousPropertyValue = propertyDetails.purchasePrice;
 
     for (let year = 1; year <= propertyDetails.loanTerm; year++) {
       // Calculate property appreciation and rent increase at the start of each year
@@ -109,6 +134,49 @@ export const usePropertyProjections = (
       cumulativePrincipalPaid += yearlyPrincipalPaid;
       cumulativeOffsetContributions += yearlyOffsetContributions;
 
+      // Calculate management fees based on rental income
+      const managementFees = propertyDetails.managementFee.type === 'percentage'
+        ? (annualRent * propertyDetails.managementFee.value / 100)
+        : propertyDetails.managementFee.value;
+
+      // Calculate depreciation
+      const capitalWorksDepreciation = propertyDetails.capitalWorksDepreciation;
+      const plantEquipmentDepreciation = propertyDetails.plantEquipmentDepreciation;
+      const totalDepreciation = capitalWorksDepreciation + plantEquipmentDepreciation;
+
+      // Calculate yearly expenses (including all costs)
+      const yearlyExpenses = 
+        yearlyInterestPaid +                   // Interest cost
+        managementFees +                       // Property management
+        costStructure.annualPropertyCosts;     // Other property costs (maintenance, insurance, etc.)
+
+      // Calculate taxable income (rental income minus deductible expenses and depreciation)
+      const taxableIncome = annualRent - 
+                           yearlyExpenses - 
+                           totalDepreciation;
+
+      // Calculate tax benefit if negatively geared
+      const taxBenefit = calculateTaxBenefit(
+        propertyDetails.taxableIncome,
+        taxableIncome
+      );
+
+      // Calculate cash flow (includes tax benefits)
+      const cashFlow = annualRent - 
+                      yearlyExpenses -
+                      yearlyPrincipalPaid +    // Principal payments aren't tax deductible
+                      taxBenefit;
+
+      // Calculate equity position
+      const equity = currentPropertyValue - loanBalance;
+
+      // Calculate equity gain from previous year
+      const equityGain = currentPropertyValue - previousPropertyValue;
+      previousPropertyValue = currentPropertyValue;
+
+      // Calculate ROI for this year (Cash Flow + Equity Gain) / Initial Investment
+      const roi = ((cashFlow + equityGain) / initialInvestment) * 100;
+
       yearlyProjections.push({
         year,
         propertyValue: currentPropertyValue,
@@ -124,23 +192,29 @@ export const usePropertyProjections = (
         yearlyInterestPaid,
         yearlyOffsetContributions,
         cumulativeOffsetContributions,
-        managementFees: 0, // These will be calculated in useInvestmentMetrics
-        capitalWorksDepreciation: 0,
-        plantEquipmentDepreciation: 0,
-        totalDepreciation: 0,
-        yearlyExpenses: 0,
-        taxableIncome: 0,
-        taxBenefit: 0,
-        cashFlow: 0,
-        equity: currentPropertyValue - loanBalance,
-        roi: 0
+        managementFees,
+        capitalWorksDepreciation,
+        plantEquipmentDepreciation,
+        totalDepreciation,
+        yearlyExpenses,
+        taxableIncome,
+        taxBenefit,
+        cashFlow,
+        equity,
+        roi
       });
     }
 
-    // Calculate years and months reduced
+    // Calculate years and months reduced from loan term
     const monthsReduced = monthsToPayoff > 0 ? totalLoanMonths - monthsToPayoff : 0;
     const yearsReducedFromLoan = Math.floor(monthsReduced / 12);
     const monthsReducedFromLoan = monthsReduced % 12;
+
+    // Calculate overall investment metrics
+    const lastProjection = yearlyProjections[yearlyProjections.length - 1];
+    const netPositionAtEnd = lastProjection.equity + lastProjection.cashFlow;
+    const totalDepreciation = lastProjection.totalDepreciation * yearlyProjections.length;
+    const averageROI = yearlyProjections.reduce((acc, curr) => acc + curr.roi, 0) / yearlyProjections.length;
 
     return {
       yearlyProjections,
@@ -148,7 +222,10 @@ export const usePropertyProjections = (
       principal,
       totalInterestSaved: cumulativeInterestSaved,
       yearsReducedFromLoan,
-      monthsReducedFromLoan
+      monthsReducedFromLoan,
+      netPositionAtEnd,
+      totalDepreciation,
+      averageROI
     };
-  }, [propertyDetails, marketData, offsetAmount]);
+  }, [propertyDetails, marketData, costStructure, offsetAmount]);
 };
