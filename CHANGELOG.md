@@ -268,3 +268,14 @@
   - Improved tax benefit calculation to properly account for tax brackets and base amounts
   - Updated ROI calculation to use total invested capital including principal and offset contributions
   - Fixed property value appreciation timing for accurate equity gain calculations
+
+### Fixed
+- Removed duplicate YearlyProjectionsTable.tsx file that contained outdated rent vs buy columns
+  - The folder implementation (YearlyProjectionsTable/) is now the single source of truth
+  - This removes confusing rental scenario information from yearly projections
+
+### Changed
+- Updated YearlyProjectionsTable to use props instead of removed CalculatorContext
+  - Removed context dependency and added proper prop types
+  - Updated TableFooter explanations to focus on investment metrics
+  - Removed outdated rent vs buy references from table footer

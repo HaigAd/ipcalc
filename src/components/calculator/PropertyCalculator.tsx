@@ -72,7 +72,6 @@ export function PropertyCalculator() {
           <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
             <YearlyProjectionsTable
               yearlyProjections={calculationResults.yearlyProjections}
-              propertyDetails={propertyDetails}
               marketData={marketData}
             />
           </div>

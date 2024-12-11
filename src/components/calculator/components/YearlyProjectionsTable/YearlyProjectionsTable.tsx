@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-import { useCalculator } from '../../context/CalculatorContext';
+import { CalculationResults, MarketData } from '../../types';
 import { getColumns } from './columns';
 import { TableHeader } from './TableHeader';
 import { TableBody } from './TableBody';
 import { TableFooter } from './TableFooter';
 import { ColumnCustomizer } from './ColumnCustomizer';
 
-export function YearlyProjectionsTable() {
-  const { calculationResults, marketData } = useCalculator();
-  const { yearlyProjections } = calculationResults;
+interface YearlyProjectionsTableProps {
+  yearlyProjections: CalculationResults['yearlyProjections'];
+  marketData: MarketData;
+}
+
+export function YearlyProjectionsTable({ yearlyProjections, marketData }: YearlyProjectionsTableProps) {
   const columns = getColumns(marketData);
   
   // Initialize with all columns visible
