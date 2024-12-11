@@ -293,3 +293,18 @@
   - Added operatingExpensesGrowthRate to MarketData interface
   - Updated projections calculations to account for growing expenses
   - Shows projected costs and annual increase in slider card
+
+### Changed
+- Restructured calculator tabs for better organization:
+  - Renamed 'Property Details' to 'Investment Overview' for clarity
+  - Consolidated rental income and operating expenses into 'Income & Expenses' tab
+  - Created new 'Tax & Depreciation' tab combining tax implications and depreciation settings
+  - Improved tab naming and organization for investment property focus
+  - Added depreciation and taxImplications to ComponentId type
+
+### Changed
+- Streamlined InvestmentTab component:
+  - Moved depreciation settings to dedicated Tax & Depreciation tab
+  - Focused InvestmentTab on rental income and property management
+  - Maintained investment metrics display for quick reference
+  - Improved component organization and user flow

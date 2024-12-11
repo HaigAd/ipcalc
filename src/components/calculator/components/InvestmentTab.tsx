@@ -1,6 +1,5 @@
 import { PropertyDetails, MarketData, CostStructure, CalculationResults } from '../types';
 import { ManagementFeeSlider } from './ManagementFeeSlider';
-import { DepreciationForm } from './DepreciationForm';
 import { InvestmentMetrics } from './InvestmentMetrics';
 import { InvestmentRentInput } from './InvestmentRentInput';
 import { Card } from '../../ui/card';
@@ -34,20 +33,6 @@ export function InvestmentTab({
     });
   };
 
-  const handleDepreciationChange = (changes: {
-    capitalWorks?: number;
-    plantEquipment?: number;
-  }) => {
-    const newPropertyDetails = { ...propertyDetails };
-    if (changes.capitalWorks !== undefined) {
-      newPropertyDetails.capitalWorksDepreciation = changes.capitalWorks;
-    }
-    if (changes.plantEquipment !== undefined) {
-      newPropertyDetails.plantEquipmentDepreciation = changes.plantEquipment;
-    }
-    setPropertyDetails(newPropertyDetails);
-  };
-
   return (
     <div className="space-y-4">
       <Card className="p-4 sm:p-6">
@@ -63,14 +48,6 @@ export function InvestmentTab({
         <ManagementFeeSlider
           propertyDetails={propertyDetails}
           onManagementFeeChange={handleManagementFeeChange}
-        />
-      </Card>
-
-      <Card className="p-4 sm:p-6">
-        <h2 className="text-lg sm:text-xl font-semibold mb-4">Depreciation</h2>
-        <DepreciationForm
-          propertyDetails={propertyDetails}
-          onDepreciationChange={handleDepreciationChange}
         />
       </Card>
 
