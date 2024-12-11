@@ -71,6 +71,8 @@ export function TaxImplications({
   // Calculate first year tax benefit
   const firstYearProjection = yearlyProjections[0];
   const taxBenefit = firstYearProjection?.taxBenefit || 0;
+  const firstYearIncomeLoss = firstYearProjection?.taxableIncome || 0;
+  const finalTaxableIncome = propertyDetails.taxableIncome + firstYearIncomeLoss;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -211,10 +213,40 @@ export function TaxImplications({
           </h3>
           <div className="space-y-3">
             <div className="flex justify-between text-sm">
-              <span className="text-slate-600">Capital Works</span>
+              <span className="text-slate-600">Original Taxable Income</span>
               <span className="font-medium text-slate-900">
-                ${propertyDetails.capitalWorksDepreciation.toLocaleString()}
+                ${propertyDetails.taxableIncome.toLocaleString()}
               </span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-600">First Year Investment Income/Loss</span>
+              <span className="font-medium text-slate-900">
+                ${Math.round(firstYearIncomeLoss).toLocaleString()}
+              </span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-600">Final Taxable Income</span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger className="flex items-center space-x-1">
+                    <span className="font-medium text-slate-900">${Math.round(finalTaxableIncome).toLocaleString()}</span>
+                    <InfoIcon className="w-4 h-4 text-slate-400" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs text-sm">
+                      Original taxable income plus property investment income/loss
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <div className="pt-2 border-t border-slate-200">
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-600">Capital Works</span>
+                <span className="font-medium text-slate-900">
+                  ${propertyDetails.capitalWorksDepreciation.toLocaleString()}
+                </span>
+              </div>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-slate-600">Plant & Equipment</span>
@@ -232,6 +264,20 @@ export function TaxImplications({
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-slate-600">First Year Tax Benefit</span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger className="flex items-center space-x-1">
+                    <span>Tax Savings</span>
+                    <InfoIcon className="w-4 h-4 text-slate-400" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs text-sm">
+                      Tax benefit is calculated as the difference between tax payable on your original income
+                      and tax payable on your final taxable income after property deductions.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <span className="font-medium text-slate-900">
                 ${Math.round(taxBenefit).toLocaleString()}
               </span>
