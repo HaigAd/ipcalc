@@ -240,3 +240,10 @@
   - Updated TaxImplications to focus on investment property tax benefits
   - Updated usePurchaseCosts to always pass false for isPPOR and isFirstHomeBuyer
   - Kept state calculation files unchanged for compatibility with other calculators
+
+### Fixed
+- Removed deprecated rent vs buy functionality remnants
+  - Removed useComparativeMetrics hook and its usage in usePropertyCalculator
+  - Removed PropertySwitches component and its usage in LoanDetailsForm
+  - Simplified usePropertyCalculator to focus on investment property calculations
+  - These changes resolve 404 errors from missing files that were meant to be removed in previous cleanup

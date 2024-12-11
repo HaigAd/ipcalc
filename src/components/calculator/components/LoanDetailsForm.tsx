@@ -1,7 +1,6 @@
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
 import { PropertyDetails } from '../types';
-import { PropertySwitches } from './PropertySwitches';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '../../ui/accordion';
 import { OffsetContributionForm } from './OffsetContributionForm';
 import { defaultPropertyDetails } from '../config/defaults';
@@ -73,13 +72,6 @@ export function LoanDetailsForm({ propertyDetails, setPropertyDetails }: LoanDet
             })}
           />
         </div>
-      </div>
-
-      <div className="pt-1 sm:pt-2">
-        <PropertySwitches
-          propertyDetails={propertyDetails}
-          onPropertyDetailsChange={setPropertyDetails}
-        />
       </div>
 
       <Accordion type="single" collapsible className="border-t border-slate-200 pt-4">

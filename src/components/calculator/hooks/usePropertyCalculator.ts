@@ -7,7 +7,6 @@ import {
 } from '../types';
 import { usePropertyProjections } from './usePropertyProjections';
 import { useCGTCalculations } from './useCGTCalculations';
-import { useComparativeMetrics } from './useComparativeMetrics';
 
 export const usePropertyCalculator = (
   propertyDetails: PropertyDetails,
@@ -27,27 +26,13 @@ export const usePropertyCalculator = (
     yearlyProjections: baseProjections.yearlyProjections
   });
 
-  // Calculate comparative metrics and final projections
-  const comparativeResults = useComparativeMetrics(
-    propertyDetails,
-    marketData,
-    costStructure,
-    {
-      yearlyProjections: cgtResults.yearlyProjections,
-      offsetAmount
-    }
-  );
-
   return useMemo(() => ({
-    yearlyProjections: comparativeResults.yearlyProjections,
-    breakEvenYear: comparativeResults.breakEvenYear,
-    totalCostDifference: comparativeResults.totalCostDifference,
-    netPositionAtEnd: comparativeResults.netPositionAtEnd,
+    yearlyProjections: cgtResults.yearlyProjections,
     offsetAmount,
     totalInterestSaved: baseProjections.totalInterestSaved,
     yearsReducedFromLoan: baseProjections.yearsReducedFromLoan,
     monthsReducedFromLoan: baseProjections.monthsReducedFromLoan,
     monthlyMortgagePayment: baseProjections.monthlyMortgagePayment,
     principal: baseProjections.principal
-  }), [baseProjections, cgtResults, comparativeResults, offsetAmount]);
+  }), [baseProjections, cgtResults, offsetAmount]);
 };
