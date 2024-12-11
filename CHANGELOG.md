@@ -262,3 +262,9 @@
   - Improved accuracy by calculating all metrics in the same loop
   - Added netPositionAtEnd, totalDepreciation, and averageROI to results
   - This consolidation ensures consistent calculations and better maintainability
+
+### Fixed
+- Fixed yearly projections calculations:
+  - Improved tax benefit calculation to properly account for tax brackets and base amounts
+  - Updated ROI calculation to use total invested capital including principal and offset contributions
+  - Fixed property value appreciation timing for accurate equity gain calculations

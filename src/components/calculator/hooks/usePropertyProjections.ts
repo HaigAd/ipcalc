@@ -17,7 +17,10 @@ const calculateTaxBenefit = (taxableIncome: number, negativeIncome: number) => {
   
   if (!bracket || negativeIncome >= 0) return 0;
   
-  return Math.abs(negativeIncome) * bracket.rate;
+  // Calculate tax savings based on marginal rate and base amount
+  const taxOnIncome = (taxableIncome - bracket.min) * bracket.rate + bracket.base;
+  const taxOnReducedIncome = (taxableIncome + negativeIncome - bracket.min) * bracket.rate + bracket.base;
+  return taxOnIncome - taxOnReducedIncome;
 };
 
 const calculateMonthlyPayment = (principal: number, annualRate: number, years: number) => {
@@ -84,9 +87,9 @@ export const usePropertyProjections = (
     // Calculate monthly contribution
     const monthlyContribution = getMonthlyContribution(propertyDetails.offsetContribution);
 
-    let previousPropertyValue = propertyDetails.purchasePrice;
-
     for (let year = 1; year <= propertyDetails.loanTerm; year++) {
+      const previousPropertyValue = currentPropertyValue;
+      
       // Calculate property appreciation and rent increase at the start of each year
       currentPropertyValue *= (1 + marketData.propertyGrowthRate / 100);
       annualRent *= (1 + marketData.rentIncreaseRate / 100);
@@ -172,10 +175,12 @@ export const usePropertyProjections = (
 
       // Calculate equity gain from previous year
       const equityGain = currentPropertyValue - previousPropertyValue;
-      previousPropertyValue = currentPropertyValue;
 
-      // Calculate ROI for this year (Cash Flow + Equity Gain) / Initial Investment
-      const roi = ((cashFlow + equityGain) / initialInvestment) * 100;
+      // Calculate total invested capital (initial investment + cumulative principal + offset contributions)
+      const totalInvestedCapital = initialInvestment + cumulativePrincipalPaid + cumulativeOffsetContributions;
+
+      // Calculate ROI for this year (Cash Flow + Equity Gain) / Total Invested Capital
+      const roi = ((cashFlow + equityGain) / totalInvestedCapital) * 100;
 
       yearlyProjections.push({
         year,
