@@ -8,7 +8,7 @@ import { YearlyProjectionsTable } from './components/YearlyProjectionsTable';
 import { CalculatorTabs } from './components/CalculatorTabs';
 import { ComponentId } from './hooks/useComponentOrder';
 import { useCallback } from 'react';
-import { TaxImplications } from './components/TaxImplications';
+import { TaxImplications } from './components/TaxImplications/index';
 
 export function PropertyCalculator() {
   const {
@@ -82,9 +82,11 @@ export function PropertyCalculator() {
           <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
             <h2 className="text-2xl font-semibold mb-6">Tax & Depreciation</h2>
             <TaxImplications
-              yearlyProjections={calculationResults.yearlyProjections}
+              yearlyProjections={calculationResults.yearlyProjections.map(proj => ({
+                taxBenefit: proj.taxBenefit,
+                taxableIncome: proj.taxableIncome
+              }))}
               propertyDetails={propertyDetails}
-              marketData={marketData}
               onPropertyDetailsChange={setPropertyDetails}
             />
           </div>

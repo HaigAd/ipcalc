@@ -371,3 +371,4 @@
   - Improved type safety with proper TaxBracket interface
   - Maintained all existing functionality while reducing component complexity
   - Removed unused marketData prop
+- Updated TaxImplications component usage to match new interface requirements - removed marketData prop and mapped yearlyProjections to required shape
