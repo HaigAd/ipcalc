@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../ui/tabs';
-import { Home, TrendingUp, CreditCard, DollarSign } from 'lucide-react';
+import { Home, TrendingUp, CreditCard, DollarSign, PiggyBank } from 'lucide-react';
 import { PropertyDetails, MarketData, CostStructure, PurchaseCosts, CalculationResults, AustralianState } from '../types';
 import { MarketDataForm } from './MarketDataForm';
 import { PurchaseCostsForm } from './PurchaseCostsForm';
@@ -8,6 +8,7 @@ import { CostStructureForm } from './CostStructureForm';
 import { CalculatorLayout } from './CalculatorLayout';
 import { ComponentId } from '../hooks/useComponentOrder';
 import { cn } from '../../../lib/utils';
+import { InvestmentTab } from './InvestmentTab';
 
 interface CalculatorTabsProps {
   propertyDetails: PropertyDetails;
@@ -60,6 +61,10 @@ export function CalculatorTabs({
       />
     );
   }, [components, renderComponent, navigateToPurchaseTab]);
+
+  // Get the price component to extract setPropertyDetails
+  const priceComponent = renderComponent('price') as React.ReactElement;
+  const setPropertyDetails = priceComponent.props.setPropertyDetails;
 
   return (
     <>
@@ -154,8 +159,28 @@ export function CalculatorTabs({
             )}
           >
             <DollarSign className="h-4 w-4" />
-            <span className="sm:hidden"> Costs</span>
+            <span className="sm:hidden">Costs</span>
             <span className="hidden sm:inline">Ownership Costs</span>
+          </TabsTrigger>
+          <TabsTrigger 
+            value="investment"
+            className={cn(
+              "flex-1",
+              "px-2 py-1.5 text-xs sm:text-sm font-medium",
+              "rounded-md transition-all duration-200",
+              "text-slate-700 hover:text-slate-900",
+              "data-[state=active]:bg-white",
+              "data-[state=active]:text-slate-900",
+              "data-[state=active]:shadow-sm",
+              "data-[state=active]:ring-1",
+              "data-[state=active]:ring-slate-200/50",
+              "mx-0.5",
+              "flex items-center justify-center gap-1.5"
+            )}
+          >
+            <PiggyBank className="h-4 w-4" />
+            <span className="sm:hidden">Investment</span>
+            <span className="hidden sm:inline">Investment</span>
           </TabsTrigger>
         </TabsList>
 
@@ -191,6 +216,18 @@ export function CalculatorTabs({
               setCostStructure={onCostStructureChange}
               yearlyProjections={calculationResults.yearlyProjections}
               propertyDetails={propertyDetails}
+            />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="investment">
+          <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6 shadow-sm">
+            <InvestmentTab
+              propertyDetails={propertyDetails}
+              marketData={marketData}
+              costStructure={costStructure}
+              calculationResults={calculationResults}
+              setPropertyDetails={setPropertyDetails}
             />
           </div>
         </TabsContent>

@@ -191,3 +191,11 @@
     * InvestmentMetrics: Display of key investment metrics (cash flow, ROI, tax position)
   - Added investment property fields to PropertyDetails type
   - Created useInvestmentMetrics hook for investment-specific calculations
+
+### Changed
+- Integrated investment property tracking into UI:
+  - Added new InvestmentTab component combining management fees, depreciation, and investment metrics
+  - Added Investment tab to calculator navigation
+  - Displays key metrics including cash flow, ROI, depreciation benefits, and tax position
+  - Shows monthly and annual breakdowns of income, expenses, and returns
+  - Updated CalculatorTabs component to properly handle investment property props and state management

@@ -1,9 +1,0 @@
-@keyframes flash {
-  0% { background-color: transparent; }
-  50% { background-color: rgba(59, 130, 246, 0.1); }
-  100% { background-color: transparent; }
-}
-
-.flash-highlight {
-  animation: flash 2s ease-out;
-}
