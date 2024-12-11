@@ -23,7 +23,8 @@ export const defaultPropertyDetails: PropertyDetails = {
 export const defaultMarketData: MarketData = {
   propertyGrowthRate: 3,
   rentIncreaseRate: 3,
-  opportunityCostRate: 3
+  opportunityCostRate: 3,
+  operatingExpensesGrowthRate: 2.5  // Default 2.5% annual growth in operating expenses
 };
 
 export const defaultCostStructure: CostStructure = {

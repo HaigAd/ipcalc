@@ -1,22 +1,27 @@
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
 import { Card } from '../../ui/card';
-import { CostStructure, YearlyProjection, PropertyDetails } from '../types';
+import { CostStructure, YearlyProjection, PropertyDetails, MarketData } from '../types';
 import { MaintenanceSlider } from './MaintenanceSlider';
 import { FutureSellingCosts } from './FutureSellingCosts';
+import { OperatingExpensesGrowthSlider } from './OperatingExpensesGrowthSlider';
 
 interface CostStructureFormProps {
   costStructure: CostStructure;
   setCostStructure: (costs: Partial<CostStructure>) => void;
   yearlyProjections: YearlyProjection[];
   propertyDetails: PropertyDetails;
+  marketData: MarketData;
+  setMarketData: (data: MarketData) => void;
 }
 
 export function CostStructureForm({ 
   costStructure, 
   setCostStructure, 
   yearlyProjections, 
-  propertyDetails 
+  propertyDetails,
+  marketData,
+  setMarketData
 }: CostStructureFormProps) {
   const handleCostChange = (field: keyof CostStructure, value: number) => {
     const updates: Partial<CostStructure> = {
@@ -30,6 +35,13 @@ export function CostStructureForm({
       costStructure.maintenanceCost;
     
     setCostStructure(updates);
+  };
+
+  const handleOperatingExpensesGrowthChange = (value: number) => {
+    setMarketData({
+      ...marketData,
+      operatingExpensesGrowthRate: value
+    });
   };
 
   return (
@@ -82,6 +94,14 @@ export function CostStructureForm({
           yearlyProjections={yearlyProjections}
           onSellingCostsChange={setCostStructure}
         />
+
+        <div className="col-span-2">
+          <OperatingExpensesGrowthSlider
+            marketData={marketData}
+            costStructure={costStructure}
+            onOperatingExpensesGrowthChange={handleOperatingExpensesGrowthChange}
+          />
+        </div>
       </div>
     </Card>
   );

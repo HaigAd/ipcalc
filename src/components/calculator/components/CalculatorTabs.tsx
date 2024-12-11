@@ -213,6 +213,8 @@ export function CalculatorTabs({
               setCostStructure={onCostStructureChange}
               yearlyProjections={calculationResults.yearlyProjections}
               propertyDetails={propertyDetails}
+              marketData={marketData}
+              setMarketData={onMarketDataChange}
             />
           </div>
         </TabsContent>

@@ -22,6 +22,7 @@ export interface MarketData {
   propertyGrowthRate: number;
   rentIncreaseRate: number;
   opportunityCostRate: number;
+  operatingExpensesGrowthRate: number;  // Annual growth rate for operating expenses (0-10%)
 }
 
 export type AustralianState = 'NSW' | 'VIC' | 'QLD' | 'SA' | 'WA' | 'TAS' | 'NT' | 'ACT';

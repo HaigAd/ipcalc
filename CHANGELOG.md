@@ -285,3 +285,11 @@
   - Split expenses into Interest, Management, Other, and Total categories
   - Other expenses calculated as total minus interest and management fees
   - Improved expense breakdown visibility for better analysis
+
+### Added
+- Added operating expenses growth rate slider (0-10%, default 2.5%)
+  - New slider component for setting annual growth rate of operating expenses
+  - Operating expenses now increase yearly based on growth rate
+  - Added operatingExpensesGrowthRate to MarketData interface
+  - Updated projections calculations to account for growing expenses
+  - Shows projected costs and annual increase in slider card

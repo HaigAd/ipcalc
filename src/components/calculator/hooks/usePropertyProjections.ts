@@ -67,6 +67,7 @@ export const usePropertyProjections = (
     const yearlyProjections: YearlyProjection[] = [];
     let currentPropertyValue = propertyDetails.purchasePrice;
     let annualRent = propertyDetails.investmentRent * 52;
+    let currentAnnualPropertyCosts = costStructure.annualPropertyCosts;
     let cumulativePrincipalPaid = 0;
     let cumulativeInterestSaved = 0;
     let cumulativeOffsetContributions = 0;
@@ -90,9 +91,10 @@ export const usePropertyProjections = (
     for (let year = 1; year <= propertyDetails.loanTerm; year++) {
       const previousPropertyValue = currentPropertyValue;
       
-      // Calculate property appreciation and rent increase at the start of each year
+      // Calculate property appreciation, rent increase, and operating expenses growth at the start of each year
       currentPropertyValue *= (1 + marketData.propertyGrowthRate / 100);
       annualRent *= (1 + marketData.rentIncreaseRate / 100);
+      currentAnnualPropertyCosts *= (1 + marketData.operatingExpensesGrowthRate / 100);
 
       let yearlyOffsetContributions = 0;
       let yearlyInterestPaid = 0;
@@ -151,7 +153,7 @@ export const usePropertyProjections = (
       const yearlyExpenses = 
         yearlyInterestPaid +                   // Interest cost
         managementFees +                       // Property management
-        costStructure.annualPropertyCosts;     // Other property costs (maintenance, insurance, etc.)
+        currentAnnualPropertyCosts;            // Other property costs (maintenance, insurance, etc.) with growth
 
       // Calculate taxable income (rental income minus deductible expenses and depreciation)
       const taxableIncome = annualRent - 
