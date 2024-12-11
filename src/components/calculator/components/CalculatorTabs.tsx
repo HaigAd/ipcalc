@@ -1,14 +1,17 @@
 import React, { useState, useCallback } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../ui/tabs';
-import { Home, TrendingUp, CreditCard, Receipt, Calculator } from 'lucide-react';
+import { Tabs, TabsList } from '../../ui/tabs';
 import { PropertyDetails, MarketData, CostStructure, PurchaseCosts, CalculationResults, AustralianState } from '../types';
-import { MarketDataForm } from './MarketDataForm';
-import { PurchaseCostsForm } from './PurchaseCostsForm';
-import { CostStructureForm } from './CostStructureForm';
-import { CalculatorLayout } from './CalculatorLayout';
 import { ComponentId } from '../hooks/useComponentOrder';
-import { cn } from '../../../lib/utils';
-import { InvestmentTab } from './InvestmentTab';
+import {
+  TAB_CONFIG,
+  CustomTabTrigger,
+  TabContent,
+  OverviewTabContent,
+  IncomeTabContent,
+  MarketTabContent,
+  TaxTabContent,
+  PurchaseTabContent
+} from './Tabs';
 
 interface CalculatorTabsProps {
   propertyDetails: PropertyDetails;
@@ -54,15 +57,6 @@ export function CalculatorTabs({
     setShouldFlashStateSelector(false);
   };
 
-  const renderOverviewTab = useCallback(() => {
-    return (
-      <CalculatorLayout
-        components={components}
-        renderComponent={(id) => renderComponent(id, id === 'price' ? { onStateClick: navigateToPurchaseTab } : undefined)}
-      />
-    );
-  }, [components, renderComponent, navigateToPurchaseTab]);
-
   return (
     <>
       <style>
@@ -79,160 +73,51 @@ export function CalculatorTabs({
       </style>
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="flex w-full bg-slate-100/80 backdrop-blur supports-[backdrop-filter]:bg-slate-100/80 p-1 rounded-lg">
-          <TabsTrigger 
-            value="overview" 
-            className={cn(
-              "flex-1",
-              "px-2 py-1.5 text-xs sm:text-sm font-medium",
-              "rounded-md transition-all duration-200",
-              "text-slate-700 hover:text-slate-900",
-              "data-[state=active]:bg-white",
-              "data-[state=active]:text-slate-900",
-              "data-[state=active]:shadow-sm",
-              "data-[state=active]:ring-1",
-              "data-[state=active]:ring-slate-200/50",
-              "mx-0.5",
-              "flex items-center justify-center gap-1.5"
-            )}
-          >
-            <Home className="h-4 w-4" />
-            <span className="sm:hidden">Overview</span>
-            <span className="hidden sm:inline">Investment Overview</span>
-          </TabsTrigger>
-          <TabsTrigger 
-            value="income"
-            className={cn(
-              "flex-1",
-              "px-2 py-1.5 text-xs sm:text-sm font-medium",
-              "rounded-md transition-all duration-200",
-              "text-slate-700 hover:text-slate-900",
-              "data-[state=active]:bg-white",
-              "data-[state=active]:text-slate-900",
-              "data-[state=active]:shadow-sm",
-              "data-[state=active]:ring-1",
-              "data-[state=active]:ring-slate-200/50",
-              "mx-0.5",
-              "flex items-center justify-center gap-1.5"
-            )}
-          >
-            <Receipt className="h-4 w-4" />
-            <span className="sm:hidden">Income</span>
-            <span className="hidden sm:inline">Income & Expenses</span>
-          </TabsTrigger>
-          <TabsTrigger 
-            value="market"
-            className={cn(
-              "flex-1",
-              "px-2 py-1.5 text-xs sm:text-sm font-medium",
-              "rounded-md transition-all duration-200",
-              "text-slate-700 hover:text-slate-900",
-              "data-[state=active]:bg-white",
-              "data-[state=active]:text-slate-900",
-              "data-[state=active]:shadow-sm",
-              "data-[state=active]:ring-1",
-              "data-[state=active]:ring-slate-200/50",
-              "mx-0.5",
-              "flex items-center justify-center gap-1.5"
-            )}
-          >
-            <TrendingUp className="h-4 w-4" />
-            <span className="sm:hidden">Market</span>
-            <span className="hidden sm:inline">Market Analysis</span>
-          </TabsTrigger>
-          <TabsTrigger 
-            value="tax"
-            className={cn(
-              "flex-1",
-              "px-2 py-1.5 text-xs sm:text-sm font-medium",
-              "rounded-md transition-all duration-200",
-              "text-slate-700 hover:text-slate-900",
-              "data-[state=active]:bg-white",
-              "data-[state=active]:text-slate-900",
-              "data-[state=active]:shadow-sm",
-              "data-[state=active]:ring-1",
-              "data-[state=active]:ring-slate-200/50",
-              "mx-0.5",
-              "flex items-center justify-center gap-1.5"
-            )}
-          >
-            <Calculator className="h-4 w-4" />
-            <span className="sm:hidden">Tax</span>
-            <span className="hidden sm:inline">Tax & Depreciation</span>
-          </TabsTrigger>
-          <TabsTrigger 
-            value="purchase"
-            className={cn(
-              "flex-1",
-              "px-2 py-1.5 text-xs sm:text-sm font-medium",
-              "rounded-md transition-all duration-200",
-              "text-slate-700 hover:text-slate-900",
-              "data-[state=active]:bg-white",
-              "data-[state=active]:text-slate-900",
-              "data-[state=active]:shadow-sm",
-              "data-[state=active]:ring-1",
-              "data-[state=active]:ring-slate-200/50",
-              "mx-0.5",
-              "flex items-center justify-center gap-1.5"
-            )}
-          >
-            <CreditCard className="h-4 w-4" />
-            <span className="sm:hidden">Purchase</span>
-            <span className="hidden sm:inline">Purchase Costs</span>
-          </TabsTrigger>
+          {TAB_CONFIG.map(tab => (
+            <CustomTabTrigger key={tab.id} tab={tab} />
+          ))}
         </TabsList>
 
-        <TabsContent value="overview">
-          {renderOverviewTab()}
-        </TabsContent>
+        <TabContent value="overview">
+          <OverviewTabContent
+            components={components}
+            renderComponent={renderComponent}
+            onStateClick={navigateToPurchaseTab}
+          />
+        </TabContent>
 
-        <TabsContent value="income">
-          <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6 shadow-sm">
-            <div className="space-y-6">
-              <InvestmentTab
-                propertyDetails={propertyDetails}
-                marketData={marketData}
-                costStructure={costStructure}
-                calculationResults={calculationResults}
-                setPropertyDetails={setPropertyDetails}
-              />
-              <CostStructureForm
-                costStructure={costStructure}
-                setCostStructure={onCostStructureChange}
-                yearlyProjections={calculationResults.yearlyProjections}
-                propertyDetails={propertyDetails}
-                marketData={marketData}
-                setMarketData={onMarketDataChange}
-              />
-            </div>
-          </div>
-        </TabsContent>
+        <TabContent value="income">
+          <IncomeTabContent
+            propertyDetails={propertyDetails}
+            marketData={marketData}
+            costStructure={costStructure}
+            calculationResults={calculationResults}
+            setPropertyDetails={setPropertyDetails}
+            onCostStructureChange={onCostStructureChange}
+            onMarketDataChange={onMarketDataChange}
+          />
+        </TabContent>
 
-        <TabsContent value="market">
-          <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6 shadow-sm">
-            <MarketDataForm
-              marketData={marketData}
-              setMarketData={onMarketDataChange}
-            />
-          </div>
-        </TabsContent>
+        <TabContent value="market">
+          <MarketTabContent
+            marketData={marketData}
+            onMarketDataChange={onMarketDataChange}
+          />
+        </TabContent>
 
-        <TabsContent value="tax">
-          <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6 shadow-sm">
-            {renderComponent('taxImplications')}
-          </div>
-        </TabsContent>
+        <TabContent value="tax">
+          <TaxTabContent renderComponent={renderComponent} />
+        </TabContent>
 
-        <TabsContent value="purchase">
-          <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6 shadow-sm">
-            <PurchaseCostsForm
-              purchaseCosts={purchaseCosts}
-              onConveyancingFeeChange={onConveyancingFeeChange}
-              onBuildingAndPestFeeChange={onBuildingAndPestFeeChange}
-              onStateChange={onStateChange}
-              shouldFlash={shouldFlashStateSelector}
-            />
-          </div>
-        </TabsContent>
+        <TabContent value="purchase">
+          <PurchaseTabContent
+            purchaseCosts={purchaseCosts}
+            onConveyancingFeeChange={onConveyancingFeeChange}
+            onBuildingAndPestFeeChange={onBuildingAndPestFeeChange}
+            onStateChange={onStateChange}
+            shouldFlash={shouldFlashStateSelector}
+          />
+        </TabContent>
       </Tabs>
     </>
   );
