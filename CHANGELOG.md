@@ -315,3 +315,9 @@
   - Removed cost projections from sliders to reduce complexity
   - Improved slider responsiveness with local state management
   - Enhanced user experience with smoother value updates during dragging
+
+### Added
+- Added TaxableIncomeInput component to Tax & Depreciation tab
+  - Allows users to input their annual taxable income
+  - Shows current tax bracket and marginal rate
+  - Improves accuracy of tax benefit calculations by considering total taxable income

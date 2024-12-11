@@ -1,27 +1,6 @@
 import { useMemo } from 'react';
 import { PropertyDetails, MarketData, YearlyProjection, CostStructure } from '../types';
-
-// Australian tax brackets for 2023-2024
-const TAX_BRACKETS = [
-  { min: 0, max: 18200, rate: 0, base: 0 },
-  { min: 18201, max: 45000, rate: 0.19, base: 0 },
-  { min: 45001, max: 120000, rate: 0.325, base: 5092 },
-  { min: 120001, max: 180000, rate: 0.37, base: 29467 },
-  { min: 180001, max: Infinity, rate: 0.45, base: 51667 }
-];
-
-const calculateTaxBenefit = (taxableIncome: number, negativeIncome: number) => {
-  const bracket = TAX_BRACKETS.find(b => 
-    taxableIncome >= b.min && taxableIncome <= b.max
-  );
-  
-  if (!bracket || negativeIncome >= 0) return 0;
-  
-  // Calculate tax savings based on marginal rate and base amount
-  const taxOnIncome = (taxableIncome - bracket.min) * bracket.rate + bracket.base;
-  const taxOnReducedIncome = (taxableIncome + negativeIncome - bracket.min) * bracket.rate + bracket.base;
-  return taxOnIncome - taxOnReducedIncome;
-};
+import { calculateTaxBenefit } from '../calculations/taxCalculations';
 
 const calculateMonthlyPayment = (principal: number, annualRate: number, years: number) => {
   const monthlyRate = (annualRate / 100) / 12;
@@ -155,15 +134,15 @@ export const usePropertyProjections = (
         managementFees +                       // Property management
         currentAnnualPropertyCosts;            // Other property costs (maintenance, insurance, etc.) with growth
 
-      // Calculate taxable income (rental income minus deductible expenses and depreciation)
-      const taxableIncome = annualRent - 
+      // Calculate property income (rental income minus deductible expenses and depreciation)
+      const propertyIncome = annualRent - 
                            yearlyExpenses - 
                            totalDepreciation;
 
-      // Calculate tax benefit if negatively geared
+      // Calculate tax benefit using the imported function
       const taxBenefit = calculateTaxBenefit(
         propertyDetails.taxableIncome,
-        taxableIncome
+        propertyIncome
       );
 
       // Calculate cash flow (includes tax benefits)
@@ -204,7 +183,7 @@ export const usePropertyProjections = (
         plantEquipmentDepreciation,
         totalDepreciation,
         yearlyExpenses,
-        taxableIncome,
+        taxableIncome: propertyIncome,
         taxBenefit,
         cashFlow,
         equity,
