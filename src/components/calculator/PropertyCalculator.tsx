@@ -8,7 +8,6 @@ import { YearlyProjectionsTable } from './components/YearlyProjectionsTable';
 import { CalculatorTabs } from './components/CalculatorTabs';
 import { ComponentId } from './hooks/useComponentOrder';
 import { useCallback } from 'react';
-import { DepreciationForm } from './components/DepreciationForm';
 import { TaxImplications } from './components/TaxImplications';
 
 export function PropertyCalculator() {
@@ -28,14 +27,6 @@ export function PropertyCalculator() {
   } = useCalculatorState();
 
   const { components } = useComponentOrder();
-
-  const handleDepreciationChange = useCallback(({ capitalWorks, plantEquipment }: { capitalWorks?: number; plantEquipment?: number }) => {
-    setPropertyDetails(prev => ({
-      ...prev,
-      capitalWorksDepreciation: capitalWorks ?? prev.capitalWorksDepreciation,
-      plantEquipmentDepreciation: plantEquipment ?? prev.plantEquipmentDepreciation,
-    }));
-  }, [setPropertyDetails]);
 
   const renderComponent = useCallback((id: ComponentId, extraProps?: any) => {
     switch (id) {
@@ -86,20 +77,10 @@ export function PropertyCalculator() {
             />
           </div>
         );
-      case 'depreciation':
-        return (
-          <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-            <h2 className="text-2xl font-semibold mb-6">Depreciation Settings</h2>
-            <DepreciationForm
-              propertyDetails={propertyDetails}
-              onDepreciationChange={handleDepreciationChange}
-            />
-          </div>
-        );
       case 'taxImplications':
         return (
           <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-            <h2 className="text-2xl font-semibold mb-6">Tax Implications</h2>
+            <h2 className="text-2xl font-semibold mb-6">Tax & Depreciation</h2>
             <TaxImplications
               yearlyProjections={calculationResults.yearlyProjections}
               propertyDetails={propertyDetails}
@@ -109,7 +90,7 @@ export function PropertyCalculator() {
           </div>
         );
     }
-  }, [propertyDetails, setPropertyDetails, marketData, costStructure, calculationResults, purchaseCosts, handleDepreciationChange]);
+  }, [propertyDetails, setPropertyDetails, marketData, costStructure, calculationResults, purchaseCosts]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 py-8">

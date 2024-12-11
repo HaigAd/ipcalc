@@ -218,10 +218,7 @@ export function CalculatorTabs({
 
         <TabsContent value="tax">
           <div className="bg-white rounded-lg border border-slate-200 p-4 sm:p-6 shadow-sm">
-            <div className="space-y-6">
-              {renderComponent('depreciation')}
-              {renderComponent('taxImplications')}
-            </div>
+            {renderComponent('taxImplications')}
           </div>
         </TabsContent>
 

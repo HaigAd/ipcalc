@@ -338,3 +338,14 @@
   - Added missing onPropertyDetailsChange prop to TaxImplications component
   - Ensured proper prop drilling for tax input changes
   - Fixed tax bracket display and calculations
+
+### Changed
+- Streamlined Tax & Depreciation UI for better usability:
+  - Consolidated tax and depreciation inputs into a unified two-column layout
+  - Added comprehensive tax benefits summary showing first year and monthly benefits
+  - Improved information density by removing redundant whitespace
+  - Added tooltips for clearer explanation of each input
+  - Removed separate DepreciationForm and TaxableIncomeInput components
+  - Integrated all tax and depreciation functionality into TaxImplications component
+  - Enhanced visual hierarchy with clear section grouping
+  - Added real-time tax bracket and benefit calculations
