@@ -2,6 +2,7 @@ import { PropertyDetails } from '../types';
 import { ManagementFeeSlider } from './ManagementFeeSlider';
 import { DepreciationForm } from './DepreciationForm';
 import { InvestmentMetrics } from './InvestmentMetrics';
+import { InvestmentRentInput } from './InvestmentRentInput';
 import { useInvestmentMetrics } from '../hooks/useInvestmentMetrics';
 import { Card } from '../../ui/card';
 
@@ -27,6 +28,13 @@ export function InvestmentTab({
     calculationResults
   );
 
+  const handleInvestmentRentChange = (value: number) => {
+    setPropertyDetails({
+      ...propertyDetails,
+      investmentRent: value
+    });
+  };
+
   const handleManagementFeeChange = (value: { type: 'percentage' | 'fixed'; value: number }) => {
     setPropertyDetails({
       ...propertyDetails,
@@ -50,6 +58,14 @@ export function InvestmentTab({
 
   return (
     <div className="space-y-4">
+      <Card className="p-4 sm:p-6">
+        <h2 className="text-lg sm:text-xl font-semibold mb-4">Rental Income</h2>
+        <InvestmentRentInput
+          propertyDetails={propertyDetails}
+          onInvestmentRentChange={handleInvestmentRentChange}
+        />
+      </Card>
+
       <Card className="p-4 sm:p-6">
         <h2 className="text-lg sm:text-xl font-semibold mb-4">Property Management</h2>
         <ManagementFeeSlider

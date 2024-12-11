@@ -8,6 +8,7 @@ export interface PropertyDetails {
   isFirstHomeBuyer: boolean;
   considerPPORTax: boolean;
   weeklyRent: number;
+  investmentRent: number;  // New field for investment property rental income
   otherPropertyValue: number;
   otherPropertyCostBase: number;
   offsetContribution: {

@@ -9,7 +9,8 @@ export const defaultPropertyDetails: PropertyDetails = {
   isPPOR: false,
   isFirstHomeBuyer: false,
   considerPPORTax: false,
-  weeklyRent: 750, // Moved from MarketData
+  weeklyRent: 750, // Used for rent vs buy comparison
+  investmentRent: 750, // New field for investment property rental income
   otherPropertyValue: 1200000, // Moved from MarketData
   otherPropertyCostBase: 1258000, // Cost base of the other property for CGT calculations
   offsetContribution: {
