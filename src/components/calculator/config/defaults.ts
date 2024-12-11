@@ -15,7 +15,14 @@ export const defaultPropertyDetails: PropertyDetails = {
   offsetContribution: {
     amount: 0,
     frequency: 'monthly'
-  }
+  },
+  managementFee: {
+    type: 'percentage',
+    value: 7.5
+  },
+  capitalWorksDepreciation: 0,
+  plantEquipmentDepreciation: 0,
+  taxableIncome: 120000
 };
 
 export const defaultMarketData: MarketData = {

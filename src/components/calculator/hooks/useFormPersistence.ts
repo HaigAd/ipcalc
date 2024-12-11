@@ -14,7 +14,36 @@ export function getStoredState(): PersistedState | null {
   const persistedState = localStorage.getItem(STORAGE_KEY);
   if (persistedState) {
     try {
-      return JSON.parse(persistedState) as PersistedState;
+      const parsed = JSON.parse(persistedState) as PersistedState;
+      // Merge with defaults to ensure all required fields exist
+      return {
+        propertyDetails: {
+          ...defaultPropertyDetails,
+          ...parsed.propertyDetails,
+          // Ensure nested objects are properly merged
+          managementFee: {
+            ...defaultPropertyDetails.managementFee,
+            ...(parsed.propertyDetails.managementFee || {})
+          },
+          offsetContribution: {
+            ...defaultPropertyDetails.offsetContribution,
+            ...(parsed.propertyDetails.offsetContribution || {})
+          }
+        },
+        marketData: {
+          ...defaultMarketData,
+          ...parsed.marketData
+        },
+        costStructure: {
+          ...defaultCostStructure,
+          ...parsed.costStructure,
+          // Ensure nested objects are properly merged
+          purchaseCosts: {
+            ...defaultCostStructure.purchaseCosts,
+            ...(parsed.costStructure.purchaseCosts || {})
+          }
+        }
+      };
     } catch (error) {
       console.error('Error loading persisted state:', error);
     }
