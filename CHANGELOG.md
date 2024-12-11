@@ -321,3 +321,20 @@
   - Allows users to input their annual taxable income
   - Shows current tax bracket and marginal rate
   - Improves accuracy of tax benefit calculations by considering total taxable income
+
+## [2024-12-11]
+### Changed
+- Updated tax brackets to 2023-2024 rates:
+  - $0 – $18,200: 0%
+  - $18,201 – $45,000: 16%
+  - $45,001 – $135,000: 30%
+  - $135,001 – $190,000: 37%
+  - $190,001 and over: 45%
+- Updated Medicare levy to 2%
+- Enhanced tax calculations to include Medicare levy in total tax payable
+
+### Fixed
+- Fixed tax input functionality:
+  - Added missing onPropertyDetailsChange prop to TaxImplications component
+  - Ensured proper prop drilling for tax input changes
+  - Fixed tax bracket display and calculations

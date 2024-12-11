@@ -1,6 +1,6 @@
 import { PropertyDetails } from '../types';
 import { Input } from '../../ui/input';
-import { getTaxBracket, TAX_BRACKETS } from '../calculations/taxCalculations';
+import { getTaxBracket, calculateTaxPayable, TAX_BRACKETS } from '../calculations/taxCalculations';
 import { useState } from 'react';
 
 interface TaxableIncomeInputProps {
@@ -12,11 +12,8 @@ export function TaxableIncomeInput({ propertyDetails, onPropertyDetailsChange }:
   const [inputValue, setInputValue] = useState(propertyDetails.taxableIncome.toString());
 
   const handleIncomeChange = (value: string) => {
-    // Allow empty input or numbers only
     if (value === '' || /^\d*$/.test(value)) {
       setInputValue(value);
-      
-      // Update property details with numeric value
       const income = value === '' ? 0 : parseInt(value, 10);
       onPropertyDetailsChange({
         ...propertyDetails,
@@ -26,18 +23,25 @@ export function TaxableIncomeInput({ propertyDetails, onPropertyDetailsChange }:
   };
 
   const handleBlur = () => {
-    // Format the number on blur
     const income = inputValue === '' ? 0 : parseInt(inputValue, 10);
     setInputValue(income.toLocaleString());
   };
 
   const handleFocus = () => {
-    // Remove formatting when input is focused
     setInputValue(propertyDetails.taxableIncome.toString());
   };
 
   const bracket = getTaxBracket(propertyDetails.taxableIncome);
-  const description = bracket ? `${(bracket.rate * 100).toFixed(1)}c for each $1 over $${bracket.min.toLocaleString()}` : 'No tax payable';
+  const taxPayable = calculateTaxPayable(propertyDetails.taxableIncome);
+  
+  let description = 'Nil';
+  if (bracket && bracket.rate > 0) {
+    if (bracket.base > 0) {
+      description = `$${bracket.base.toLocaleString()} plus ${(bracket.rate * 100)}c for each $1 over $${bracket.min.toLocaleString()}`;
+    } else {
+      description = `${(bracket.rate * 100)}c for each $1 over $${bracket.min.toLocaleString()}`;
+    }
+  }
 
   return (
     <div className="mb-4 p-3 bg-gray-100 rounded-md">
@@ -58,27 +62,17 @@ export function TaxableIncomeInput({ propertyDetails, onPropertyDetailsChange }:
       </div>
       
       <div className="mt-2 text-sm">
-        <p className="font-medium">Your Tax Bracket:</p>
+        <p className="font-medium">Tax Bracket:</p>
         <p className="text-gray-600">
-          Marginal Rate: {bracket ? (bracket.rate * 100).toFixed(1) : 0}%
+          ${bracket?.min.toLocaleString()} - ${bracket?.max === Infinity ? '∞' : bracket?.max.toLocaleString()}
         </p>
-        <p className="text-gray-600 text-xs">
+        <p className="text-gray-600">
           {description}
         </p>
+        <p className="mt-2 font-medium">
+          Tax Payable: ${Math.round(taxPayable).toLocaleString()}
+        </p>
       </div>
-
-      <div className="mt-3 text-xs text-gray-500">
-        <p className="font-medium mb-1">Tax Brackets 2023-24:</p>
-        {TAX_BRACKETS.map((b, i) => (
-          <p key={i} className={`${propertyDetails.taxableIncome >= b.min && propertyDetails.taxableIncome <= b.max ? 'font-medium' : ''}`}>
-            ${b.min.toLocaleString()} - ${b.max === Infinity ? '∞' : `$${b.max.toLocaleString()}`}: {(b.rate * 100).toFixed(1)}%
-          </p>
-        ))}
-      </div>
-
-      <p className="mt-3 text-xs italic text-gray-500">
-        Your taxable income affects the tax benefits from negative gearing. Higher income means larger tax savings from property deductions.
-      </p>
     </div>
   );
 }

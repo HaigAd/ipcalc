@@ -104,6 +104,7 @@ export function PropertyCalculator() {
               yearlyProjections={calculationResults.yearlyProjections}
               propertyDetails={propertyDetails}
               marketData={marketData}
+              onPropertyDetailsChange={setPropertyDetails}
             />
           </div>
         );
