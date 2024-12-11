@@ -6,13 +6,7 @@ export const defaultPropertyDetails: PropertyDetails = {
   availableSavings: 300000,
   interestRate: 6.17,
   loanTerm: 30,
-  isPPOR: false,
-  isFirstHomeBuyer: false,
-  considerPPORTax: false,
-  weeklyRent: 750, // Used for rent vs buy comparison
-  investmentRent: 750, // New field for investment property rental income
-  otherPropertyValue: 1200000, // Moved from MarketData
-  otherPropertyCostBase: 1258000, // Cost base of the other property for CGT calculations
+  investmentRent: 750, // Weekly rental income
   offsetContribution: {
     amount: 0,
     frequency: 'monthly'

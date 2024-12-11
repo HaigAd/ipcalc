@@ -199,3 +199,37 @@
   - Displays key metrics including cash flow, ROI, depreciation benefits, and tax position
   - Shows monthly and annual breakdowns of income, expenses, and returns
   - Updated CalculatorTabs component to properly handle investment property props and state management
+
+### Changed
+- Removed rent vs buy comparison functionality
+  - Removed RentVsBuyCalculator.tsx, useComparativeMetrics.ts, and PropertyDetailsForm.tsx
+  - Removed rent vs buy related fields from types and interfaces
+  - Simplified PropertyDetails to focus on investment property calculations
+  - Updated usePropertyProjections to use investmentRent instead of weeklyRent
+  - Renamed and reorganized calculator tabs to focus on investment property management
+  - Added new InvestmentRentInput component for setting rental income
+  - Updated ManagementFeeSlider to use investmentRent for calculations
+
+### In Progress - Removing Rent vs Buy Functionality
+#### Completed:
+- Removed RentVsBuyCalculator.tsx and PropertyDetailsForm.tsx
+- Updated types.ts to remove rent vs buy fields and focus on investment property
+- Added new InvestmentRentInput component
+- Updated ManagementFeeSlider to use investmentRent
+- Updated usePropertyProjections to use investmentRent
+- Renamed calculator tabs to focus on investment property management
+- Updated YearlyProjectionsTable columns for investment focus
+- Started updating ProjectionsGraph components for investment metrics
+
+#### Still To Do:
+- Fix TypeScript errors in ProjectionsGraph components
+- Remove useComparativeMetrics.ts and other rent vs buy calculation files
+- Update PropertyPriceForm to remove weeklyRent field
+- Clean up any remaining rent vs buy references in:
+  - PropertyCalculator.tsx
+  - usePropertyCalculator.ts
+  - calculations/propertyProjections.ts
+  - calculations/cgtCalculations.ts
+  - calculations/states/* (PPOR and first home buyer logic)
+  - TaxImplications.tsx (PPOR references)
+  - Any other components that might reference rent vs buy comparisons

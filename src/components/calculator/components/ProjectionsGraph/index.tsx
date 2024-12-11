@@ -5,7 +5,8 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
+  Legend
 } from 'recharts';
 import { CustomTooltip } from './CustomTooltip';
 import { useProjectionsData, formatAxisValue } from './useProjectionsData';
@@ -24,7 +25,7 @@ export function ProjectionsGraph() {
             data={processedData}
             margin={{
               top: 5,
-              right: 5,
+              right: 30,
               left: 0,
               bottom: 5,
             }}
@@ -43,7 +44,7 @@ export function ProjectionsGraph() {
             />
             <YAxis
               label={{ 
-                value: 'Net Position', 
+                value: 'Value ($)', 
                 angle: -90, 
                 position: 'insideLeft',
                 style: { 
@@ -61,21 +62,30 @@ export function ProjectionsGraph() {
               content={<CustomTooltip />}
               wrapperStyle={{ outline: 'none' }}
             />
+            <Legend />
             <Line
               type="monotone"
-              dataKey="positiveValue"
+              dataKey="equity"
+              name="Equity"
               stroke="#16a34a"
               strokeWidth={2}
               dot={false}
-              connectNulls
             />
             <Line
               type="monotone"
-              dataKey="negativeValue"
-              stroke="#dc2626"
+              dataKey="cashFlow"
+              name="Cash Flow"
+              stroke="#2563eb"
               strokeWidth={2}
               dot={false}
-              connectNulls
+            />
+            <Line
+              type="monotone"
+              dataKey="rentalIncome"
+              name="Rental Income"
+              stroke="#9333ea"
+              strokeWidth={2}
+              dot={false}
             />
           </LineChart>
         </ResponsiveContainer>

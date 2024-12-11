@@ -24,6 +24,61 @@ export const getColumns = (marketData: MarketData): ColumnDef[] => [
     render: (projection) => `$${Math.round(projection.propertyValue).toLocaleString()}`
   },
   {
+    id: 'rentalIncome',
+    header: 'Rental Income',
+    tooltip: 'Annual rental income after rent increases',
+    group: 'Income',
+    render: (projection) => (
+      <span className="text-green-600">
+        ${Math.round(projection.rentalIncome).toLocaleString()}
+      </span>
+    )
+  },
+  {
+    id: 'managementFees',
+    header: 'Management Fees',
+    tooltip: 'Property management fees',
+    group: 'Expenses',
+    render: (projection) => (
+      <span className="text-red-600">
+        ${Math.round(projection.managementFees).toLocaleString()}
+      </span>
+    )
+  },
+  {
+    id: 'yearlyExpenses',
+    header: 'Total Expenses',
+    tooltip: 'All expenses including interest, management fees, maintenance etc.',
+    group: 'Expenses',
+    render: (projection) => (
+      <span className="text-red-700">
+        ${Math.round(projection.yearlyExpenses).toLocaleString()}
+      </span>
+    )
+  },
+  {
+    id: 'cashFlow',
+    header: 'Cash Flow',
+    tooltip: 'Net cash position after all income, expenses and tax benefits',
+    group: 'Financial Position',
+    render: (projection) => (
+      <span className={projection.cashFlow >= 0 ? 'text-green-700' : 'text-red-700'}>
+        ${Math.round(projection.cashFlow).toLocaleString()}
+      </span>
+    )
+  },
+  {
+    id: 'taxBenefit',
+    header: 'Tax Benefit',
+    tooltip: 'Tax savings from negative gearing if applicable',
+    group: 'Financial Position',
+    render: (projection) => (
+      <span className="text-blue-600">
+        ${Math.round(projection.taxBenefit).toLocaleString()}
+      </span>
+    )
+  },
+  {
     id: 'loanBalance',
     header: 'Loan Balance',
     tooltip: 'Remaining loan amount after offset benefits',
@@ -42,101 +97,35 @@ export const getColumns = (marketData: MarketData): ColumnDef[] => [
     )
   },
   {
-    id: 'cumulativeOffsetContributions',
-    header: 'Total Contrib.',
-    tooltip: 'Total contributions made to offset account to date',
-    group: 'Loan Details',
+    id: 'totalDepreciation',
+    header: 'Depreciation',
+    tooltip: 'Total depreciation benefits (capital works + plant and equipment)',
+    group: 'Tax Benefits',
     render: (projection) => (
-      <span className="text-blue-700 font-medium">
-        ${Math.round(projection.cumulativeOffsetContributions).toLocaleString()}
+      <span className="text-blue-700">
+        ${Math.round(projection.totalDepreciation).toLocaleString()}
       </span>
     )
   },
   {
-    id: 'cumulativePrincipalPaid',
-    header: 'Total Principal',
-    tooltip: 'Total amount of principal paid to date',
-    group: 'Loan Details',
+    id: 'equity',
+    header: 'Equity',
+    tooltip: 'Property value minus loan balance',
+    group: 'Financial Position',
     render: (projection) => (
       <span className="text-green-800 font-medium">
-        ${Math.round(projection.cumulativePrincipalPaid).toLocaleString()}
+        ${Math.round(projection.equity).toLocaleString()}
       </span>
     )
   },
   {
-    id: 'equityPosition',
-    header: 'Equity Position',
-    tooltip: 'Equity available in the home (current value minus loan liabilitiies)',
-    group: 'Loan Details',
+    id: 'roi',
+    header: 'ROI',
+    tooltip: 'Return on investment percentage',
+    group: 'Financial Position',
     render: (projection) => (
-      <span className="text-green-800 font-medium">
-        ${Math.round(projection.propertyValue - projection.effectiveLoanBalance).toLocaleString()}
-      </span>
-    )
-  },
-  {
-    id: 'yearlyRentalCosts',
-    header: 'Yearly Rent',
-    tooltip: 'Annual rental costs if renting instead of buying',
-    group: 'Rental Scenario',
-    render: (projection) => (
-      <span className="text-purple-700">
-        ${Math.round(projection.rentalCosts).toLocaleString()}
-      </span>
-    )
-  },
-  {
-    id: 'yearlyRentVsBuyCashFlow',
-    header: 'Cash Flow Diff',
-    tooltip: 'Annual cash flow difference between renting vs buying (positive means renting saves money)',
-    group: 'Rental Scenario',
-    render: (projection) => (
-      <span className={projection.yearlyRentVsBuyCashFlow >= 0 ? 'text-purple-700' : 'text-red-700'}>
-        ${Math.round(projection.yearlyRentVsBuyCashFlow).toLocaleString()}
-      </span>
-    )
-  },
-  {
-    id: 'yearlyOpportunityCost',
-    header: 'Annual Returns',
-    tooltip: `Returns earned this year at ${marketData.opportunityCostRate}% on the investment pool`,
-    group: 'Rental Scenario',
-    render: (projection) => (
-      <span className="text-blue-600">
-        ${Math.round(projection.yearlyOpportunityCost).toLocaleString()}
-      </span>
-    )
-  },
-  {
-    id: 'cumulativeOpportunityCost',
-    header: 'Total Returns',
-    tooltip: `Total investment returns accumulated to date at ${marketData.opportunityCostRate}%`,
-    group: 'Rental Scenario',
-    render: (projection) => (
-      <span className="text-blue-700 font-medium">
-        ${Math.round(projection.cumulativeOpportunityCost).toLocaleString()}
-      </span>
-    )
-  },
-  {
-    id: 'cumulativeInvestmentReserves',
-    header: 'Investment Pool',
-    tooltip: `Total amount available for investment if renting:\n• Initial deposit & costs\n• Annual cash flow savings\n• Regular contributions\n• Compound returns at ${marketData.opportunityCostRate}%`,
-    group: 'Rental Scenario',
-    render: (projection) => (
-      <span className="text-blue-800 font-medium">
-        ${Math.round(projection.cumulativeInvestmentReserves).toLocaleString()}
-      </span>
-    )
-  },
-  {
-    id: 'netPosition',
-    header: 'Net Position',
-    tooltip: 'Total investment returns plus rental costs, minus property equity (value minus loan and selling costs)',
-    group: 'Comparative Analysis',
-    render: (projection) => (
-      <span className={projection.netPosition >= 0 ? 'text-green-700 font-medium' : 'text-red-700 font-medium'}>
-        ${Math.round(projection.netPosition).toLocaleString()}
+      <span className={projection.roi >= 0 ? 'text-green-700 font-medium' : 'text-red-700 font-medium'}>
+        {projection.roi.toFixed(1)}%
       </span>
     )
   }

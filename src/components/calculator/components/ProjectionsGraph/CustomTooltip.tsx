@@ -16,67 +16,76 @@ export function CustomTooltip({ active, payload, label }: TooltipProps) {
       <h3 className="font-bold mb-2 text-sm sm:text-base">Year {label}</h3>
 
       <TooltipSection
-        title="Basic Info"
+        title="Property Details"
         items={[
-          { label: 'Property Value', value: data.propertyValue }
+          { label: 'Property Value', value: data.propertyValue },
+          { 
+            label: 'Equity',
+            value: data.equity,
+            valueClassName: 'text-green-800 font-medium'
+          }
+        ]}
+      />
+
+      <TooltipSection
+        title="Income & Expenses"
+        items={[
+          {
+            label: 'Rental Income',
+            value: data.rentalIncome,
+            valueClassName: 'text-green-600'
+          },
+          {
+            label: 'Management Fees',
+            value: data.managementFees,
+            valueClassName: 'text-red-600'
+          },
+          {
+            label: 'Total Expenses',
+            value: data.yearlyExpenses,
+            valueClassName: 'text-red-700'
+          }
+        ]}
+      />
+
+      <TooltipSection
+        title="Financial Position"
+        items={[
+          {
+            label: 'Cash Flow',
+            value: data.cashFlow,
+            valueClassName: data.cashFlow >= 0 ? 'text-green-700' : 'text-red-700'
+          },
+          {
+            label: 'Tax Benefit',
+            value: data.taxBenefit,
+            valueClassName: 'text-blue-600'
+          },
+          {
+            label: 'ROI',
+            value: data.roi,
+            isPercentage: true,
+            valueClassName: data.roi >= 0 ? 'text-green-700 font-medium' : 'text-red-700 font-medium'
+          }
         ]}
       />
 
       <TooltipSection
         title="Loan Details"
         items={[
-          { label: 'Loan Balance', value: data.loanBalance },
           { 
-            label: 'Total Principal',
-            value: data.cumulativePrincipalPaid,
-            valueClassName: 'text-green-800 font-medium'
+            label: 'Loan Balance', 
+            value: data.effectiveLoanBalance 
           },
           {
-            label: 'Equity Position',
-            value: data.propertyValue - data.loanBalance,
-            valueClassName: 'text-green-800 font-medium'
-          }
-        ]}
-      />
-
-      <TooltipSection
-        title="Rental Scenario"
-        items={[
-          {
-            label: 'Yearly Rent',
-            value: data.rentalCosts,
-            valueClassName: 'text-purple-700'
-          },
-          {
-            label: 'Cash Flow Diff',
-            value: data.yearlyRentVsBuyCashFlow,
-            valueClassName: data.yearlyRentVsBuyCashFlow >= 0 ? 'text-purple-700' : 'text-red-700'
-          },
-          {
-            label: 'Annual Returns',
-            value: data.yearlyOpportunityCost,
+            label: 'Offset Balance',
+            value: data.offsetBalance,
             valueClassName: 'text-blue-600'
           },
           {
-            label: 'Total Returns',
-            value: data.cumulativeOpportunityCost,
-            valueClassName: 'text-blue-700 font-medium'
-          },
-          {
-            label: 'Investment Pool',
-            value: data.cumulativeInvestmentReserves,
-            valueClassName: 'text-blue-800 font-medium'
-          }
-        ]}
-      />
-
-      <TooltipSection
-        title="Comparative Analysis"
-        items={[
-          {
-            label: 'Net Position',
-            value: data.netPosition,
-            valueClassName: data.netPosition >= 0 ? 'text-green-700 font-medium' : 'text-red-700 font-medium'
+            label: 'Interest Saved',
+            value: data.interestSaved,
+            valueClassName: 'text-green-600'
           }
         ]}
       />

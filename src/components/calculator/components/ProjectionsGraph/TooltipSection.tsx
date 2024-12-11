@@ -10,7 +10,9 @@ export function TooltipSection({ title, items }: TooltipSectionProps) {
           <p key={index}>
             {item.label}:{' '}
             <span className={item.valueClassName || ''}>
-              {formatCurrency(item.value)}
+              {item.isPercentage ? 
+                `${item.value.toFixed(1)}%` : 
+                formatCurrency(item.value)}
             </span>
           </p>
         ))}

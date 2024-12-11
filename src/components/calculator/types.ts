@@ -4,18 +4,11 @@ export interface PropertyDetails {
   availableSavings: number;
   interestRate: number;
   loanTerm: number;
-  isPPOR: boolean;
-  isFirstHomeBuyer: boolean;
-  considerPPORTax: boolean;
-  weeklyRent: number;
-  investmentRent: number;  // New field for investment property rental income
-  otherPropertyValue: number;
-  otherPropertyCostBase: number;
+  investmentRent: number;  // Weekly rental income from investment property
   offsetContribution: {
     amount: number;
     frequency: 'weekly' | 'monthly' | 'yearly';
   };
-  // New investment property fields
   managementFee: {
     type: 'percentage' | 'fixed';
     value: number;
@@ -59,24 +52,17 @@ export interface YearlyProjection {
   year: number;
   propertyValue: number;
   loanBalance: number;
-  totalCosts: number;
-  rentalIncome: number;  // Renamed from rentalCosts for clarity
-  netPosition: number;
-  yearlyOpportunityCost: number;
-  cumulativeOpportunityCost: number;
+  rentalIncome: number;
   offsetBalance: number;
   interestSaved: number;
   cumulativeInterestSaved: number;
   effectiveLoanBalance: number;
   originalLoanBalance: number;
-  existingPPORValue: number;
-  yearlyCGT: number;
   yearlyPrincipalPaid: number;
   cumulativePrincipalPaid: number;
   yearlyInterestPaid: number;
   yearlyOffsetContributions: number;
   cumulativeOffsetContributions: number;
-  // New investment property fields
   managementFees: number;
   capitalWorksDepreciation: number;
   plantEquipmentDepreciation: number;
@@ -91,9 +77,6 @@ export interface YearlyProjection {
 
 export interface CalculationResults {
   yearlyProjections: YearlyProjection[];
-  breakEvenYear: number;
-  totalCostDifference: number;
-  netPositionAtEnd: number;
   offsetAmount: number;
   totalInterestSaved: number;
   yearsReducedFromLoan: number;

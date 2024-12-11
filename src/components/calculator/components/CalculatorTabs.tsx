@@ -49,7 +49,6 @@ export function CalculatorTabs({
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
-    // Reset flash state when changing tabs directly
     setShouldFlashStateSelector(false);
   };
 
@@ -99,8 +98,8 @@ export function CalculatorTabs({
             )}
           >
             <Home className="h-4 w-4" />
-            <span className="sm:hidden">Overview</span>
-            <span className="hidden sm:inline">Overview</span>
+            <span className="sm:hidden">Property</span>
+            <span className="hidden sm:inline">Property Details</span>
           </TabsTrigger>
           <TabsTrigger 
             value="market"
@@ -120,7 +119,7 @@ export function CalculatorTabs({
           >
             <TrendingUp className="h-4 w-4" />
             <span className="sm:hidden">Market</span>
-            <span className="hidden sm:inline">Market Conditions</span>
+            <span className="hidden sm:inline">Market Analysis</span>
           </TabsTrigger>
           <TabsTrigger 
             value="purchase"
@@ -159,8 +158,8 @@ export function CalculatorTabs({
             )}
           >
             <DollarSign className="h-4 w-4" />
-            <span className="sm:hidden">Costs</span>
-            <span className="hidden sm:inline">Ownership Costs</span>
+            <span className="sm:hidden">Expenses</span>
+            <span className="hidden sm:inline">Operating Expenses</span>
           </TabsTrigger>
           <TabsTrigger 
             value="investment"
@@ -179,8 +178,8 @@ export function CalculatorTabs({
             )}
           >
             <PiggyBank className="h-4 w-4" />
-            <span className="sm:hidden">Investment</span>
-            <span className="hidden sm:inline">Investment</span>
+            <span className="sm:hidden">Income</span>
+            <span className="hidden sm:inline">Rental Income</span>
           </TabsTrigger>
         </TabsList>
 

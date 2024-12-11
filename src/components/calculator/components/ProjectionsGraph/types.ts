@@ -27,5 +27,6 @@ export interface TooltipSectionProps {
     label: string;
     value: number;
     valueClassName?: string;
+    isPercentage?: boolean;
   }[];
 }

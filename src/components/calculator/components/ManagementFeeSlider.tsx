@@ -29,8 +29,8 @@ export function ManagementFeeSlider({
   const MAX_FIXED = 10000;   // Maximum annual fixed fee
 
   const annualRentalIncome = useMemo(() => {
-    return propertyDetails.weeklyRent * 52;
-  }, [propertyDetails.weeklyRent]);
+    return propertyDetails.investmentRent * 52;
+  }, [propertyDetails.investmentRent]);
 
   const annualFeeAmount = useMemo(() => {
     if (isPercentage) {
