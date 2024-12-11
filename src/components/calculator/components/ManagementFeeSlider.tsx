@@ -18,6 +18,7 @@ export function ManagementFeeSlider({
 }: ManagementFeeSliderProps) {
   const [inputValue, setInputValue] = useState(propertyDetails.managementFee.value.toLocaleString());
   const [isEditing, setIsEditing] = useState(false);
+  const [sliderValue, setSliderValue] = useState(propertyDetails.managementFee.value);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const isPercentage = propertyDetails.managementFee.type === 'percentage';
@@ -34,10 +35,10 @@ export function ManagementFeeSlider({
 
   const annualFeeAmount = useMemo(() => {
     if (isPercentage) {
-      return (annualRentalIncome * propertyDetails.managementFee.value) / 100;
+      return (annualRentalIncome * sliderValue) / 100;
     }
-    return propertyDetails.managementFee.value;
-  }, [propertyDetails.managementFee, annualRentalIncome, isPercentage]);
+    return sliderValue;
+  }, [sliderValue, annualRentalIncome, isPercentage]);
 
   const handleTypeToggle = (checked: boolean) => {
     const newType = checked ? 'percentage' : 'fixed';
@@ -48,6 +49,7 @@ export function ManagementFeeSlider({
     } else {
       newValue = Math.min(Math.max((propertyDetails.managementFee.value / 100) * annualRentalIncome, MIN_FIXED), MAX_FIXED);
     }
+    setSliderValue(newValue);
     onManagementFeeChange({ type: newType, value: newValue });
   };
 
@@ -62,6 +64,7 @@ export function ManagementFeeSlider({
     const min = isPercentage ? MIN_PERCENTAGE : MIN_FIXED;
     const max = isPercentage ? MAX_PERCENTAGE : MAX_FIXED;
     const newValue = Math.min(Math.max(numericValue, min), max);
+    setSliderValue(newValue);
     onManagementFeeChange({ 
       type: propertyDetails.managementFee.type, 
       value: newValue 
@@ -70,7 +73,7 @@ export function ManagementFeeSlider({
 
   const handleInputFocus = () => {
     setIsEditing(true);
-    setInputValue(propertyDetails.managementFee.value.toString());
+    setInputValue(sliderValue.toString());
   };
 
   const handlePencilClick = () => {
@@ -78,6 +81,14 @@ export function ManagementFeeSlider({
   };
 
   const handleSliderChange = (value: number[]) => {
+    const min = isPercentage ? MIN_PERCENTAGE : MIN_FIXED;
+    const max = isPercentage ? MAX_PERCENTAGE : MAX_FIXED;
+    const newValue = Math.min(Math.max(value[0], min), max);
+    setSliderValue(newValue);
+    setInputValue(newValue.toLocaleString());
+  };
+
+  const handleSliderCommit = (value: number[]) => {
     const min = isPercentage ? MIN_PERCENTAGE : MIN_FIXED;
     const max = isPercentage ? MAX_PERCENTAGE : MAX_FIXED;
     const newValue = Math.min(Math.max(value[0], min), max);
@@ -116,7 +127,7 @@ export function ManagementFeeSlider({
               <>
                 <Input
                   ref={inputRef}
-                  value={isEditing ? inputValue : Number(inputValue.replace(/,/g, '')).toLocaleString()}
+                  value={isEditing ? inputValue : sliderValue.toLocaleString()}
                   onChange={handleInputChange}
                   onBlur={handleInputBlur}
                   onFocus={handleInputFocus}
@@ -133,7 +144,7 @@ export function ManagementFeeSlider({
                 <span className="text-2xl font-semibold text-slate-900 mr-1">$</span>
                 <Input
                   ref={inputRef}
-                  value={isEditing ? inputValue : Number(inputValue.replace(/,/g, '')).toLocaleString()}
+                  value={isEditing ? inputValue : sliderValue.toLocaleString()}
                   onChange={handleInputChange}
                   onBlur={handleInputBlur}
                   onFocus={handleInputFocus}
@@ -151,11 +162,12 @@ export function ManagementFeeSlider({
 
       <div className="space-y-6">
         <Slider
-          value={[propertyDetails.managementFee.value]}
+          value={[sliderValue]}
           min={isPercentage ? MIN_PERCENTAGE : MIN_FIXED}
           max={isPercentage ? MAX_PERCENTAGE : MAX_FIXED}
           step={isPercentage ? 0.1 : 100}
           onValueChange={handleSliderChange}
+          onValueCommit={handleSliderCommit}
           className="py-4"
         />
         
