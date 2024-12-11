@@ -381,3 +381,11 @@
   - In manual mode, user can directly specify any offset amount (including zero)
   - Fixed input handling to maintain manual mode when clearing input
   - Maintains available savings independent of manual offset amount
+
+### Changed
+- Removed market scenarios functionality
+  - Deleted MarketScenarios.tsx component and useMarketScenarios.old hook
+  - Removed scenarios state from useMarketState
+  - Removed scenarios from CalculatorContext
+  - Deleted unused scenarioProjections.old file
+  - Simplified calculator state management by removing unused market scenarios code

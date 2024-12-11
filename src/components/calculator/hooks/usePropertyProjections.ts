@@ -161,7 +161,7 @@ export const usePropertyProjections = (
       const totalInvestedCapital = initialInvestment + cumulativePrincipalPaid + cumulativeOffsetContributions;
 
       // Calculate ROI for this year (Cash Flow + Equity Gain) / Total Invested Capital
-      const roi = ((cashFlow + equityGain) / totalInvestedCapital) * 100;
+      const roi = ((annualRent - yearlyExpenses + taxBenefit + equityGain) / totalInvestedCapital) * 100;
 
       yearlyProjections.push({
         year,

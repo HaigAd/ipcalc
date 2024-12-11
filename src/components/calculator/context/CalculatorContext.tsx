@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode } from 'react';
-import { PropertyDetails, MarketData, CostStructure, MarketScenario } from '../types';
+import { PropertyDetails, MarketData, CostStructure } from '../types';
 import { usePropertyState } from '../hooks/state/usePropertyState';
 import { useMarketState } from '../hooks/state/useMarketState';
 import { useCostState } from '../hooks/state/useCostState';
@@ -16,8 +16,6 @@ type CalculatorContextType = {
   setConveyancingFee: (fee: number) => void;
   buildingAndPestFee: number;
   setBuildingAndPestFee: (fee: number) => void;
-  scenarios: MarketScenario[];
-  setScenarios: (scenarios: MarketScenario[]) => void;
   calculationResults: any; // TODO: Add proper type
   resetToDefaults: () => void;
 };
@@ -32,8 +30,7 @@ export function CalculatorProvider({ children }: { children: ReactNode }) {
   const calculationResults = usePropertyCalculator(
     propertyState.propertyDetails,
     marketState.marketData,
-    costState.costStructure,
-    marketState.scenarios
+    costState.costStructure
   );
 
   // Update cost state with projections after calculations
