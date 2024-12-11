@@ -11,6 +11,7 @@ export const defaultPropertyDetails: PropertyDetails = {
     amount: 0,
     frequency: 'monthly'
   },
+  manualOffsetAmount: undefined, // Default to automatic calculation
   managementFee: {
     type: 'percentage',
     value: 7.5

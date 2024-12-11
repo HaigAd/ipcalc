@@ -9,6 +9,7 @@ export interface PropertyDetails {
     amount: number;
     frequency: 'weekly' | 'monthly' | 'yearly';
   };
+  manualOffsetAmount?: number;  // Optional manual override for offset amount
   managementFee: {
     type: 'percentage' | 'fixed';
     value: number;

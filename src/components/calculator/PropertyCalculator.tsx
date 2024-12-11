@@ -49,6 +49,7 @@ export function PropertyCalculator() {
             <LoanDetailsForm
               propertyDetails={propertyDetails}
               setPropertyDetails={setPropertyDetails}
+              costStructure={costStructure}
             />
           </div>
         );

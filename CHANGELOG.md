@@ -372,3 +372,12 @@
   - Maintained all existing functionality while reducing component complexity
   - Removed unused marketData prop
 - Updated TaxImplications component usage to match new interface requirements - removed marketData prop and mapped yearlyProjections to required shape
+
+### Added
+- Added manual offset override capability
+  - Added manualOffsetAmount to PropertyDetails type for direct offset control
+  - Added toggle switch to choose between automatic and manual offset calculation
+  - In automatic mode, offset is calculated as available savings minus upfront costs
+  - In manual mode, user can directly specify any offset amount (including zero)
+  - Fixed input handling to maintain manual mode when clearing input
+  - Maintains available savings independent of manual offset amount
