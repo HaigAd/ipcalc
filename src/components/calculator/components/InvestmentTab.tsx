@@ -1,21 +1,16 @@
 import { PropertyDetails, MarketData, CostStructure, CalculationResults } from '../types';
 import { ManagementFeeSlider } from './ManagementFeeSlider';
-import { InvestmentMetrics } from './InvestmentMetrics';
 import { InvestmentRentInput } from './InvestmentRentInput';
 import { Card } from '../../ui/card';
 
 interface InvestmentTabProps {
   propertyDetails: PropertyDetails;
-  marketData: MarketData;
-  costStructure: CostStructure;
   calculationResults: CalculationResults;
   setPropertyDetails: (details: PropertyDetails) => void;
 }
 
 export function InvestmentTab({
   propertyDetails,
-  marketData,
-  costStructure,
   calculationResults,
   setPropertyDetails
 }: InvestmentTabProps) {
@@ -48,13 +43,6 @@ export function InvestmentTab({
         <ManagementFeeSlider
           propertyDetails={propertyDetails}
           onManagementFeeChange={handleManagementFeeChange}
-        />
-      </Card>
-
-      <Card className="p-4 sm:p-6">
-        <InvestmentMetrics
-          yearlyProjections={calculationResults.yearlyProjections}
-          averageROI={calculationResults.averageROI}
         />
       </Card>
     </div>

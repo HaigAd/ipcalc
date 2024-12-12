@@ -437,3 +437,8 @@
 - Moved YearlyProjectionsTable from tab system to beneath CombinedMetrics
 - Removed table component from component order system
 - Updated component rendering to reflect new table position
+
+## [Unreleased] - 2024-12-12
+- Removed InvestmentMetrics component and cleaned up related references
+- Removed remaining rent vs buy functionality and types
+- Fixed TypeScript errors related to removed functionality
