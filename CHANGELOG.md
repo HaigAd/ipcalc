@@ -493,3 +493,6 @@
 - Fixed year display to correctly show years starting from 1
 - Added min/max year labels and prominent current year display
 - Improved touch interaction for mobile devices
+
+2024-12-13
+- Fixed ROI display in investment summary card by removing redundant multiplication by 100

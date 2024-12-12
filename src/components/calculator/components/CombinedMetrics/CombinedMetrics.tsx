@@ -55,7 +55,7 @@ export function CombinedMetrics({ calculationResults, costStructure }: CombinedM
           />
           <MetricCard
             label={`Year ${selectedYear + 1} ROI`}
-            value={(currentYear.roi * 100).toFixed(1)}
+            value={currentYear.roi.toFixed(1)}
             suffix="%"
             variant="blue"
           />
