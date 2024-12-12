@@ -7,6 +7,7 @@ import { CalculatorTabs } from './components/CalculatorTabs';
 import { ComponentId } from './hooks/useComponentOrder';
 import { useCallback } from 'react';
 import { CombinedMetrics } from './components/CombinedMetrics';
+import { TaxImplications } from './components/TaxImplications';
 
 export function PropertyCalculator() {
   const {
@@ -51,8 +52,19 @@ export function PropertyCalculator() {
             />
           </div>
         );
+      case 'taxImplications':
+        return (
+          <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
+            <h2 className="text-2xl font-semibold mb-6 text-slate-900">Tax Implications</h2>
+            <TaxImplications
+              propertyDetails={propertyDetails}
+              yearlyProjections={calculationResults.yearlyProjections}
+              onPropertyDetailsChange={setPropertyDetails}
+            />
+          </div>
+        );
     }
-  }, [propertyDetails, setPropertyDetails, costStructure, purchaseCosts]);
+  }, [propertyDetails, setPropertyDetails, costStructure, purchaseCosts, calculationResults]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 py-8">

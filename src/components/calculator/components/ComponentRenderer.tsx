@@ -1,6 +1,7 @@
 import { ComponentId } from '../hooks/useComponentOrder';
 import { PropertyPriceForm } from './PropertyPriceForm';
 import { LoanDetailsForm } from './LoanDetailsForm';
+import { TaxImplications } from './TaxImplications';
 import { PropertyDetails, CostStructure } from '../types';
 
 interface ComponentRendererProps {
@@ -40,6 +41,17 @@ export function ComponentRenderer({
               propertyDetails={propertyDetails}
               setPropertyDetails={setPropertyDetails}
               costStructure={costStructure}
+            />
+          </div>
+        );
+      case 'taxImplications':
+        return (
+          <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
+            <h2 className="text-2xl font-semibold mb-6 text-slate-900">Tax Implications</h2>
+            <TaxImplications
+              propertyDetails={propertyDetails}
+              yearlyProjections={extraProps?.yearlyProjections || []}
+              onPropertyDetailsChange={setPropertyDetails}
             />
           </div>
         );
