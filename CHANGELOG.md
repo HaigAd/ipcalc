@@ -442,3 +442,4 @@
 - Removed InvestmentMetrics component and cleaned up related references
 - Removed remaining rent vs buy functionality and types
 - Fixed TypeScript errors related to removed functionality
+2024-12-12: Removed CalculatorContext as it was redundant with prop drilling already being used throughout the app. Updated ProjectionsGraph and ComponentRenderer to receive props directly.

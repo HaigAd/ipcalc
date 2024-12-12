@@ -1,20 +1,23 @@
 import { ComponentId } from '../hooks/useComponentOrder';
-import { useCalculator } from '../context/CalculatorContext';
 import { PropertyPriceForm } from './PropertyPriceForm';
 import { LoanDetailsForm } from './LoanDetailsForm';
+import { PropertyDetails, CostStructure } from '../types';
 
 interface ComponentRendererProps {
   id: ComponentId;
+  propertyDetails: PropertyDetails;
+  setPropertyDetails: (details: PropertyDetails) => void;
+  costStructure: CostStructure;
   extraProps?: any;
 }
 
-export function ComponentRenderer({ id, extraProps }: ComponentRendererProps) {
-  const {
-    propertyDetails,
-    setPropertyDetails,
-    costStructure,
-  } = useCalculator();
-
+export function ComponentRenderer({ 
+  id, 
+  propertyDetails,
+  setPropertyDetails,
+  costStructure,
+  extraProps 
+}: ComponentRendererProps) {
   const renderContent = () => {
     switch (id) {
       case 'price':

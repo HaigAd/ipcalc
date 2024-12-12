@@ -10,11 +10,12 @@ import {
 } from 'recharts';
 import { CustomTooltip } from './CustomTooltip';
 import { useProjectionsData, formatAxisValue } from './useProjectionsData';
-import { useCalculator } from '../../context/CalculatorContext';
 
-export function ProjectionsGraph() {
-  const { calculationResults } = useCalculator();
-  
+interface ProjectionsGraphProps {
+  calculationResults: any; // TODO: Add proper type
+}
+
+export function ProjectionsGraph({ calculationResults }: ProjectionsGraphProps) {
   const processedData = useProjectionsData(calculationResults?.yearlyProjections || []);
 
   return (
