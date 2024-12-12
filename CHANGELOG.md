@@ -389,3 +389,11 @@
   - Removed scenarios from CalculatorContext
   - Deleted unused scenarioProjections.old file
   - Simplified calculator state management by removing unused market scenarios code
+2024-12-12 - Refactored usePropertyProjections.ts
+- Extracted utility functions into separate projectionUtils.ts file:
+  - calculateMonthlyPayment: Monthly mortgage payment calculation
+  - getMonthlyContribution: Convert weekly/yearly contributions to monthly
+  - calculateManagementFees: Property management fee calculation
+  - calculateTotalDepreciation: Total depreciation calculation
+- Maintained core yearly/monthly projection loop in usePropertyProjections.ts
+- Improved code organization while preserving calculation accuracy

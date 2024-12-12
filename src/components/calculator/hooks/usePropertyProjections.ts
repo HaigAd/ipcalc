@@ -1,30 +1,12 @@
 import { useMemo } from 'react';
 import { PropertyDetails, MarketData, YearlyProjection, CostStructure } from '../types';
 import { calculateTaxBenefit } from '../calculations/taxCalculations';
-
-const calculateMonthlyPayment = (principal: number, annualRate: number, years: number) => {
-  const monthlyRate = (annualRate / 100) / 12;
-  const totalMonths = years * 12;
-  return (principal * monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / 
-         (Math.pow(1 + monthlyRate, totalMonths) - 1);
-};
-
-const getMonthlyContribution = (offsetContribution: PropertyDetails['offsetContribution']) => {
-  if (!offsetContribution) {
-    return 0;
-  }
-
-  const { amount, frequency } = offsetContribution;
-  switch (frequency) {
-    case 'weekly':
-      return (amount * 52) / 12;
-    case 'yearly':
-      return amount / 12;
-    case 'monthly':
-    default:
-      return amount;
-  }
-};
+import { 
+  calculateMonthlyPayment, 
+  getMonthlyContribution,
+  calculateManagementFees,
+  calculateTotalDepreciation
+} from './projectionUtils';
 
 export const usePropertyProjections = (
   propertyDetails: PropertyDetails,
@@ -119,14 +101,17 @@ export const usePropertyProjections = (
       cumulativeOffsetContributions += yearlyOffsetContributions;
 
       // Calculate management fees based on rental income
-      const managementFees = propertyDetails.managementFee.type === 'percentage'
-        ? (annualRent * propertyDetails.managementFee.value / 100)
-        : propertyDetails.managementFee.value;
+      const managementFees = calculateManagementFees(
+        annualRent,
+        propertyDetails.managementFee.type,
+        propertyDetails.managementFee.value
+      );
 
       // Calculate depreciation
-      const capitalWorksDepreciation = propertyDetails.capitalWorksDepreciation;
-      const plantEquipmentDepreciation = propertyDetails.plantEquipmentDepreciation;
-      const totalDepreciation = capitalWorksDepreciation + plantEquipmentDepreciation;
+      const totalDepreciation = calculateTotalDepreciation(
+        propertyDetails.capitalWorksDepreciation,
+        propertyDetails.plantEquipmentDepreciation
+      );
 
       // Calculate yearly expenses (including all costs)
       const yearlyExpenses = 
@@ -179,8 +164,8 @@ export const usePropertyProjections = (
         yearlyOffsetContributions,
         cumulativeOffsetContributions,
         managementFees,
-        capitalWorksDepreciation,
-        plantEquipmentDepreciation,
+        capitalWorksDepreciation: propertyDetails.capitalWorksDepreciation,
+        plantEquipmentDepreciation: propertyDetails.plantEquipmentDepreciation,
         totalDepreciation,
         yearlyExpenses,
         taxableIncome: propertyIncome,
