@@ -426,3 +426,9 @@
   - Created index.ts for clean exports
   - Improved code organization and maintainability
   - Reduced file sizes for better readability
+### Changed
+- Removed tax/depreciation card and financial projections graph from overview tab
+  - Removed graph and taxImplications components from ComponentRenderer
+  - Removed unused imports and cleaned up component interfaces
+  - Tax and depreciation information is now only shown in the dedicated Tax & Depreciation tab
+  - Simplified overview tab to focus on core property and loan details

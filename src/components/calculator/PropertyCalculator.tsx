@@ -2,12 +2,10 @@ import { useComponentOrder } from './hooks/useComponentOrder';
 import { useCalculatorState } from './hooks/useCalculatorState';
 import { PropertyPriceForm } from './components/PropertyPriceForm';
 import { LoanDetailsForm } from './components/LoanDetailsForm';
-import { ProjectionsGraph } from './components/ProjectionsGraph';
 import { YearlyProjectionsTable } from './components/YearlyProjectionsTable';
 import { CalculatorTabs } from './components/CalculatorTabs';
 import { ComponentId } from './hooks/useComponentOrder';
 import { useCallback } from 'react';
-import { TaxImplications } from './components/TaxImplications/index';
 import { CombinedMetrics } from './components/CombinedMetrics';
 
 export function PropertyCalculator() {
@@ -53,33 +51,12 @@ export function PropertyCalculator() {
             />
           </div>
         );
-      case 'graph':
-        return (
-          <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-            <h2 className="text-2xl font-semibold mb-6">Financial Projections</h2>
-            <ProjectionsGraph yearlyProjections={calculationResults.yearlyProjections} />
-          </div>
-        );
       case 'table':
         return (
           <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
             <YearlyProjectionsTable
               yearlyProjections={calculationResults.yearlyProjections}
               marketData={marketData}
-            />
-          </div>
-        );
-      case 'taxImplications':
-        return (
-          <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-            <h2 className="text-2xl font-semibold mb-6">Tax & Depreciation</h2>
-            <TaxImplications
-              yearlyProjections={calculationResults.yearlyProjections.map(proj => ({
-                taxBenefit: proj.taxBenefit,
-                taxableIncome: proj.taxableIncome
-              }))}
-              propertyDetails={propertyDetails}
-              onPropertyDetailsChange={setPropertyDetails}
             />
           </div>
         );
