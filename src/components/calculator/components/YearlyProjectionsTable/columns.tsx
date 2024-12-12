@@ -130,9 +130,31 @@ export const getColumns = (marketData: MarketData): ColumnDef[] => [
     )
   },
   {
+    id: 'capitalGain',
+    header: 'Capital Gain',
+    tooltip: 'Increase in property value for this year',
+    group: 'Financial Position',
+    render: (projection) => (
+      <span className="text-green-600">
+        ${Math.round(projection.capitalGain).toLocaleString()}
+      </span>
+    )
+  },
+  {
+    id: 'cgtPayable',
+    header: 'CGT Payable',
+    tooltip: 'Estimated CGT payable if sold this year (includes 50% discount)',
+    group: 'Financial Position',
+    render: (projection) => (
+      <span className="text-red-600">
+        ${Math.round(projection.cgtPayable).toLocaleString()}
+      </span>
+    )
+  },
+  {
     id: 'equity',
-    header: 'Equity',
-    tooltip: 'Property value minus loan balance',
+    header: 'Gross Equity',
+    tooltip: 'Property value minus loan balance (before CGT)',
     group: 'Financial Position',
     render: (projection) => (
       <span className="text-green-800 font-medium">
@@ -141,9 +163,20 @@ export const getColumns = (marketData: MarketData): ColumnDef[] => [
     )
   },
   {
+    id: 'netEquityAfterCGT',
+    header: 'Net Equity',
+    tooltip: 'Property value minus loan balance and CGT payable',
+    group: 'Financial Position',
+    render: (projection) => (
+      <span className="text-green-800 font-medium">
+        ${Math.round(projection.netEquityAfterCGT).toLocaleString()}
+      </span>
+    )
+  },
+  {
     id: 'roi',
     header: 'ROI',
-    tooltip: 'Return on investment percentage',
+    tooltip: 'Return on investment percentage (includes CGT impact)',
     group: 'Financial Position',
     render: (projection) => (
       <span className={projection.roi >= 0 ? 'text-green-700 font-medium' : 'text-red-700 font-medium'}>

@@ -448,3 +448,20 @@
 - Fixed tax tab not showing content by properly integrating TaxImplications component into the component rendering system
 - Added taxImplications to ComponentId type and component order
 - Updated PropertyCalculator to handle tax implications rendering with proper data flow
+
+### Added
+- Added Capital Gains Tax (CGT) calculations
+  - Implemented 50% CGT discount for properties held over 12 months
+  - Added 6-year CGT exemption rule toggle
+  - CGT calculated on appreciation above cost base (purchase + costs - depreciation)
+  - Updated ROI calculations to consider CGT impact
+  - Added CGT estimates to tax benefits summary
+  - Added CGT exemption toggle to Tax & Depreciation tab
+  - Enhanced yearly projections to track CGT liability
+
+### Changed
+- Enhanced tax implications display:
+  - Added CGT section to tax benefits summary
+  - Shows CGT exemption status and estimated liability
+  - Improved tooltips with CGT explanation
+  - Updated calculations to reflect CGT impact on overall returns

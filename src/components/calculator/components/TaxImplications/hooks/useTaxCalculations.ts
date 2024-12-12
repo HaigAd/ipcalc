@@ -8,6 +8,7 @@ interface UseTaxCalculationsProps {
   firstYearProjection?: {
     taxBenefit: number;
     taxableIncome: number;
+    cgtPayable: number;
   };
 }
 
@@ -53,6 +54,13 @@ export function useTaxCalculations({
     });
   };
 
+  const handleCGTExemptionChange = (checked: boolean) => {
+    onPropertyDetailsChange({
+      ...propertyDetails,
+      isCGTExempt: checked
+    });
+  };
+
   // Calculate tax implications
   const bracket = getTaxBracket(propertyDetails.taxableIncome);
   const taxPayable = calculateTaxPayable(propertyDetails.taxableIncome);
@@ -71,6 +79,7 @@ export function useTaxCalculations({
     handleBlur,
     handleFocus,
     handleDepreciationChange,
+    handleCGTExemptionChange,
     calculations: {
       bracket,
       taxPayable,

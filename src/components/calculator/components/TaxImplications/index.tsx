@@ -3,11 +3,13 @@ import { useTaxCalculations } from './hooks/useTaxCalculations';
 import { TaxableIncomeSection } from './components/TaxableIncomeSection';
 import { DepreciationSection } from './components/DepreciationSection';
 import { TaxBenefitsSummary } from './components/TaxBenefitsSummary';
+import { CGTExemptionToggle } from './components/CGTExemptionToggle';
 
 interface TaxImplicationsProps {
   yearlyProjections: {
     taxBenefit: number;
     taxableIncome: number;
+    cgtPayable: number;
   }[];
   propertyDetails: PropertyDetails;
   onPropertyDetailsChange: (details: PropertyDetails) => void;
@@ -24,6 +26,7 @@ export function TaxImplications({
     handleBlur,
     handleFocus,
     handleDepreciationChange,
+    handleCGTExemptionChange,
     calculations
   } = useTaxCalculations({
     propertyDetails,
@@ -50,6 +53,11 @@ export function TaxImplications({
           onCapitalWorksChange={(value) => handleDepreciationChange('capitalWorks', value)}
           onPlantEquipmentChange={(value) => handleDepreciationChange('plantEquipment', value)}
         />
+
+        <CGTExemptionToggle
+          isExempt={propertyDetails.isCGTExempt}
+          onToggle={handleCGTExemptionChange}
+        />
       </div>
 
       {/* Right Column - Tax Benefits Summary */}
@@ -63,6 +71,8 @@ export function TaxImplications({
           totalDepreciation={calculations.totalDepreciation}
           taxBenefit={calculations.taxBenefit}
           monthlyBenefit={calculations.monthlyBenefit}
+          firstYearCGT={yearlyProjections[0].cgtPayable}
+          isCGTExempt={propertyDetails.isCGTExempt}
         />
       </div>
     </div>

@@ -15,6 +15,8 @@ interface TaxBenefitsSummaryProps {
   totalDepreciation: number;
   taxBenefit: number;
   monthlyBenefit: number;
+  firstYearCGT: number;
+  isCGTExempt: boolean;
 }
 
 export function TaxBenefitsSummary({
@@ -26,6 +28,8 @@ export function TaxBenefitsSummary({
   totalDepreciation,
   taxBenefit,
   monthlyBenefit,
+  firstYearCGT,
+  isCGTExempt,
 }: TaxBenefitsSummaryProps) {
   return (
     <div className="rounded-lg bg-slate-50 p-4 space-y-4">
@@ -111,6 +115,32 @@ export function TaxBenefitsSummary({
             <span className="text-slate-600">Effective Monthly Benefit</span>
             <span className="font-medium text-slate-900">
               ${Math.round(monthlyBenefit).toLocaleString()}
+            </span>
+          </div>
+        </div>
+
+        {/* CGT Section */}
+        <div className="pt-2 border-t border-slate-200">
+          <div className="flex justify-between text-sm">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger className="flex items-center space-x-1">
+                  <span className="text-slate-600">First Year CGT (if sold)</span>
+                  <InfoIcon className="w-4 h-4 text-slate-400" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="max-w-xs text-sm">
+                    {isCGTExempt 
+                      ? "CGT is exempt for the first 6 years under the main residence exemption rule."
+                      : "Estimated CGT payable if property was sold at the end of the first year. Includes 50% discount for holdings over 12 months."}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <span className="font-medium text-slate-900">
+              {isCGTExempt 
+                ? "Exempt"
+                : `$${Math.round(firstYearCGT).toLocaleString()}`}
             </span>
           </div>
         </div>

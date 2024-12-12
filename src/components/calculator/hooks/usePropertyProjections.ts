@@ -32,6 +32,7 @@ export const usePropertyProjections = (
     let cumulativePrincipalPaid = 0;
     let cumulativeInterestSaved = 0;
     let cumulativeOffsetContributions = 0;
+    let cumulativeDepreciation = 0;
     let isLoanPaidOff = false;
     let monthsToPayoff = 0;
 
@@ -112,6 +113,7 @@ export const usePropertyProjections = (
         propertyDetails.capitalWorksDepreciation,
         propertyDetails.plantEquipmentDepreciation
       );
+      cumulativeDepreciation += totalDepreciation;
 
       // Calculate yearly expenses (including all costs)
       const yearlyExpenses = 
@@ -139,14 +141,33 @@ export const usePropertyProjections = (
       // Calculate equity position
       const equity = currentPropertyValue - loanBalance;
 
-      // Calculate equity gain from previous year
-      const equityGain = currentPropertyValue - previousPropertyValue;
+      // Calculate capital gain and CGT
+      const capitalGain = currentPropertyValue - previousPropertyValue;
+      const costBase = propertyDetails.purchasePrice + 
+                      costStructure.purchaseCosts.total + 
+                      costStructure.futureSellCosts - 
+                      cumulativeDepreciation;
+      
+      let cgtPayable = 0;
+      if (!propertyDetails.isCGTExempt || year > 6) {
+        const totalGain = currentPropertyValue - costBase;
+        if (totalGain > 0) {
+          // 50% discount on capital gains
+          const discountedGain = totalGain * 0.5;
+          // Use marginal tax rate from tax benefit calculation
+          const marginalRate = taxBenefit / Math.abs(propertyIncome);
+          cgtPayable = discountedGain * marginalRate;
+        }
+      }
+
+      // Calculate net equity after CGT
+      const netEquityAfterCGT = equity - cgtPayable;
 
       // Calculate total invested capital (initial investment + cumulative principal + offset contributions)
       const totalInvestedCapital = initialInvestment + cumulativePrincipalPaid + cumulativeOffsetContributions;
 
-      // Calculate ROI for this year (Cash Flow + Equity Gain) / Total Invested Capital
-      const roi = ((annualRent - yearlyExpenses + taxBenefit + equityGain) / totalInvestedCapital) * 100;
+      // Calculate ROI for this year (Cash Flow + Equity Gain - CGT) / Total Invested Capital
+      const roi = ((annualRent - yearlyExpenses + taxBenefit + capitalGain - cgtPayable) / totalInvestedCapital) * 100;
 
       yearlyProjections.push({
         year,
@@ -172,7 +193,10 @@ export const usePropertyProjections = (
         taxBenefit,
         cashFlow,
         equity,
-        roi
+        roi,
+        capitalGain,
+        cgtPayable,
+        netEquityAfterCGT
       });
     }
 
@@ -183,7 +207,7 @@ export const usePropertyProjections = (
 
     // Calculate overall investment metrics
     const lastProjection = yearlyProjections[yearlyProjections.length - 1];
-    const netPositionAtEnd = lastProjection.equity + lastProjection.cashFlow;
+    const netPositionAtEnd = lastProjection.netEquityAfterCGT + lastProjection.cashFlow;
     const totalDepreciation = lastProjection.totalDepreciation * yearlyProjections.length;
     const averageROI = yearlyProjections.reduce((acc, curr) => acc + curr.roi, 0) / yearlyProjections.length;
 
@@ -196,7 +220,8 @@ export const usePropertyProjections = (
       monthsReducedFromLoan,
       netPositionAtEnd,
       totalDepreciation,
-      averageROI
+      averageROI,
+      finalCGTPayable: lastProjection.cgtPayable
     };
   }, [propertyDetails, marketData, costStructure, offsetAmount]);
 };

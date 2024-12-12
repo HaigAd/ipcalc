@@ -17,6 +17,7 @@ export interface PropertyDetails {
   capitalWorksDepreciation: number;  // Annual amount for building depreciation
   plantEquipmentDepreciation: number;  // Annual amount for plant and equipment
   taxableIncome: number;  // User's taxable income for negative gearing calculations
+  isCGTExempt: boolean;  // 6-year CGT exemption rule flag
 }
 
 export interface MarketData {
@@ -48,6 +49,7 @@ export interface CostStructure {
   annualPropertyCosts: number;
   futureSellCosts: number;
   futureSellCostsPercentage: number;
+  costBase: number;  // Total cost base for CGT calculations (purchase + costs - depreciation)
 }
 
 export interface YearlyProjection {
@@ -75,6 +77,9 @@ export interface YearlyProjection {
   cashFlow: number;       // Net cash position after all income, expenses and tax benefits
   equity: number;         // Property value minus loan balance
   roi: number;           // Return on investment percentage
+  capitalGain: number;   // Capital gain for the year (increase in property value)
+  cgtPayable: number;    // CGT payable if property was sold this year
+  netEquityAfterCGT: number; // Equity minus CGT payable
 }
 
 export interface CalculationResults {
@@ -88,6 +93,7 @@ export interface CalculationResults {
   netPositionAtEnd: number;     // Total equity plus final year cash flow
   totalDepreciation: number;    // Total depreciation benefits over loan term
   averageROI: number;          // Average return on investment over loan term
+  finalCGTPayable: number;     // CGT payable at end of projection period
 }
 
 export interface MortgageCalculation {

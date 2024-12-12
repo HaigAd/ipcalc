@@ -6,7 +6,6 @@ import {
   CalculationResults
 } from '../types';
 import { usePropertyProjections } from './usePropertyProjections';
-import { useCGTCalculations } from './useCGTCalculations';
 
 export const usePropertyCalculator = (
   propertyDetails: PropertyDetails,
@@ -19,16 +18,11 @@ export const usePropertyCalculator = (
   // Use manual offset if provided, otherwise use calculated offset
   const offsetAmount = propertyDetails.manualOffsetAmount ?? calculatedOffset;
 
-  // Get projections with all calculations including investment metrics
+  // Get projections with all calculations including investment metrics and CGT
   const projections = usePropertyProjections(propertyDetails, marketData, costStructure, offsetAmount);
 
-  // Calculate CGT implications
-  const cgtResults = useCGTCalculations(marketData, propertyDetails, {
-    yearlyProjections: projections.yearlyProjections
-  });
-
   return useMemo(() => ({
-    yearlyProjections: cgtResults.yearlyProjections,
+    yearlyProjections: projections.yearlyProjections,
     offsetAmount,
     totalInterestSaved: projections.totalInterestSaved,
     yearsReducedFromLoan: projections.yearsReducedFromLoan,
@@ -37,6 +31,7 @@ export const usePropertyCalculator = (
     principal: projections.principal,
     netPositionAtEnd: projections.netPositionAtEnd,
     totalDepreciation: projections.totalDepreciation,
-    averageROI: projections.averageROI
-  }), [projections, cgtResults, offsetAmount]);
+    averageROI: projections.averageROI,
+    finalCGTPayable: projections.finalCGTPayable
+  }), [projections, offsetAmount]);
 };

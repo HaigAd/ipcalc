@@ -18,7 +18,8 @@ export const defaultPropertyDetails: PropertyDetails = {
   },
   capitalWorksDepreciation: 0,
   plantEquipmentDepreciation: 0,
-  taxableIncome: 120000
+  taxableIncome: 120000,
+  isCGTExempt: false  // Default to not using 6-year rule
 };
 
 export const defaultMarketData: MarketData = {
@@ -45,5 +46,6 @@ export const defaultCostStructure: CostStructure = {
   insuranceCost: 2500,
   annualPropertyCosts: 18100, // Sum of water, rates, maintenance, and insurance
   futureSellCosts: 29500,
-  futureSellCostsPercentage: 2.5
+  futureSellCostsPercentage: 2.5,
+  costBase: 1182500  // Purchase price + purchase costs by default
 };
