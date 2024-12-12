@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export type ComponentId = 'price' | 'loan' | 'metrics' | 'graph' | 'table' | 'taxImplications';
+export type ComponentId = 'price' | 'loan' | 'graph' | 'table' | 'taxImplications';
 
 interface Component {
   id: ComponentId;
@@ -10,7 +10,6 @@ interface Component {
 
 const defaultOrder: Component[] = [
   { id: 'price', title: 'Property Price & Deposit' },
-  { id: 'metrics', title: 'Key Metrics' },
   { id: 'loan', title: 'Loan Details & Options' },
   { id: 'graph', title: 'Financial Projections' },
   { id: 'table', title: 'Yearly Projections', isFullWidth: true },

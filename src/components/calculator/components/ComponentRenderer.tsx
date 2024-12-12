@@ -2,9 +2,10 @@ import { ComponentId } from '../hooks/useComponentOrder';
 import { useCalculator } from '../context/CalculatorContext';
 import { PropertyPriceForm } from './PropertyPriceForm';
 import { LoanDetailsForm } from './LoanDetailsForm';
-import { KeyMetrics } from './KeyMetrics';
 import { ProjectionsGraph } from './ProjectionsGraph';
 import { YearlyProjectionsTable } from './YearlyProjectionsTable';
+import { TaxImplications } from './TaxImplications';
+import { YearlyProjection } from '../types';
 
 interface ComponentRendererProps {
   id: ComponentId;
@@ -41,14 +42,6 @@ export function ComponentRenderer({ id, extraProps }: ComponentRendererProps) {
             <LoanDetailsForm
               propertyDetails={propertyDetails}
               setPropertyDetails={setPropertyDetails}
-            />
-          </div>
-        );
-      case 'metrics':
-        return (
-          <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-            <KeyMetrics
-              calculationResults={calculationResults}
               costStructure={costStructure}
             />
           </div>
@@ -67,8 +60,21 @@ export function ComponentRenderer({ id, extraProps }: ComponentRendererProps) {
           <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
             <YearlyProjectionsTable
               yearlyProjections={calculationResults.yearlyProjections}
-              propertyDetails={propertyDetails}
               marketData={marketData}
+            />
+          </div>
+        );
+      case 'taxImplications':
+        return (
+          <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
+            <h2 className="text-2xl font-semibold mb-6">Tax & Depreciation</h2>
+            <TaxImplications
+              yearlyProjections={calculationResults.yearlyProjections.map((proj: YearlyProjection) => ({
+                taxBenefit: proj.taxBenefit,
+                taxableIncome: proj.taxableIncome
+              }))}
+              propertyDetails={propertyDetails}
+              onPropertyDetailsChange={setPropertyDetails}
             />
           </div>
         );

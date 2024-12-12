@@ -397,3 +397,11 @@
   - calculateTotalDepreciation: Total depreciation calculation
 - Maintained core yearly/monthly projection loop in usePropertyProjections.ts
 - Improved code organization while preserving calculation accuracy
+
+### Changed
+- Consolidated metrics display into new CombinedMetrics component
+  - Created new CombinedMetrics component that combines KeyMetrics and InvestmentMetrics
+  - Removed metrics from tab system and display at bottom of calculator
+  - Shows key financial metrics, tax position, and offset benefits in one view
+  - Improved layout with consistent styling and better organization
+  - Removed old KeyMetrics component from tab system

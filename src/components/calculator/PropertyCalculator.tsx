@@ -2,13 +2,13 @@ import { useComponentOrder } from './hooks/useComponentOrder';
 import { useCalculatorState } from './hooks/useCalculatorState';
 import { PropertyPriceForm } from './components/PropertyPriceForm';
 import { LoanDetailsForm } from './components/LoanDetailsForm';
-import { KeyMetrics } from './components/KeyMetrics';
 import { ProjectionsGraph } from './components/ProjectionsGraph';
 import { YearlyProjectionsTable } from './components/YearlyProjectionsTable';
 import { CalculatorTabs } from './components/CalculatorTabs';
 import { ComponentId } from './hooks/useComponentOrder';
 import { useCallback } from 'react';
 import { TaxImplications } from './components/TaxImplications/index';
+import { CombinedMetrics } from './components/CombinedMetrics';
 
 export function PropertyCalculator() {
   const {
@@ -49,15 +49,6 @@ export function PropertyCalculator() {
             <LoanDetailsForm
               propertyDetails={propertyDetails}
               setPropertyDetails={setPropertyDetails}
-              costStructure={costStructure}
-            />
-          </div>
-        );
-      case 'metrics':
-        return (
-          <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-            <KeyMetrics
-              calculationResults={calculationResults}
               costStructure={costStructure}
             />
           </div>
@@ -138,6 +129,11 @@ export function PropertyCalculator() {
             onStateChange={setState}
             setPropertyDetails={setPropertyDetails}
             renderComponent={renderComponent}
+          />
+
+          <CombinedMetrics 
+            calculationResults={calculationResults}
+            costStructure={costStructure}
           />
         </div>
       </div>
