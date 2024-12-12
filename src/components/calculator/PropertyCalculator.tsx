@@ -51,17 +51,8 @@ export function PropertyCalculator() {
             />
           </div>
         );
-      case 'table':
-        return (
-          <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
-            <YearlyProjectionsTable
-              yearlyProjections={calculationResults.yearlyProjections}
-              marketData={marketData}
-            />
-          </div>
-        );
     }
-  }, [propertyDetails, setPropertyDetails, marketData, costStructure, calculationResults, purchaseCosts]);
+  }, [propertyDetails, setPropertyDetails, costStructure, purchaseCosts]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 py-8">
@@ -108,10 +99,19 @@ export function PropertyCalculator() {
             renderComponent={renderComponent}
           />
 
-          <CombinedMetrics 
-            calculationResults={calculationResults}
-            costStructure={costStructure}
-          />
+          <div className="mt-8">
+            <CombinedMetrics 
+              calculationResults={calculationResults}
+              costStructure={costStructure}
+            />
+          </div>
+
+          <div className="mt-8">
+            <YearlyProjectionsTable
+              yearlyProjections={calculationResults.yearlyProjections}
+              marketData={marketData}
+            />
+          </div>
         </div>
       </div>
     </div>

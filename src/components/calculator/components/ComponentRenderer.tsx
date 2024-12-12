@@ -2,7 +2,6 @@ import { ComponentId } from '../hooks/useComponentOrder';
 import { useCalculator } from '../context/CalculatorContext';
 import { PropertyPriceForm } from './PropertyPriceForm';
 import { LoanDetailsForm } from './LoanDetailsForm';
-import { YearlyProjectionsTable } from './YearlyProjectionsTable';
 
 interface ComponentRendererProps {
   id: ComponentId;
@@ -13,9 +12,7 @@ export function ComponentRenderer({ id, extraProps }: ComponentRendererProps) {
   const {
     propertyDetails,
     setPropertyDetails,
-    marketData,
     costStructure,
-    calculationResults,
   } = useCalculator();
 
   const renderContent = () => {
@@ -40,15 +37,6 @@ export function ComponentRenderer({ id, extraProps }: ComponentRendererProps) {
               propertyDetails={propertyDetails}
               setPropertyDetails={setPropertyDetails}
               costStructure={costStructure}
-            />
-          </div>
-        );
-      case 'table':
-        return (
-          <div className="bg-white rounded-lg border border-slate-200 shadow-sm p-6">
-            <YearlyProjectionsTable
-              yearlyProjections={calculationResults.yearlyProjections}
-              marketData={marketData}
             />
           </div>
         );

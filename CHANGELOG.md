@@ -432,3 +432,8 @@
   - Removed unused imports and cleaned up component interfaces
   - Tax and depreciation information is now only shown in the dedicated Tax & Depreciation tab
   - Simplified overview tab to focus on core property and loan details
+
+2024-12-12
+- Moved YearlyProjectionsTable from tab system to beneath CombinedMetrics
+- Removed table component from component order system
+- Updated component rendering to reflect new table position

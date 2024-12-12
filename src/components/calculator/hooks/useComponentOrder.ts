@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export type ComponentId = 'price' | 'loan' | 'table';
+export type ComponentId = 'price' | 'loan';
 
 interface Component {
   id: ComponentId;
@@ -11,7 +11,6 @@ interface Component {
 const defaultOrder: Component[] = [
   { id: 'price', title: 'Property Price & Deposit' },
   { id: 'loan', title: 'Loan Details & Options' },
-  { id: 'table', title: 'Yearly Projections', isFullWidth: true },
 ];
 
 export const useComponentOrder = () => {
