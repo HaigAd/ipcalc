@@ -1,6 +1,6 @@
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { Switch } from '../../../../ui/switch';
+import { Label } from '../../../../ui/label';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '../../../../ui/hover-card';
 import { InfoIcon } from "lucide-react";
 
 interface CGTExemptionToggleProps {
