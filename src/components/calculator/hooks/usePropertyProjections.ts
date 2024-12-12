@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { PropertyDetails, MarketData, YearlyProjection, CostStructure } from '../types';
-import { calculateTaxBenefit } from '../calculations/taxCalculations';
+import { calculateTaxBenefit, getTaxBracket } from '../calculations/taxCalculations';
 import { 
   calculateMonthlyPayment, 
   getMonthlyContribution,
@@ -143,31 +143,47 @@ export const usePropertyProjections = (
 
       // Calculate capital gain and CGT
       const capitalGain = currentPropertyValue - previousPropertyValue;
+      
+      let yearlyCGTPayable = 0;
+      if (!propertyDetails.isCGTExempt || year > 6) {
+        // Calculate CGT on this year's gain only
+        if (capitalGain > 0) {
+          // 50% discount on capital gains
+          const discountedGain = capitalGain * 0.5;
+          // Get the actual tax bracket for the total income
+          const taxBracket = getTaxBracket(propertyDetails.taxableIncome + propertyIncome);
+          if (taxBracket) {
+            yearlyCGTPayable = discountedGain * (taxBracket.rate + 0.02); // Include Medicare levy
+          }
+        }
+      }
+
+      // Calculate total invested capital (initial investment + cumulative principal + offset contributions)
+      const totalInvestedCapital = initialInvestment + cumulativePrincipalPaid + cumulativeOffsetContributions;
+
+      // Calculate ROI for this year using yearly capital gain and yearly CGT
+      const roi = ((annualRent - yearlyExpenses + taxBenefit + capitalGain - yearlyCGTPayable) / totalInvestedCapital) * 100;
+
+      // Calculate cumulative CGT for reporting purposes
       const costBase = propertyDetails.purchasePrice + 
                       costStructure.purchaseCosts.total + 
                       costStructure.futureSellCosts - 
                       cumulativeDepreciation;
       
-      let cgtPayable = 0;
+      let cumulativeCGTPayable = 0;
       if (!propertyDetails.isCGTExempt || year > 6) {
         const totalGain = currentPropertyValue - costBase;
         if (totalGain > 0) {
-          // 50% discount on capital gains
           const discountedGain = totalGain * 0.5;
-          // Use marginal tax rate from tax benefit calculation
-          const marginalRate = taxBenefit / Math.abs(propertyIncome);
-          cgtPayable = discountedGain * marginalRate;
+          const taxBracket = getTaxBracket(propertyDetails.taxableIncome + propertyIncome);
+          if (taxBracket) {
+            cumulativeCGTPayable = discountedGain * (taxBracket.rate + 0.02);
+          }
         }
       }
 
-      // Calculate net equity after CGT
-      const netEquityAfterCGT = equity - cgtPayable;
-
-      // Calculate total invested capital (initial investment + cumulative principal + offset contributions)
-      const totalInvestedCapital = initialInvestment + cumulativePrincipalPaid + cumulativeOffsetContributions;
-
-      // Calculate ROI for this year (Cash Flow + Equity Gain - CGT) / Total Invested Capital
-      const roi = ((annualRent - yearlyExpenses + taxBenefit + capitalGain - cgtPayable) / totalInvestedCapital) * 100;
+      // Calculate net equity after CGT (using cumulative CGT for equity calculation)
+      const netEquityAfterCGT = equity - cumulativeCGTPayable;
 
       yearlyProjections.push({
         year,
@@ -195,7 +211,7 @@ export const usePropertyProjections = (
         equity,
         roi,
         capitalGain,
-        cgtPayable,
+        cgtPayable: cumulativeCGTPayable, // Keep cumulative CGT for reporting
         netEquityAfterCGT
       });
     }

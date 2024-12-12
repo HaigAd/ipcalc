@@ -465,3 +465,16 @@
   - Shows CGT exemption status and estimated liability
   - Improved tooltips with CGT explanation
   - Updated calculations to reflect CGT impact on overall returns
+
+### Fixed
+- Fixed CGT calculation when property becomes positively geared
+  - Previously CGT calculation stopped when property was no longer negatively geared due to incorrect marginal rate calculation
+  - Now using actual tax bracket rate plus Medicare levy for CGT calculation
+  - Ensures consistent CGT tracking throughout projection period regardless of gearing status
+
+### Fixed
+- Fixed ROI calculation to properly account for CGT
+  - Previously using cumulative CGT with yearly capital gains which understated returns
+  - Now calculating yearly CGT based on each year's capital gain for ROI
+  - Maintaining cumulative CGT calculation for equity position reporting
+  - This ensures ROI accurately reflects yearly performance
