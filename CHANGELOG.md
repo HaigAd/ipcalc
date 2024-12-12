@@ -478,3 +478,11 @@
   - Now calculating yearly CGT based on each year's capital gain for ROI
   - Maintaining cumulative CGT calculation for equity position reporting
   - This ensures ROI accurately reflects yearly performance
+
+### Added
+- Added year selector to Investment Summary
+  - New horizontal scrollable year selector component
+  - Allows viewing metrics for any projection year
+  - Updates all metrics including cash flow, ROI, tax position, and equity
+  - Shows property value growth from initial value to selected year
+  - Maintains projected final year values for comparison

@@ -1,8 +1,9 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { CalculationResults, CostStructure } from '../../types';
 import { OffsetBenefits } from '../OffsetBenefits';
 import { MetricCard } from './MetricCard';
 import { TaxEquitySection } from './TaxEquitySection';
+import { YearSelector } from './YearSelector';
 import { formatLargeNumber } from './utils';
 
 interface CombinedMetricsProps {
@@ -12,9 +13,10 @@ interface CombinedMetricsProps {
 
 export function CombinedMetrics({ calculationResults, costStructure }: CombinedMetricsProps) {
   const { yearlyProjections, monthlyMortgagePayment, averageROI } = calculationResults;
-  
+  const [selectedYear, setSelectedYear] = useState(0);
+
   const { currentYear, lastProjection, monthlyMetrics } = useMemo(() => {
-    const current = yearlyProjections[0];
+    const current = yearlyProjections[selectedYear];
     const last = yearlyProjections[yearlyProjections.length - 1];
     return {
       currentYear: current,
@@ -26,11 +28,22 @@ export function CombinedMetrics({ calculationResults, costStructure }: CombinedM
         totalCost: monthlyMortgagePayment + (current.yearlyExpenses / 12)
       }
     };
-  }, [yearlyProjections, monthlyMortgagePayment]);
+  }, [yearlyProjections, monthlyMortgagePayment, selectedYear]);
+
+  const years = useMemo(() => {
+    return yearlyProjections.map((_, index) => index);
+  }, [yearlyProjections]);
 
   return (
     <div className="mt-8 border-t border-slate-200 pt-8">
-      <h2 className="text-2xl font-semibold mb-6 text-slate-900">Investment Summary</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-semibold text-slate-900">Investment Summary</h2>
+        <YearSelector
+          years={years}
+          selectedYear={selectedYear}
+          onYearChange={setSelectedYear}
+        />
+      </div>
       <div className="space-y-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
@@ -41,8 +54,8 @@ export function CombinedMetrics({ calculationResults, costStructure }: CombinedM
             subtext={monthlyMetrics.cashFlow >= 0 ? 'positive' : 'negative'}
           />
           <MetricCard
-            label="Average ROI"
-            value={averageROI.toFixed(1)}
+            label={`Year ${selectedYear + 1} ROI`}
+            value={(currentYear.roi * 100).toFixed(1)}
             suffix="%"
             variant="blue"
           />
