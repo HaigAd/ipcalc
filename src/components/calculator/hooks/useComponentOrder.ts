@@ -11,7 +11,6 @@ interface Component {
 const defaultOrder: Component[] = [
   { id: 'price', title: 'Property Price & Deposit' },
   { id: 'loan', title: 'Loan Details & Options' },
-  { id: 'taxImplications', title: 'Tax Implications', isFullWidth: true },
 ];
 
 export const useComponentOrder = () => {
