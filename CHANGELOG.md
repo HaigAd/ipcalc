@@ -405,3 +405,24 @@
   - Shows key financial metrics, tax position, and offset benefits in one view
   - Improved layout with consistent styling and better organization
   - Removed old KeyMetrics component from tab system
+
+## [1.0.1] - 2024-12-12
+### Changed
+- Refactored CombinedMetrics component:
+  - Extracted reusable MetricCard and SummaryItem components
+  - Added proper TypeScript interfaces
+  - Implemented useMemo for performance optimization
+  - Added error handling in formatLargeNumber
+  - Improved code organization with separate TaxEquitySection
+  - Enhanced type safety and maintainability
+  - Improved component styling consistency
+
+## [1.0.2] - 2024-12-12
+### Changed
+- Split CombinedMetrics into smaller components:
+  - Created dedicated CombinedMetrics directory
+  - Extracted MetricCard, SummaryItem, and TaxEquitySection into separate files
+  - Moved utility functions to utils.ts
+  - Created index.ts for clean exports
+  - Improved code organization and maintainability
+  - Reduced file sizes for better readability
