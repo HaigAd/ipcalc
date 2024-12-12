@@ -1,5 +1,4 @@
-import { ScrollArea } from "../../../ui/scroll-area";
-import { cn } from "../../../../lib/utils";
+import { Slider } from "../../../ui/slider";
 
 interface YearSelectorProps {
   years: number[];
@@ -8,27 +7,43 @@ interface YearSelectorProps {
 }
 
 export function YearSelector({ years, selectedYear, onYearChange }: YearSelectorProps) {
+  const minYear = Math.min(...years);
+  const maxYear = Math.max(...years);
+  
+  const handleSliderChange = (value: number[]) => {
+    // Find the closest year in our years array to the slider value
+    const year = Math.round(value[0]);
+    const closestYear = years.reduce((prev, curr) => {
+      return Math.abs(curr - year) < Math.abs(prev - year) ? curr : prev;
+    });
+    onYearChange(closestYear);
+  };
+
+  // Display year is the actual year number (selectedYear + 1)
+  const displayYear = selectedYear + 1;
+  const displayMinYear = minYear + 1;
+  const displayMaxYear = maxYear + 1;
+
   return (
-    <div className="flex items-center gap-2 mb-4">
-      <span className="text-sm font-medium text-slate-700">Analysis Year:</span>
-      <ScrollArea className="w-[300px] whitespace-nowrap rounded-md border border-slate-200">
-        <div className="flex p-1">
-          {years.map((year) => (
-            <button
-              key={year}
-              onClick={() => onYearChange(year)}
-              className={cn(
-                "px-3 py-1 rounded-sm text-sm transition-colors",
-                selectedYear === year
-                  ? "bg-slate-900 text-white"
-                  : "hover:bg-slate-100 text-slate-600"
-              )}
-            >
-              Year {year}
-            </button>
-          ))}
-        </div>
-      </ScrollArea>
+    <div className="flex flex-col gap-2 mb-4 w-full">
+      <div className="flex justify-between items-center">
+        <span className="text-sm font-medium text-slate-700">Analysis Year</span>
+        <span className="text-lg font-semibold text-slate-900">{displayYear}</span>
+      </div>
+      <div className="px-1">
+        <Slider
+          value={[selectedYear]}
+          min={minYear}
+          max={maxYear}
+          step={1}
+          onValueChange={handleSliderChange}
+          className="w-full h-4"
+        />
+      </div>
+      <div className="flex justify-between text-xs text-slate-500 px-1">
+        <span>{displayMinYear}</span>
+        <span>{displayMaxYear}</span>
+      </div>
     </div>
   );
 }

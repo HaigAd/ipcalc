@@ -486,3 +486,10 @@
   - Updates all metrics including cash flow, ROI, tax position, and equity
   - Shows property value growth from initial value to selected year
   - Maintains projected final year values for comparison
+
+## [2024-01-09]
+### Changed
+- Enhanced YearSelector with a full-width slider interface
+- Fixed year display to correctly show years starting from 1
+- Added min/max year labels and prominent current year display
+- Improved touch interaction for mobile devices
