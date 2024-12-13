@@ -19,7 +19,8 @@ export const usePropertyProjections = (
     const monthlyMortgagePayment = calculateMonthlyPayment(
       principal,
       propertyDetails.interestRate,
-      propertyDetails.loanTerm
+      propertyDetails.loanTerm,
+      propertyDetails.loanType
     );
 
     // Calculate initial investment
@@ -73,23 +74,29 @@ export const usePropertyProjections = (
         
         // Calculate hypothetical loan payments (without offset)
         const noOffsetInterest = noOffsetLoanBalance * monthlyRate;
-        const noOffsetPrincipal = monthlyMortgagePayment - noOffsetInterest;
+        const noOffsetPrincipal = propertyDetails.loanType === 'interest-only' ? 0 : 
+          monthlyMortgagePayment - noOffsetInterest;
         noOffsetLoanBalance = Math.max(0, noOffsetLoanBalance - noOffsetPrincipal);
         yearlyNoOffsetInterest += noOffsetInterest;
         
         // Calculate actual payments with offset
         effectiveBalance = Math.max(0, loanBalance - currentOffsetAmount);
         const monthlyInterest = effectiveBalance * monthlyRate;
-        const principalPaid = monthlyMortgagePayment - monthlyInterest;
+        const principalPaid = propertyDetails.loanType === 'interest-only' ? 0 : 
+          monthlyMortgagePayment - monthlyInterest;
         
         // Update balances
-        loanBalance = Math.max(0, loanBalance - principalPaid);
+        if (propertyDetails.loanType === 'principal-and-interest') {
+          loanBalance = Math.max(0, loanBalance - principalPaid);
+        }
         
         // Accumulate yearly totals
         yearlyInterestPaid += monthlyInterest;
         yearlyPrincipalPaid += principalPaid;
 
-        if (loanBalance === 0) {
+        // For P&I loans, check if loan is paid off
+        // For IO loans, loan is never "paid off" as principal remains constant
+        if (propertyDetails.loanType === 'principal-and-interest' && loanBalance === 0) {
           isLoanPaidOff = true;
           monthsToPayoff = currentMonth;
         }
@@ -133,9 +140,10 @@ export const usePropertyProjections = (
       );
 
       // Calculate cash flow (includes tax benefits)
+      // For IO loans, no principal payments to deduct
       const cashFlow = annualRent - 
                       yearlyExpenses -
-                      yearlyPrincipalPaid +    // Principal payments aren't tax deductible
+                      (propertyDetails.loanType === 'principal-and-interest' ? yearlyPrincipalPaid : 0) +
                       taxBenefit;
 
       // Calculate equity position
@@ -217,7 +225,9 @@ export const usePropertyProjections = (
     }
 
     // Calculate years and months reduced from loan term
-    const monthsReduced = monthsToPayoff > 0 ? totalLoanMonths - monthsToPayoff : 0;
+    // Only applicable for P&I loans
+    const monthsReduced = propertyDetails.loanType === 'principal-and-interest' && monthsToPayoff > 0 ? 
+      totalLoanMonths - monthsToPayoff : 0;
     const yearsReducedFromLoan = Math.floor(monthsReduced / 12);
     const monthsReducedFromLoan = monthsReduced % 12;
 

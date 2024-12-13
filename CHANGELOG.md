@@ -496,3 +496,11 @@
 
 2024-12-13
 - Fixed ROI display in investment summary card by removing redundant multiplication by 100
+### Added
+- Added loan type selection (Principal & Interest vs Interest Only)
+  - Added loanType field to PropertyDetails
+  - Updated LoanDetailsForm with radio buttons for loan type selection
+  - Modified mortgage calculations to handle both P&I and IO loans
+  - Updated projections to account for different loan type behaviors
+  - IO loans maintain constant principal while P&I loans reduce principal over time
+  - Adjusted cash flow and equity calculations based on loan type

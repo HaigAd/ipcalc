@@ -6,6 +6,7 @@ import { OffsetContributionForm } from './OffsetContributionForm';
 import { defaultPropertyDetails } from '../config/defaults';
 import { Switch } from '../../ui/switch';
 import { useState } from 'react';
+import { RadioGroup, RadioGroupItem } from '../../ui/radio-group';
 
 interface LoanDetailsFormProps {
   propertyDetails: PropertyDetails;
@@ -82,6 +83,33 @@ export function LoanDetailsForm({ propertyDetails, setPropertyDetails, costStruc
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:gap-6">
+      <div className="space-y-3">
+        <Label className={labelClasses}>Loan Type</Label>
+        <RadioGroup
+          value={propertyDetails.loanType}
+          onValueChange={(value: 'principal-and-interest' | 'interest-only') =>
+            setPropertyDetails({
+              ...propertyDetails,
+              loanType: value
+            })
+          }
+          className="grid grid-cols-2 gap-4"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="principal-and-interest" id="p-and-i" />
+            <Label htmlFor="p-and-i" className="text-sm text-slate-600">
+              Principal & Interest
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="interest-only" id="interest-only" />
+            <Label htmlFor="interest-only" className="text-sm text-slate-600">
+              Interest Only
+            </Label>
+          </div>
+        </RadioGroup>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         <div className="space-y-2">
           <Label htmlFor="interestRate" className={labelClasses}>

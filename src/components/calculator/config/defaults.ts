@@ -6,6 +6,7 @@ export const defaultPropertyDetails: PropertyDetails = {
   availableSavings: 300000,
   interestRate: 6.17,
   loanTerm: 30,
+  loanType: 'principal-and-interest', // Default to P&I loans
   investmentRent: 750, // Weekly rental income
   offsetContribution: {
     amount: 0,

@@ -4,6 +4,7 @@ export interface PropertyDetails {
   availableSavings: number;
   interestRate: number;
   loanTerm: number;
+  loanType: 'principal-and-interest' | 'interest-only';  // Added loan type
   investmentRent: number;  // Weekly rental income from investment property
   offsetContribution: {
     amount: number;
