@@ -504,3 +504,15 @@
   - Updated projections to account for different loan type behaviors
   - IO loans maintain constant principal while P&I loans reduce principal over time
   - Adjusted cash flow and equity calculations based on loan type
+2024-12-13 10:40:30 - Architecture Analysis
+- Analyzed current codebase structure and suggested improvements
+- Key areas: state management, component organization, data flow, calculation logic
+- Proposed new directory structure for better separation of concerns
+- Suggested breaking down types.ts into domain-specific files
+- Recommended adding proper testing structure
+2024-12-13 10:55:06 - Types Reorganization
+- Split types.ts into domain-specific files under types/ directory (property, loan, market, tax, metrics)
+- Consolidated property-related types into a single PropertyDetails interface
+- Added proper type exports with TypeScript isolatedModules support
+- Removed redundant types.ts file
+- Improved type organization and maintainability
