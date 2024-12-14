@@ -7,6 +7,7 @@ import {
   calculateManagementFees,
   calculateTotalDepreciation
 } from './projectionUtils';
+import { getDepreciation } from '../utils/depreciation';
 
 export const usePropertyProjections = (
   propertyDetails: PropertyDetails,
@@ -115,11 +116,9 @@ export const usePropertyProjections = (
         propertyDetails.managementFee.value
       );
 
-      // Calculate depreciation
-      const totalDepreciation = calculateTotalDepreciation(
-        propertyDetails.capitalWorksDepreciation,
-        propertyDetails.plantEquipmentDepreciation
-      );
+      // Get depreciation for this year
+      const depreciation = getDepreciation(propertyDetails.depreciationSchedule, year);
+      const totalDepreciation = depreciation.capitalWorks + depreciation.plantEquipment;
       cumulativeDepreciation += totalDepreciation;
 
       // Calculate yearly expenses (including all costs)
@@ -209,8 +208,8 @@ export const usePropertyProjections = (
         yearlyOffsetContributions,
         cumulativeOffsetContributions,
         managementFees,
-        capitalWorksDepreciation: propertyDetails.capitalWorksDepreciation,
-        plantEquipmentDepreciation: propertyDetails.plantEquipmentDepreciation,
+        capitalWorksDepreciation: depreciation.capitalWorks,
+        plantEquipmentDepreciation: depreciation.plantEquipment,
         totalDepreciation,
         yearlyExpenses,
         taxableIncome: propertyIncome,

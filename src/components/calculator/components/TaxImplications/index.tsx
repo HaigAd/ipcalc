@@ -4,6 +4,7 @@ import { TaxableIncomeSection } from './components/TaxableIncomeSection';
 import { DepreciationSection } from './components/DepreciationSection';
 import { TaxBenefitsSummary } from './components/TaxBenefitsSummary';
 import { CGTExemptionToggle } from './components/CGTExemptionToggle';
+import { getDepreciation } from '../../utils/depreciation';
 
 interface TaxImplicationsProps {
   yearlyProjections: {
@@ -34,6 +35,9 @@ export function TaxImplications({
     firstYearProjection: yearlyProjections[0]
   });
 
+  // Get first year depreciation values
+  const firstYearDepreciation = getDepreciation(propertyDetails.depreciationSchedule, 1);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Left Column - Tax Details */}
@@ -48,10 +52,14 @@ export function TaxImplications({
         />
 
         <DepreciationSection
-          capitalWorksValue={propertyDetails.capitalWorksDepreciation}
-          plantEquipmentValue={propertyDetails.plantEquipmentDepreciation}
-          onCapitalWorksChange={(value) => handleDepreciationChange('capitalWorks', value)}
-          onPlantEquipmentChange={(value) => handleDepreciationChange('plantEquipment', value)}
+          schedule={propertyDetails.depreciationSchedule}
+          onScheduleChange={(schedule) => 
+            onPropertyDetailsChange({
+              ...propertyDetails,
+              depreciationSchedule: schedule
+            })
+          }
+          loanTerm={propertyDetails.loanTerm}
         />
 
         <CGTExemptionToggle
@@ -66,8 +74,8 @@ export function TaxImplications({
           originalIncome={propertyDetails.taxableIncome}
           firstYearIncomeLoss={calculations.firstYearIncomeLoss}
           finalTaxableIncome={calculations.finalTaxableIncome}
-          capitalWorksValue={propertyDetails.capitalWorksDepreciation}
-          plantEquipmentValue={propertyDetails.plantEquipmentDepreciation}
+          capitalWorksValue={firstYearDepreciation.capitalWorks}
+          plantEquipmentValue={firstYearDepreciation.plantEquipment}
           totalDepreciation={calculations.totalDepreciation}
           taxBenefit={calculations.taxBenefit}
           monthlyBenefit={calculations.monthlyBenefit}

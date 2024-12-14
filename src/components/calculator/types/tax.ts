@@ -1,8 +1,9 @@
+import { DepreciationSchedule } from '../utils/depreciation';
+
 export interface TaxDetails {
   taxableIncome: number;  // User's taxable income for negative gearing calculations
   isCGTExempt: boolean;  // 6-year CGT exemption rule flag
-  capitalWorksDepreciation: number;  // Annual amount for building depreciation
-  plantEquipmentDepreciation: number;  // Annual amount for plant and equipment
+  depreciationSchedule: DepreciationSchedule;  // Depreciation configuration
 }
 
 export interface TaxProjection {

@@ -21,10 +21,19 @@ export interface YearlyProjection {
   yearlyOffsetContributions: number;
   cumulativeOffsetContributions: number;
   managementFees: number;
+  capitalWorksDepreciation: number;
+  plantEquipmentDepreciation: number;
+  totalDepreciation: number;
   yearlyExpenses: number;  // All expenses including interest, management fees, maintenance etc.
+  taxableIncome: number;
+  taxBenefit: number;
+  cashFlow: number;
   equity: number;         // Property value minus loan balance
   roi: number;           // Return on investment percentage
+  irr?: number;          // Internal rate of return (optional)
   capitalGain: number;   // Capital gain for the year (increase in property value)
+  cgtPayable: number;
+  netEquityAfterCGT: number;
 }
 
 export interface CalculationResults {

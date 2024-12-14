@@ -1,4 +1,5 @@
 import { PropertyDetails } from '../types';
+import { getDepreciation } from '../utils/depreciation';
 
 export const calculateMonthlyPayment = (
   principal: number, 
@@ -53,10 +54,8 @@ export const calculateManagementFees = (
     : feeValue;
 };
 
-// Helper function to calculate total depreciation
-export const calculateTotalDepreciation = (
-  capitalWorksDepreciation: number,
-  plantEquipmentDepreciation: number
-) => {
-  return capitalWorksDepreciation + plantEquipmentDepreciation;
+// Helper function to calculate total depreciation for a given year
+export const calculateTotalDepreciation = (propertyDetails: PropertyDetails, year: number) => {
+  const depreciation = getDepreciation(propertyDetails.depreciationSchedule, year);
+  return depreciation.capitalWorks + depreciation.plantEquipment;
 };

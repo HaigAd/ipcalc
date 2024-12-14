@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { PropertyDetails } from '../../../types';
+import { PropertyDetails } from '../../../types/property';
 import { getTaxBracket, calculateTaxPayable } from '../../../calculations/taxCalculations';
+import { getDepreciation, DepreciationMode } from '../../../utils/depreciation';
 
 interface UseTaxCalculationsProps {
   propertyDetails: PropertyDetails;
@@ -48,9 +49,14 @@ export function useTaxCalculations({
 
   const handleDepreciationChange = (type: 'capitalWorks' | 'plantEquipment', value: string) => {
     const numericValue = Number(value.replace(/[^0-9]/g, '')) || 0;
+    const newSchedule = {
+      ...propertyDetails.depreciationSchedule,
+      mode: 'fixed' as DepreciationMode,
+      [`fixed${type === 'capitalWorks' ? 'CapitalWorks' : 'PlantEquipment'}`]: numericValue
+    };
     onPropertyDetailsChange({
       ...propertyDetails,
-      [type === 'capitalWorks' ? 'capitalWorksDepreciation' : 'plantEquipmentDepreciation']: numericValue
+      depreciationSchedule: newSchedule
     });
   };
 
@@ -64,9 +70,10 @@ export function useTaxCalculations({
   // Calculate tax implications
   const bracket = getTaxBracket(propertyDetails.taxableIncome);
   const taxPayable = calculateTaxPayable(propertyDetails.taxableIncome);
-  const totalDepreciation = 
-    propertyDetails.capitalWorksDepreciation + 
-    propertyDetails.plantEquipmentDepreciation;
+  
+  // Get first year depreciation
+  const firstYearDepreciation = getDepreciation(propertyDetails.depreciationSchedule, 1);
+  const totalDepreciation = firstYearDepreciation.capitalWorks + firstYearDepreciation.plantEquipment;
 
   // First year calculations
   const taxBenefit = firstYearProjection?.taxBenefit || 0;

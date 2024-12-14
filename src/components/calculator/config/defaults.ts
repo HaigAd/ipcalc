@@ -1,4 +1,11 @@
 import { PropertyDetails, MarketData, CostStructure } from '../types';
+import { DepreciationSchedule } from '../utils/depreciation';
+
+export const defaultDepreciationSchedule: DepreciationSchedule = {
+  mode: 'fixed',
+  fixedCapitalWorks: 0,
+  fixedPlantEquipment: 0,
+};
 
 export const defaultPropertyDetails: PropertyDetails = {
   purchasePrice: 1180000,
@@ -17,8 +24,7 @@ export const defaultPropertyDetails: PropertyDetails = {
     type: 'percentage',
     value: 7.5
   },
-  capitalWorksDepreciation: 0,
-  plantEquipmentDepreciation: 0,
+  depreciationSchedule: defaultDepreciationSchedule,
   taxableIncome: 120000,
   isCGTExempt: false  // Default to not using 6-year rule
 };

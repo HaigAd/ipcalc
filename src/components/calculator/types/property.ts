@@ -1,3 +1,5 @@
+import { DepreciationSchedule } from '../utils/depreciation';
+
 export type AustralianState = 'NSW' | 'VIC' | 'QLD' | 'SA' | 'WA' | 'TAS' | 'NT' | 'ACT';
 
 // Base property details
@@ -28,8 +30,7 @@ interface LoanDetails {
 interface TaxDetails {
   taxableIncome: number;  // User's taxable income for negative gearing calculations
   isCGTExempt: boolean;  // 6-year CGT exemption rule flag
-  capitalWorksDepreciation: number;  // Annual amount for building depreciation
-  plantEquipmentDepreciation: number;  // Annual amount for plant and equipment
+  depreciationSchedule: DepreciationSchedule;  // Depreciation configuration
 }
 
 // Combined property details (main interface used throughout the app)

@@ -1,21 +1,5 @@
-export type {
-  PropertyDetails,
-  PurchaseCosts,
-  CostStructure,
-  AustralianState
-} from './property';
-
-export type {
-  MarketData,
-  YearlyProjection,
-  CalculationResults
-} from './market';
-
-export type {
-  TaxProjection,
-  TaxResults
-} from './tax';
-
-export type {
-  FinancialMetrics
-} from './metrics';
+export type { PropertyDetails, CostStructure, PurchaseCosts, AustralianState } from './property';
+export type { MarketData, YearlyProjection, CalculationResults } from './market';
+export type { TaxDetails, TaxProjection, TaxResults } from './tax';
+export type { LoanDetails } from './loan';
+export type { FinancialMetrics } from './metrics';
