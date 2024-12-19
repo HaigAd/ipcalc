@@ -5,6 +5,7 @@ import { usePropertyCalculator } from './usePropertyCalculator';
 import { useFinancialMetrics } from './useFinancialMetrics';
 import { usePurchaseCosts } from './usePurchaseCosts';
 import { useFormPersistence, getStoredState } from './useFormPersistence';
+import { useScenarios } from './useScenarios';
 
 export function useCalculatorState() {
   const storedState = getStoredState();
@@ -93,6 +94,17 @@ export function useCalculatorState() {
     updateCostStructure,
   });
 
+  const scenarios = useScenarios({
+    propertyDetails,
+    marketData,
+    costStructure,
+    state,
+    setPropertyDetails,
+    setMarketData,
+    updateCostStructure,
+    setState,
+  });
+
   return {
     propertyDetails,
     setPropertyDetails,
@@ -108,6 +120,7 @@ export function useCalculatorState() {
     calculationResults,
     resetToDefaults,
     state,
-    setState
+    setState,
+    ...scenarios
   };
 }
