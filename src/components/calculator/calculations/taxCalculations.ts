@@ -16,8 +16,9 @@ export const TAX_BRACKETS: TaxBracket[] = [
 
 const MEDICARE_LEVY_RATE = 0.02;
 
-export const getTaxBracket = (income: number): TaxBracket | undefined => {
-  return TAX_BRACKETS.find(b => income >= b.min && income <= b.max);
+export const getTaxBracket = (income: number): TaxBracket => {
+  const bracket = TAX_BRACKETS.find(b => income >= b.min && income <= b.max);
+  return bracket ? bracket : TAX_BRACKETS[0];
 };
 
 export const calculateMedicareLevy = (income: number): number => {

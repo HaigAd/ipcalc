@@ -37,5 +37,11 @@ export const TAB_CONFIG: TabConfig[] = [
     icon: CreditCard,
     shortLabel: 'Purchase',
     fullLabel: 'Purchase Costs'
+  },
+  {
+    id: 'scenario-comparison',
+    icon: Calculator,
+    shortLabel: 'Scenarios',
+    fullLabel: 'Scenario Comparison'
   }
 ];

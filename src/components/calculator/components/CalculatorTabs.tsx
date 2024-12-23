@@ -12,6 +12,7 @@ import {
   TaxTabContent,
   PurchaseTabContent
 } from './Tabs';
+import ScenarioComparison from './ScenarioComparison';
 
 interface CalculatorTabsProps {
   propertyDetails: PropertyDetails;
@@ -72,7 +73,7 @@ export function CalculatorTabs({
         `}
       </style>
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="flex w-full bg-slate-100/80 backdrop-blur supports-[backdrop-filter]:bg-slate-100/80 p-1 rounded-lg">
+        <TabsList className="h-auto min-h-10 flex flex-wrap gap-1 w-full bg-slate-100/80 backdrop-blur supports-[backdrop-filter]:bg-slate-100/80 p-1 rounded-lg">
           {TAB_CONFIG.map(tab => (
             <CustomTabTrigger key={tab.id} tab={tab} />
           ))}
@@ -117,6 +118,9 @@ export function CalculatorTabs({
             onStateChange={onStateChange}
             shouldFlash={shouldFlashStateSelector}
           />
+        </TabContent>
+        <TabContent value="scenario-comparison">
+          <ScenarioComparison />
         </TabContent>
       </Tabs>
     </>

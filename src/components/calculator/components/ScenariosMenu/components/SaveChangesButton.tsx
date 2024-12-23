@@ -39,10 +39,11 @@ export function SaveChangesButton({
           border-green-200 text-green-700
           transition-all duration-300
           ${isSaving ? 'opacity-80' : 'opacity-100'}
+          text-sm md:text-base
         `}
       >
         <Save className={`h-4 w-4 text-green-600 transition-transform duration-300 ${isSaving ? 'scale-90' : 'scale-100'}`} />
-        <span>Save Changes</span>
+        <span className="text-sm md:text-base">Save Changes</span>
         <AnimatePresence>
           {showGleam === 'update' && (
             <motion.div

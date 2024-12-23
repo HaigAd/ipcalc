@@ -4,7 +4,8 @@ import { getColumns } from './columns';
 import { TableHeader } from './TableHeader';
 import { TableBody } from './TableBody';
 import { TableFooter } from './TableFooter';
-import { ColumnCustomizer } from './ColumnCustomizer';
+import { ColumnCustomizerModal } from './ColumnCustomizerModal';
+import { Button } from '../../../ui/button';
 
 interface YearlyProjectionsTableProps {
   yearlyProjections: CalculationResults['yearlyProjections'];
@@ -13,7 +14,8 @@ interface YearlyProjectionsTableProps {
 
 export function YearlyProjectionsTable({ yearlyProjections, marketData }: YearlyProjectionsTableProps) {
   const columns = getColumns(marketData);
-  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   // Initialize with all columns visible
   const [visibleColumns, setVisibleColumns] = useState<string[]>(
     columns.map(col => col.id)
@@ -33,7 +35,8 @@ export function YearlyProjectionsTable({ yearlyProjections, marketData }: Yearly
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <ColumnCustomizer
+        <Button onClick={() => setIsModalOpen(true)}>Customize Columns</Button>
+        <ColumnCustomizerModal
           columns={columns}
           visibleColumns={visibleColumns}
           onToggleColumn={handleToggleColumn}

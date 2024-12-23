@@ -34,6 +34,8 @@ export interface YearlyProjection {
   capitalGain: number;   // Capital gain for the year (increase in property value)
   cgtPayable: number;
   netEquityAfterCGT: number;
+  cumulativeOperatingPosition: number; //Cumulative tracker of annual costs + annual income
+  netPosition: number; //After appreciation, CGT and application of cumulative Operating Position
 }
 
 export interface CalculationResults {

@@ -101,6 +101,17 @@ export const getColumns = (marketData: MarketData): ColumnDef[] => [
     )
   },
   {
+    id: 'cumulativeOperatingPosition',
+    header: 'Cumulative Operating Position',
+    tooltip: 'Total expenses minus total income and tax benefit to date',
+    group: 'Financial Position',
+    render: (projection) => (
+      <span className="text-blue-600">
+        ${Math.round(projection.cumulativeOperatingPosition).toLocaleString()}
+      </span>
+    )
+  },
+  {
     id: 'loanBalance',
     header: 'Loan Balance',
     tooltip: 'Remaining loan amount after offset benefits',

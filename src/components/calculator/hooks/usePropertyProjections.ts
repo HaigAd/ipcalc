@@ -52,6 +52,9 @@ export const usePropertyProjections = (
     // Calculate monthly contribution
     const monthlyContribution = getMonthlyContribution(propertyDetails.offsetContribution);
 
+    let cumulativeOperatingPosition = -costStructure.purchaseCosts.total; // Cumulative yearly costs less principal payments, but start at zero (so )
+    let cumulativeCapitalGain = 0;
+
     for (let year = 1; year <= propertyDetails.loanTerm; year++) {
       const previousPropertyValue = currentPropertyValue;
       
@@ -127,7 +130,7 @@ export const usePropertyProjections = (
         managementFees +                       // Property management
         currentAnnualPropertyCosts;            // Other property costs (maintenance, insurance, etc.) with growth
 
-      // Calculate property income (rental income minus deductible expenses and depreciation)
+      // Calculate property income (rental income minus deductible expenses and depreciation) - tax purposes
       const propertyIncome = annualRent - 
                            yearlyExpenses - 
                            totalDepreciation;
@@ -153,12 +156,13 @@ export const usePropertyProjections = (
       
       let yearlyCGTPayable = 0;
       if (!propertyDetails.isCGTExempt || year > 6) {
+        cumulativeCapitalGain += capitalGain;
         // Calculate CGT on this year's gain only
         if (capitalGain > 0) {
           // 50% discount on capital gains
           const discountedGain = capitalGain * 0.5;
           // Get the actual tax bracket for the total income
-          const taxBracket = getTaxBracket(propertyDetails.taxableIncome + propertyIncome);
+          const taxBracket = getTaxBracket(propertyDetails.taxableIncome + propertyIncome + (cumulativeCapitalGain * 0.5));
           if (taxBracket) {
             yearlyCGTPayable = discountedGain * (taxBracket.rate + 0.02); // Include Medicare levy
           }
@@ -171,10 +175,12 @@ export const usePropertyProjections = (
       // Calculate ROI for this year using yearly capital gain and yearly CGT
       const roi = ((annualRent - yearlyExpenses + taxBenefit + capitalGain - yearlyCGTPayable) / totalInvestedCapital) * 100;
 
+      const saleCost =  costStructure.futureSellCostsPercentage / 100 * currentPropertyValue;
+      console.log("Sale cost: " + saleCost);
       // Calculate cumulative CGT for reporting purposes
       const costBase = propertyDetails.purchasePrice + 
                       costStructure.purchaseCosts.total + 
-                      costStructure.futureSellCosts - 
+                      saleCost -
                       cumulativeDepreciation;
       
       let cumulativeCGTPayable = 0;
@@ -191,6 +197,8 @@ export const usePropertyProjections = (
 
       // Calculate net equity after CGT (using cumulative CGT for equity calculation)
       const netEquityAfterCGT = equity - cumulativeCGTPayable;
+      cumulativeOperatingPosition += annualRent + taxBenefit - yearlyExpenses;//
+      const netPosition = netEquityAfterCGT - cumulativePrincipalPaid + cumulativeOperatingPosition - propertyDetails.depositAmount - saleCost;
 
       yearlyProjections.push({
         year,
@@ -219,7 +227,9 @@ export const usePropertyProjections = (
         roi,
         capitalGain,
         cgtPayable: cumulativeCGTPayable, // Keep cumulative CGT for reporting
-        netEquityAfterCGT
+        netEquityAfterCGT,
+        cumulativeOperatingPosition,
+        netPosition
       });
     }
 
