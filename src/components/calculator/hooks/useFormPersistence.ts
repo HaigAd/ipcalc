@@ -28,7 +28,9 @@ export function getStoredState(): PersistedState | null {
           offsetContribution: {
             ...defaultPropertyDetails.offsetContribution,
             ...(parsed.propertyDetails.offsetContribution || {})
-          }
+          },
+          // Preserve interest rate changes if they exist
+          interestRateChanges: parsed.propertyDetails.interestRateChanges
         },
         marketData: {
           ...defaultMarketData,

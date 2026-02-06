@@ -3,6 +3,7 @@ import { Label } from '../../ui/label';
 import { Card } from '../../ui/card';
 import { Slider } from '../../ui/slider';
 import { MarketData } from '../types';
+import PriceCorrectionsForm from './PriceCorrectionsForm';
 
 interface MarketDataFormProps {
   marketData: MarketData;
@@ -11,6 +12,16 @@ interface MarketDataFormProps {
 
 export function MarketDataForm({ marketData, setMarketData }: MarketDataFormProps) {
   const inputClasses = "h-12 sm:h-11 px-4 text-base sm:text-sm border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow w-full touch-manipulation";
+  const currentValueYear = marketData.currentValueYear ?? '';
+  const currentPropertyValue = marketData.currentPropertyValue ?? '';
+
+  const parseOptionalNumber = (value: string) => {
+    if (value.trim() === '') {
+      return undefined;
+    }
+    const parsed = Number(value);
+    return Number.isNaN(parsed) ? undefined : parsed;
+  };
 
   return (
     <Card className="p-4 sm:p-6">
@@ -63,28 +74,51 @@ export function MarketDataForm({ marketData, setMarketData }: MarketDataFormProp
         </div>
 
         <div className="space-y-3 sm:space-y-2">
-          <Label htmlFor="opportunityCostRate" className="text-sm font-medium">
-            Opportunity Cost Rate (%)
+          <Label htmlFor="currentValueYear" className="text-sm font-medium">
+            Current Year (optional)
           </Label>
-          <div className="pt-2 px-1">
-            <Slider
-              id="opportunityCostRate"
-              min={-3}
-              max={10}
-              step={0.1}
-              value={[marketData.opportunityCostRate]}
-              onValueChange={(value) => setMarketData({
-                ...marketData,
-                opportunityCostRate: value[0]
-              })}
-              className="touch-none"
-            />
-          </div>
-          <div className="text-sm text-muted-foreground text-right pr-1">
-            {marketData.opportunityCostRate.toFixed(1)}%
-          </div>
+          <Input
+            id="currentValueYear"
+            type="number"
+            min="0"
+            step="1"
+            value={currentValueYear}
+            onChange={(event) => setMarketData({
+              ...marketData,
+              currentValueYear: parseOptionalNumber(event.target.value)
+            })}
+            placeholder="Years since purchase"
+            className={inputClasses}
+          />
+        </div>
+
+        <div className="space-y-3 sm:space-y-2">
+          <Label htmlFor="currentPropertyValue" className="text-sm font-medium">
+            Current Property Value (optional)
+          </Label>
+          <Input
+            id="currentPropertyValue"
+            type="number"
+            min="0"
+            step="1000"
+            value={currentPropertyValue}
+            onChange={(event) => setMarketData({
+              ...marketData,
+              currentPropertyValue: parseOptionalNumber(event.target.value)
+            })}
+            placeholder="Value at current year"
+            className={inputClasses}
+          />
         </div>
       </div>
+
+      <PriceCorrectionsForm
+        propertyValueCorrections={marketData.propertyValueCorrections}
+        onCorrectionsUpdate={(changes) => setMarketData({
+          ...marketData,
+          propertyValueCorrections: changes
+        })}
+      />
     </Card>
   );
 }

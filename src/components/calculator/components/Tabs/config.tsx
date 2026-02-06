@@ -24,7 +24,7 @@ export const TAB_CONFIG: TabConfig[] = [
     id: 'market',
     icon: TrendingUp,
     shortLabel: 'Market',
-    fullLabel: 'Market Analysis'
+    fullLabel: 'Market Predictions '
   },
   {
     id: 'tax',

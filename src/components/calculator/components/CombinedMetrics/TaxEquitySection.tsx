@@ -14,7 +14,6 @@ export const TaxEquitySection = ({
   yearlyProjections 
 }: TaxEquitySectionProps) => {
   const initialPropertyValue = yearlyProjections[0].propertyValue;
-  const selectedYearIndex = yearlyProjections.findIndex(y => y.year === currentYear.year);
 
   return (
     <div className="bg-white rounded-lg border border-slate-200 p-4 space-y-4">
@@ -26,7 +25,7 @@ export const TaxEquitySection = ({
             value={`$${formatLargeNumber(currentYear.totalDepreciation)}`}
           />
           <SummaryItem
-            label={`Tax Benefit (Year ${selectedYearIndex + 1})`}
+            label={`Tax Benefit (Year ${currentYear.year})`}
             value={`$${formatLargeNumber(currentYear.taxBenefit)}`}
           />
           <SummaryItem
@@ -38,15 +37,15 @@ export const TaxEquitySection = ({
         </div>
         <div className="space-y-2">
           <SummaryItem
-            label={`Current Equity (Year ${selectedYearIndex + 1})`}
+            label={`Current Equity (Year ${currentYear.year})`}
             value={`$${formatLargeNumber(currentYear.equity)}`}
           />
           <SummaryItem
-            label={`Projected Equity (Year ${yearlyProjections.length})`}
+            label={`Projected Equity (Year ${lastProjection.year})`}
             value={`$${formatLargeNumber(lastProjection.equity)}`}
           />
           <SummaryItem
-            label={`Property Value Growth (Years 1-${selectedYearIndex + 1})`}
+            label={`Property Value Growth (Years 0-${currentYear.year})`}
             value={`$${formatLargeNumber(currentYear.propertyValue - initialPropertyValue)}`}
             variant="success"
           />

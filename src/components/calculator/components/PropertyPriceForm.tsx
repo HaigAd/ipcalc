@@ -2,6 +2,7 @@ import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
 import { PropertyDetails, PurchaseCosts } from '../types';
 import { DepositSlider } from './DepositSlider';
+import { Switch } from '../../ui/switch';
 
 interface PropertyPriceFormProps {
   propertyDetails: PropertyDetails;
@@ -90,6 +91,22 @@ export function PropertyPriceForm({ propertyDetails, setPropertyDetails, purchas
           purchaseCosts={purchaseCosts}
           onDepositChange={handleDepositChange}
           onStateClick={onStateClick}
+        />
+      </div>
+
+      <div className="flex items-center justify-between">
+        <Label htmlFor="isPPOR" className={labelClasses}>
+          This is my PPOR
+        </Label>
+        <Switch
+          id="isPPOR"
+          checked={propertyDetails.isPPOR}
+          onCheckedChange={(checked) =>
+            setPropertyDetails({
+              ...propertyDetails,
+              isPPOR: checked
+            })
+          }
         />
       </div>
     </div>

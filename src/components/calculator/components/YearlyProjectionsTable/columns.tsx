@@ -46,6 +46,17 @@ export const getColumns = (marketData: MarketData): ColumnDef[] => [
     )
   },
   {
+    id: 'yearlyPrincipalPaid',
+    header: 'Principal Paid',
+    tooltip: 'Annual principal paid on the loan',
+    group: 'Loan Details',
+    render: (projection) => (
+      <span className="text-amber-700">
+        ${Math.round(projection.yearlyPrincipalPaid).toLocaleString()}
+      </span>
+    )
+  },
+  {
     id: 'managementFees',
     header: 'Management Fees',
     tooltip: 'Property management fees',
@@ -91,12 +102,34 @@ export const getColumns = (marketData: MarketData): ColumnDef[] => [
   },
   {
     id: 'taxBenefit',
-    header: 'Tax Benefit',
-    tooltip: 'Tax savings from negative gearing if applicable',
+    header: 'Tax Impact',
+    tooltip: 'Tax impact (savings or cost) from property income/loss',
     group: 'Financial Position',
     render: (projection) => (
       <span className="text-blue-600">
         ${Math.round(projection.taxBenefit).toLocaleString()}
+      </span>
+    )
+  },
+  {
+    id: 'quarantinedLosses',
+    header: 'Quarantined Losses',
+    tooltip: 'Cumulative quarantined losses available to offset future property income',
+    group: 'Financial Position',
+    render: (projection) => (
+      <span className="text-amber-700">
+        ${Math.round(projection.quarantinedLosses).toLocaleString()}
+      </span>
+    )
+  },
+  {
+    id: 'quarantinedLossesUsed',
+    header: 'Quarantined Losses Used',
+    tooltip: 'Quarantined losses applied against property income this year',
+    group: 'Financial Position',
+    render: (projection) => (
+      <span className="text-amber-700">
+        ${Math.round(projection.quarantinedLossesUsed).toLocaleString()}
       </span>
     )
   },
@@ -154,7 +187,7 @@ export const getColumns = (marketData: MarketData): ColumnDef[] => [
   {
     id: 'cgtPayable',
     header: 'CGT Payable',
-    tooltip: 'Estimated CGT payable if sold this year (includes 50% discount)',
+    tooltip: 'Estimated CGT payable if sold this year (includes CGT discount for holdings over 12 months)',
     group: 'Financial Position',
     render: (projection) => (
       <span className="text-red-600">
@@ -185,13 +218,46 @@ export const getColumns = (marketData: MarketData): ColumnDef[] => [
     )
   },
   {
+    id: 'netPosition',
+    header: 'Net Position (If Sold)',
+    tooltip: 'Net position after sale costs, CGT, and cumulative cash flows',
+    group: 'Financial Position',
+    render: (projection) => (
+      <span className={projection.netPosition >= 0 ? 'text-green-700 font-medium' : 'text-red-700 font-medium'}>
+        ${Math.round(projection.netPosition).toLocaleString()}
+      </span>
+    )
+  },
+  {
     id: 'roi',
-    header: 'ROI',
-    tooltip: 'Return on investment percentage (includes CGT impact)',
+    header: 'ROI (Total Cash)',
+    tooltip: 'ROI using total cash invested (includes principal contributions)',
     group: 'Financial Position',
     render: (projection) => (
       <span className={projection.roi >= 0 ? 'text-green-700 font-medium' : 'text-red-700 font-medium'}>
         {projection.roi.toFixed(1)}%
+      </span>
+    )
+  },
+  {
+    id: 'roiInitialInvestment',
+    header: 'ROI (Initial)',
+    tooltip: 'ROI using initial investment only',
+    group: 'Financial Position',
+    render: (projection) => (
+      <span className={projection.roiInitialInvestment >= 0 ? 'text-green-700 font-medium' : 'text-red-700 font-medium'}>
+        {projection.roiInitialInvestment.toFixed(1)}%
+      </span>
+    )
+  },
+  {
+    id: 'irr',
+    header: 'IRR',
+    tooltip: 'Internal rate of return if sold this year',
+    group: 'Financial Position',
+    render: (projection) => (
+      <span className={projection.irr !== undefined && projection.irr >= 0 ? 'text-green-700 font-medium' : 'text-red-700 font-medium'}>
+        {projection.irr !== undefined ? `${projection.irr.toFixed(1)}%` : '—'}
       </span>
     )
   }

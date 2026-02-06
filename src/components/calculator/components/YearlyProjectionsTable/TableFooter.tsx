@@ -11,7 +11,9 @@ export function TableFooter({ marketData }: TableFooterProps) {
       <p>• Total Expenses includes interest, management fees, maintenance, and other costs</p>
       <p>• Cash Flow shows net position after all income, expenses, and tax benefits</p>
       <p>• Tax Benefits include negative gearing and depreciation benefits</p>
-      <p>• ROI shows annual return on investment considering all income and capital growth</p>
+      <p>• ROI (Total Cash) uses cumulative cash invested including principal</p>
+      <p>• ROI (Initial) uses initial investment only</p>
+      <p>• IRR is calculated assuming the property is sold in that year</p>
     </div>
   );
 }

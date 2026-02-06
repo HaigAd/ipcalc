@@ -5,7 +5,7 @@ export interface MetricCardProps {
   value: string | number;
   suffix?: string;
   prefix?: string;
-  variant: 'green' | 'blue' | 'amber' | 'slate';
+  variant: 'green' | 'blue' | 'amber' | 'slate' | 'red';
   subtext?: string;
   className?: string;
 }

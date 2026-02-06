@@ -17,6 +17,8 @@ interface TaxBenefitsSummaryProps {
   monthlyBenefit: number;
   firstYearCGT: number;
   isCGTExempt: boolean;
+  isPPOR: boolean;
+  cgtDiscountPercent: number;
 }
 
 export function TaxBenefitsSummary({
@@ -30,6 +32,8 @@ export function TaxBenefitsSummary({
   monthlyBenefit,
   firstYearCGT,
   isCGTExempt,
+  isPPOR,
+  cgtDiscountPercent,
 }: TaxBenefitsSummaryProps) {
   return (
     <div className="rounded-lg bg-slate-50 p-4 space-y-4">
@@ -91,16 +95,16 @@ export function TaxBenefitsSummary({
           </div>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-slate-600">First Year Tax Benefit</span>
+          <span className="text-slate-600">First Year Tax Impact</span>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger className="flex items-center space-x-1">
-                <span>Tax Savings</span>
+                <span>Tax Impact</span>
                 <InfoIcon className="w-4 h-4 text-slate-400" />
               </TooltipTrigger>
               <TooltipContent>
                 <p className="max-w-xs text-sm">
-                  Tax benefit is calculated as the difference between tax payable on your original income
+                  Tax impact is calculated as the difference between tax payable on your original income
                   and tax payable on your final taxable income after property deductions.
                 </p>
               </TooltipContent>
@@ -131,8 +135,10 @@ export function TaxBenefitsSummary({
                 <TooltipContent>
                   <p className="max-w-xs text-sm">
                     {isCGTExempt 
-                      ? "CGT is exempt for the first 6 years under the main residence exemption rule."
-                      : "Estimated CGT payable if property was sold at the end of the first year. Includes 50% discount for holdings over 12 months."}
+                      ? (isPPOR
+                        ? "CGT is fully exempt for your PPOR."
+                        : "CGT is exempt for the first 6 years under the main residence exemption rule.")
+                      : `Estimated CGT payable if property was sold at the end of the first year. Includes a ${cgtDiscountPercent}% discount for holdings over 12 months.`}
                   </p>
                 </TooltipContent>
               </Tooltip>

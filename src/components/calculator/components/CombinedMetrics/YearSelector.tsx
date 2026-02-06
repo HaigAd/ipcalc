@@ -19,10 +19,9 @@ export function YearSelector({ years, selectedYear, onYearChange }: YearSelector
     onYearChange(closestYear);
   };
 
-  // Display year is the actual year number (selectedYear + 1)
-  const displayYear = selectedYear + 1;
-  const displayMinYear = minYear + 1;
-  const displayMaxYear = maxYear + 1;
+  const displayYear = selectedYear;
+  const displayMinYear = minYear;
+  const displayMaxYear = maxYear;
 
   return (
     <div className="flex flex-col gap-2 mb-4 w-full">

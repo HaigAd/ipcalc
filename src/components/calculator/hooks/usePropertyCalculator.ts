@@ -27,7 +27,7 @@ export const usePropertyCalculator = (
     totalInterestSaved: projections.totalInterestSaved,
     yearsReducedFromLoan: projections.yearsReducedFromLoan,
     monthsReducedFromLoan: projections.monthsReducedFromLoan,
-    monthlyMortgagePayment: projections.monthlyMortgagePayment,
+    monthlyMortgagePayment: projections.initialMonthlyMortgagePayment,
     principal: projections.principal,
     netPositionAtEnd: projections.netPositionAtEnd,
     totalDepreciation: projections.totalDepreciation,

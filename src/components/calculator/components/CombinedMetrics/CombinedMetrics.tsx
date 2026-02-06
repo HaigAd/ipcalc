@@ -4,8 +4,7 @@ import { OffsetBenefits } from '../OffsetBenefits';
 import { MetricCard } from './MetricCard';
 import { TaxEquitySection } from './TaxEquitySection';
 import { YearSelector } from './YearSelector';
-import { formatLargeNumber } from './utils';
-
+import { formatNumberWithKMB } from '../../utils/formatters';
 interface CombinedMetricsProps {
   calculationResults: CalculationResults;
   costStructure?: CostStructure;
@@ -14,9 +13,10 @@ interface CombinedMetricsProps {
 export function CombinedMetrics({ calculationResults, costStructure }: CombinedMetricsProps) {
   const { yearlyProjections, monthlyMortgagePayment, averageROI } = calculationResults;
   const [selectedYear, setSelectedYear] = useState(0);
-
   const { currentYear, lastProjection, monthlyMetrics } = useMemo(() => {
-    const current = yearlyProjections[selectedYear];
+    const current =
+      yearlyProjections.find((projection) => projection.year === selectedYear) ||
+      yearlyProjections[0];
     const last = yearlyProjections[yearlyProjections.length - 1];
     return {
       currentYear: current,
@@ -25,13 +25,13 @@ export function CombinedMetrics({ calculationResults, costStructure }: CombinedM
         rental: current.rentalIncome / 12,
         expenses: current.yearlyExpenses / 12,
         cashFlow: current.cashFlow / 12,
-        totalCost: monthlyMortgagePayment + (current.yearlyExpenses / 12)
+        totalCost: (current.yearlyExpenses - current.taxBenefit - current.rentalIncome) /12
       }
     };
   }, [yearlyProjections, monthlyMortgagePayment, selectedYear]);
 
   const years = useMemo(() => {
-    return yearlyProjections.map((_, index) => index);
+    return yearlyProjections.map((projection) => projection.year);
   }, [yearlyProjections]);
 
   return (
@@ -48,28 +48,28 @@ export function CombinedMetrics({ calculationResults, costStructure }: CombinedM
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
             label="Monthly Cash Flow"
-            value={formatLargeNumber(Math.abs(monthlyMetrics.cashFlow))}
+            value={formatNumberWithKMB(Math.abs(monthlyMetrics.cashFlow))}
             prefix="$"
-            variant="green"
+            variant="slate"
             subtext={monthlyMetrics.cashFlow >= 0 ? 'positive' : 'negative'}
           />
           <MetricCard
-            label={`Year ${selectedYear + 1} ROI`}
+            label={`Year ${currentYear.year} ROI`}
             value={currentYear.roi.toFixed(1)}
             suffix="%"
             variant="blue"
           />
           <MetricCard
             label="Monthly Rental Income"
-            value={formatLargeNumber(monthlyMetrics.rental)}
+            value={formatNumberWithKMB(monthlyMetrics.rental)}
             prefix="$"
             variant="amber"
           />
           <MetricCard
-            label="Total Monthly Cost"
-            value={formatLargeNumber(monthlyMetrics.totalCost)}
+            label={`Total Monthly ${monthlyMetrics.totalCost >= 0 ? "Cost" : "Income"}`}
+            value={formatNumberWithKMB(Math.abs(monthlyMetrics.totalCost))}
             prefix="$"
-            variant="slate"
+            variant = {monthlyMetrics.totalCost >= 0 ? "red" : "green"}
           />
         </div>
 

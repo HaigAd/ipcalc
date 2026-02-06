@@ -67,6 +67,42 @@ export function useTaxCalculations({
     });
   };
 
+  const handleCGTDiscountToggle = (checked: boolean) => {
+    onPropertyDetailsChange({
+      ...propertyDetails,
+      useCustomCGTDiscount: checked
+    });
+  };
+
+  const handleCGTDiscountRateChange = (value: string) => {
+    const numericValue = Number(value);
+    const sanitized = Number.isFinite(numericValue)
+      ? Math.min(100, Math.max(0, numericValue))
+      : 0;
+    onPropertyDetailsChange({
+      ...propertyDetails,
+      cgtDiscountRate: sanitized / 100
+    });
+  };
+
+  const handleNoNegativeGearingToggle = (checked: boolean) => {
+    onPropertyDetailsChange({
+      ...propertyDetails,
+      noNegativeGearing: checked
+    });
+  };
+
+  const handleNoNegativeGearingYearChange = (value: string) => {
+    const numericValue = Number(value);
+    const sanitized = Number.isFinite(numericValue)
+      ? Math.max(1, Math.floor(numericValue))
+      : 1;
+    onPropertyDetailsChange({
+      ...propertyDetails,
+      noNegativeGearingStartYear: sanitized
+    });
+  };
+
   // Calculate tax implications
   const bracket = getTaxBracket(propertyDetails.taxableIncome);
   const taxPayable = calculateTaxPayable(propertyDetails.taxableIncome);
@@ -87,6 +123,10 @@ export function useTaxCalculations({
     handleFocus,
     handleDepreciationChange,
     handleCGTExemptionChange,
+    handleCGTDiscountToggle,
+    handleCGTDiscountRateChange,
+    handleNoNegativeGearingToggle,
+    handleNoNegativeGearingYearChange,
     calculations: {
       bracket,
       taxPayable,

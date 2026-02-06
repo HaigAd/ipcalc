@@ -5,10 +5,12 @@ import { InfoIcon } from "lucide-react";
 
 interface CGTExemptionToggleProps {
   isExempt: boolean;
+  isPPOR: boolean;
+  discountPercent: number;
   onToggle: (checked: boolean) => void;
 }
 
-export function CGTExemptionToggle({ isExempt, onToggle }: CGTExemptionToggleProps) {
+export function CGTExemptionToggle({ isExempt, isPPOR, discountPercent, onToggle }: CGTExemptionToggleProps) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -26,8 +28,13 @@ export function CGTExemptionToggle({ isExempt, onToggle }: CGTExemptionTogglePro
                 </p>
                 <p className="text-sm">
                   Any capital gains during this period will be tax-free. After 6 years, 
-                  normal CGT rules apply with a 50% discount on gains.
+                  normal CGT rules apply with a {discountPercent}% discount on gains.
                 </p>
+                {isPPOR && (
+                  <p className="text-sm">
+                    This property is marked as your PPOR, so CGT is fully exempt.
+                  </p>
+                )}
               </div>
             </HoverCardContent>
           </HoverCard>
@@ -36,12 +43,14 @@ export function CGTExemptionToggle({ isExempt, onToggle }: CGTExemptionTogglePro
           id="cgt-exempt"
           checked={isExempt}
           onCheckedChange={onToggle}
+          disabled={isPPOR}
         />
       </div>
-      {isExempt && (
+      {(isExempt || isPPOR) && (
         <p className="text-sm text-muted-foreground">
-          Capital gains will be tax-free for the first 6 years. After that, 
-          normal CGT rules apply with a 50% discount.
+          {isPPOR
+            ? 'Capital gains are fully exempt for your PPOR.'
+            : `Capital gains will be tax-free for the first 6 years. After that, normal CGT rules apply with a ${discountPercent}% discount.`}
         </p>
       )}
     </div>

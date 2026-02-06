@@ -1,12 +1,13 @@
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
-import { PropertyDetails } from '../types';
+import { PropertyDetails, LoanDetails } from '../types/property';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '../../ui/accordion';
 import { OffsetContributionForm } from './OffsetContributionForm';
 import { defaultPropertyDetails } from '../config/defaults';
 import { Switch } from '../../ui/switch';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { RadioGroup, RadioGroupItem } from '../../ui/radio-group';
+import RateChangesForm from './RateChangesForm';
 
 interface LoanDetailsFormProps {
   propertyDetails: PropertyDetails;
@@ -17,6 +18,20 @@ interface LoanDetailsFormProps {
 export function LoanDetailsForm({ propertyDetails, setPropertyDetails, costStructure }: LoanDetailsFormProps) {
   const [isManualOffset, setIsManualOffset] = useState(!!propertyDetails.manualOffsetAmount);
   const [manualOffsetValue, setManualOffsetValue] = useState(propertyDetails.manualOffsetAmount?.toString() || '');
+  const [interestRateChanges, setInterestRateChanges] = useState<LoanDetails['interestRateChanges']>(
+    propertyDetails.interestRateChanges || []
+  );
+  const [loanTermInput, setLoanTermInput] = useState(propertyDetails.loanTerm.toString());
+
+  // Keep local state in sync with propertyDetails
+  useEffect(() => {
+    setInterestRateChanges(propertyDetails.interestRateChanges || []);
+  }, [propertyDetails.interestRateChanges]);
+
+  useEffect(() => {
+    setLoanTermInput(propertyDetails.loanTerm.toString());
+  }, [propertyDetails.loanTerm]);
+
   const inputClasses = "h-12 sm:h-11 px-4 text-base sm:text-sm border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow w-full touch-manipulation";
   const labelClasses = "text-sm font-medium text-slate-700 block";
 
@@ -48,10 +63,48 @@ export function LoanDetailsForm({ propertyDetails, setPropertyDetails, costStruc
     });
   };
 
+  const handleRateChangesUpdate = (changes: { year: number; rate: number }[] | undefined) => {
+    const updatedChanges = changes || [];
+    setInterestRateChanges(updatedChanges);
+    setPropertyDetails({
+      ...propertyDetails,
+      interestRateChanges: updatedChanges.length > 0 ? updatedChanges : undefined
+    });
+  };
+
+  const handleLoanTermChange = (value: string) => {
+    if (value === '' || /^\d*$/.test(value)) {
+      setLoanTermInput(value);
+      const parsed = Number(value);
+      if (Number.isFinite(parsed) && parsed > 0) {
+        setPropertyDetails({
+          ...propertyDetails,
+          loanTerm: parsed
+        });
+      }
+    }
+  };
+
+  const handleLoanTermBlur = () => {
+    const parsed = Number(loanTermInput);
+    const nextValue = Number.isFinite(parsed) && parsed > 0
+      ? parsed
+      : defaultPropertyDetails.loanTerm;
+    setLoanTermInput(nextValue.toString());
+    if (nextValue !== propertyDetails.loanTerm) {
+      setPropertyDetails({
+        ...propertyDetails,
+        loanTerm: nextValue
+      });
+    }
+  };
+
+  const handleLoanTermFocus = () => {
+    setLoanTermInput(propertyDetails.loanTerm.toString());
+  };
+
   const handleManualOffsetChange = (value: string) => {
     setManualOffsetValue(value);
-    // Always update manualOffsetAmount, even if value is empty
-    // This maintains manual mode even when clearing the input
     const numberValue = value === '' ? 0 : parseFloat(value);
     if (!isNaN(numberValue)) {
       setPropertyDetails({
@@ -64,14 +117,12 @@ export function LoanDetailsForm({ propertyDetails, setPropertyDetails, costStruc
   const handleOffsetModeChange = (checked: boolean) => {
     setIsManualOffset(checked);
     if (!checked) {
-      // When switching back to automatic, remove manual override
       setManualOffsetValue('');
       setPropertyDetails({
         ...propertyDetails,
         manualOffsetAmount: undefined
       });
     } else {
-      // When switching to manual, initialize with current calculated offset
       const initialValue = calculatedOffset.toString();
       setManualOffsetValue(initialValue);
       setPropertyDetails({
@@ -137,16 +188,21 @@ export function LoanDetailsForm({ propertyDetails, setPropertyDetails, costStruc
             id="loanTerm"
             type="number"
             inputMode="decimal"
-            value={propertyDetails.loanTerm}
+            value={loanTermInput}
             className={inputClasses}
-            onChange={(e) => setPropertyDetails({
-              ...propertyDetails,
-              loanTerm: Number(e.target.value)
-            })}
+            onChange={(e) => handleLoanTermChange(e.target.value)}
+            onBlur={handleLoanTermBlur}
+            onFocus={handleLoanTermFocus}
           />
         </div>
       </div>
-
+      
+      <RateChangesForm 
+        initialInterestRate={propertyDetails.interestRate}
+        interestRateChanges={interestRateChanges}
+        onRateChangesUpdate={handleRateChangesUpdate}
+      />
+      
       <Accordion type="single" collapsible className="border-t border-slate-200 pt-4">
         <AccordionItem value="offset-contributions" className="border-none">
           <AccordionTrigger className="py-2 hover:no-underline">

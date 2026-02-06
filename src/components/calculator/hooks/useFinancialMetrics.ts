@@ -19,7 +19,7 @@ export const useFinancialMetrics = (
 
     // First year metrics
     const firstYearProjection = yearlyProjections[0];
-    const annualRent = propertyDetails.weeklyRent * 52;
+    const annualRent = propertyDetails.investmentRent * 52;
     const annualCosts = costStructure.annualPropertyCosts + (firstYearProjection?.totalCosts ?? 0);
 
     // Return on Investment (ROI)

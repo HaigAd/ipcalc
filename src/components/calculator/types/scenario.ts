@@ -4,6 +4,10 @@ export interface Scenario {
   id: string;
   name: string;
   timestamp: number;
+  metadata?: {
+    description?: string;
+    // Add other metadata properties here
+  };
   state: {
     propertyDetails: PropertyDetails;
     marketData: MarketData;

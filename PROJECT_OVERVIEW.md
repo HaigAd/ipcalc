@@ -8,7 +8,6 @@ The Property Investment Calculator is a sophisticated web application designed t
 ### Business Problems Solved
 - Complex property investment calculations automated
 - Multi-state tax and duty calculations
-- Investment scenario comparison and analysis
 - Long-term financial projections and modeling
 - Capital Gains Tax (CGT) implications assessment
 - Offset account benefit calculations
@@ -97,7 +96,6 @@ src/
 ### Domain Terminology
 - **CGT**: Capital Gains Tax calculations
 - **Offset Benefits**: Mortgage offset account impacts
-- **Market Scenarios**: Different market condition models
 - **Comparative Metrics**: Investment comparison tools
 
 ### Business Logic Location

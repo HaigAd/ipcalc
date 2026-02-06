@@ -22,7 +22,7 @@ export const getTaxBracket = (income: number): TaxBracket => {
 };
 
 export const calculateMedicareLevy = (income: number): number => {
-  return income * MEDICARE_LEVY_RATE;
+  return Math.max(0, income) * MEDICARE_LEVY_RATE;
 };
 
 export const calculateTaxPayable = (income: number): number => {
@@ -30,7 +30,7 @@ export const calculateTaxPayable = (income: number): number => {
   if (!bracket) return 0;
   const incomeTax = (income - bracket.min) * bracket.rate + bracket.base;
   const medicareLevy = calculateMedicareLevy(income);
-  return incomeTax + medicareLevy;
+  return Math.max(0, incomeTax + medicareLevy);
 };
 
 export const calculateTaxBenefit = (totalTaxableIncome: number, propertyIncome: number): number => {
@@ -42,5 +42,5 @@ export const calculateTaxBenefit = (totalTaxableIncome: number, propertyIncome: 
   const taxOnReducedIncome = calculateTaxPayable(reducedIncome);
   
   // Tax benefit is the difference
-  return Math.max(0, taxOnTotalIncome - taxOnReducedIncome);
+  return taxOnTotalIncome - taxOnReducedIncome;
 };

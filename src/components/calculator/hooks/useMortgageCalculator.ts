@@ -20,7 +20,7 @@ export const useMortgageCalculator = (propertyDetails: PropertyDetails): Mortgag
     let totalPrincipalPaid = 0;
 
     // Calculate yearly amortization schedule
-    for (let year = 1; year <= propertyDetails.loanTerm; year++) {
+    for (let year = 0; year < propertyDetails.loanTerm; year++) {
       let yearlyInterest = 0;
       let yearlyPrincipal = 0;
 

@@ -81,10 +81,6 @@ export function OffsetBenefits({ calculationResults }: OffsetBenefitsProps) {
             <li>Regular contributions totaling ${Math.round(totalContributions).toLocaleString()} further reduce your interest costs over time</li>
             <li>The combined effect saves ${Math.round(calculationResults.totalInterestSaved).toLocaleString()} in interest and reduces your loan term by {formatLoanReduction(calculationResults.yearsReducedFromLoan, calculationResults.monthsReducedFromLoan)}</li>
           </ul>
-          <p className="text-sm text-slate-600 mt-2">
-            In the rental scenario, both your initial savings and regular contributions are invested at the opportunity cost rate, 
-            helping to build your investment pool over time. This allows for a fair comparison between buying and renting strategies.
-          </p>
         </div>
       </div>
     </div>

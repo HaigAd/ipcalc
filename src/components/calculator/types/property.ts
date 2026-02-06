@@ -15,9 +15,13 @@ interface BasePropertyDetails {
 }
 
 // Loan related details
-interface LoanDetails {
+export interface LoanDetails {
   interestRate: number;
   loanTerm: number;
+  interestRateChanges?: {
+    year: number;
+    rate: number;
+  }[];
   loanType: 'principal-and-interest' | 'interest-only';
   offsetContribution: {
     amount: number;
@@ -30,6 +34,11 @@ interface LoanDetails {
 interface TaxDetails {
   taxableIncome: number;  // User's taxable income for negative gearing calculations
   isCGTExempt: boolean;  // 6-year CGT exemption rule flag
+  isPPOR: boolean;  // Treat property as principal place of residence (CGT exempt)
+  useCustomCGTDiscount: boolean;  // Use a custom CGT discount rate instead of the standard rule
+  cgtDiscountRate: number;  // CGT discount rate as a decimal (0.5 = 50%)
+  noNegativeGearing: boolean;  // Disallow offsetting property losses against personal income
+  noNegativeGearingStartYear: number;  // Year to start quarantining losses
   depreciationSchedule: DepreciationSchedule;  // Depreciation configuration
 }
 

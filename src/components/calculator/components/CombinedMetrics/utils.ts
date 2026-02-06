@@ -14,19 +14,22 @@ export const gradientClasses = {
   green: 'from-green-50 to-green-100',
   blue: 'from-blue-50 to-blue-100',
   amber: 'from-amber-50 to-amber-100',
-  slate: 'from-slate-50 to-slate-100'
+  slate: 'from-slate-50 to-slate-100',
+  red: 'from-red-50 to-red-100'
 };
 
 export const textClasses = {
   green: 'text-green-600',
   blue: 'text-blue-600',
   amber: 'text-amber-600',
-  slate: 'text-slate-600'
+  slate: 'text-slate-600',
+  red: 'text-red-600'
 };
 
 export const valueClasses = {
   green: 'text-green-900',
   blue: 'text-blue-900',
   amber: 'text-amber-900',
-  slate: 'text-slate-900'
+  slate: 'text-slate-900',
+  red: 'text-red-900'
 };

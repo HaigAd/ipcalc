@@ -5,7 +5,6 @@ import { TableHeader } from './TableHeader';
 import { TableBody } from './TableBody';
 import { TableFooter } from './TableFooter';
 import { ColumnCustomizerModal } from './ColumnCustomizerModal';
-import { Button } from '../../../ui/button';
 
 interface YearlyProjectionsTableProps {
   yearlyProjections: CalculationResults['yearlyProjections'];
@@ -14,12 +13,19 @@ interface YearlyProjectionsTableProps {
 
 export function YearlyProjectionsTable({ yearlyProjections, marketData }: YearlyProjectionsTableProps) {
   const columns = getColumns(marketData);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // Default to showing only essential columns on mobile
+  const defaultVisibleColumns = [
+    'year',
+    'propertyValue',
+    'rentalIncome',
+    'cashFlow',
+    'netPosition',
+    'roi',
+    'roiInitialInvestment',
+    'irr'
+  ];
 
-  // Initialize with all columns visible
-  const [visibleColumns, setVisibleColumns] = useState<string[]>(
-    columns.map(col => col.id)
-  );
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(defaultVisibleColumns);
 
   const handleToggleColumn = (columnId: string) => {
     setVisibleColumns(current => {
@@ -35,7 +41,6 @@ export function YearlyProjectionsTable({ yearlyProjections, marketData }: Yearly
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <Button onClick={() => setIsModalOpen(true)}>Customize Columns</Button>
         <ColumnCustomizerModal
           columns={columns}
           visibleColumns={visibleColumns}
@@ -43,20 +48,22 @@ export function YearlyProjectionsTable({ yearlyProjections, marketData }: Yearly
         />
       </div>
       
-      <div className="overflow-x-auto">
-        <div className="inline-block min-w-full align-middle">
-          <div className="overflow-hidden border border-gray-200 rounded-lg">
-            <table className="min-w-full divide-y divide-gray-200">
-              <TableHeader
-                columns={columns}
-                visibleColumns={visibleColumns}
-              />
-              <TableBody
-                columns={columns}
-                visibleColumns={visibleColumns}
-                yearlyProjections={yearlyProjections}
-              />
-            </table>
+      <div className="relative max-h-[70vh] overflow-auto -mx-3 sm:mx-0">
+        <div className="overflow-visible">
+          <div className="inline-block min-w-full align-middle">
+            <div className="border border-gray-200 rounded-lg shadow-sm">
+              <table className="min-w-full divide-y divide-gray-200 table-fixed">
+                <TableHeader
+                  columns={columns}
+                  visibleColumns={visibleColumns}
+                />
+                <TableBody
+                  columns={columns}
+                  visibleColumns={visibleColumns}
+                  yearlyProjections={yearlyProjections}
+                />
+              </table>
+            </div>
           </div>
         </div>
       </div>

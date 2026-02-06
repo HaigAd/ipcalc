@@ -1,8 +1,10 @@
 export interface MarketData {
   propertyGrowthRate: number;
   rentIncreaseRate: number;
-  opportunityCostRate: number;
   operatingExpensesGrowthRate: number;  // Annual growth rate for operating expenses (0-10%)
+  currentValueYear?: number; // Optional year anchor for property value (years since purchase)
+  currentPropertyValue?: number; // Optional current property value at the anchor year
+  propertyValueCorrections?: { year: number; change: number }[]; // One-time price corrections by year (%)
 }
 
 export interface YearlyProjection {
@@ -27,9 +29,12 @@ export interface YearlyProjection {
   yearlyExpenses: number;  // All expenses including interest, management fees, maintenance etc.
   taxableIncome: number;
   taxBenefit: number;
+  quarantinedLosses: number;
+  quarantinedLossesUsed: number;
   cashFlow: number;
   equity: number;         // Property value minus loan balance
   roi: number;           // Return on investment percentage
+  roiInitialInvestment: number; // ROI using initial cash invested
   irr?: number;          // Internal rate of return (optional)
   capitalGain: number;   // Capital gain for the year (increase in property value)
   cgtPayable: number;
@@ -48,4 +53,6 @@ export interface CalculationResults {
   principal: number;
   netPositionAtEnd: number;     // Total equity plus final year cash flow
   averageROI: number;          // Average return on investment over loan term
+  totalDepreciation: number;
+  finalCGTPayable: number;
 }

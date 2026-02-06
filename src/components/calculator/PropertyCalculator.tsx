@@ -42,8 +42,8 @@ export function PropertyCalculator() {
     switch (id) {
       case 'price':
         return (
-          <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-            <h2 className="text-2xl font-semibold mb-6 text-slate-900">Property Price & Deposit</h2>
+          <div className="bg-white rounded-lg border border-slate-200 p-3 sm:p-4 md:p-6 shadow-sm">
+            <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-slate-900">Property Price & Deposit</h2>
             <PropertyPriceForm
               propertyDetails={propertyDetails}
               setPropertyDetails={setPropertyDetails}
@@ -54,8 +54,8 @@ export function PropertyCalculator() {
         );
       case 'loan':
         return (
-          <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-            <h2 className="text-2xl font-semibold mb-6 text-slate-900">Loan Details & Options</h2>
+          <div className="bg-white rounded-lg border border-slate-200 p-3 sm:p-4 md:p-6 shadow-sm">
+            <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-slate-900">Loan Details & Options</h2>
             <LoanDetailsForm
               propertyDetails={propertyDetails}
               setPropertyDetails={setPropertyDetails}
@@ -65,8 +65,8 @@ export function PropertyCalculator() {
         );
       case 'taxImplications':
         return (
-          <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-            <h2 className="text-2xl font-semibold mb-6 text-slate-900">Tax Implications</h2>
+          <div className="bg-white rounded-lg border border-slate-200 p-3 sm:p-4 md:p-6 shadow-sm">
+            <h2 className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-slate-900">Tax Implications</h2>
             <TaxImplications
               propertyDetails={propertyDetails}
               yearlyProjections={calculationResults.yearlyProjections}
@@ -78,10 +78,10 @@ export function PropertyCalculator() {
   }, [propertyDetails, setPropertyDetails, costStructure, purchaseCosts, calculationResults]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 py-8">
-      <div className="container mx-auto px-4 max-w-7xl">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 tracking-tight">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 py-4 sm:py-6 md:py-8">
+      <div className="container mx-auto px-2 sm:px-4 max-w-7xl">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6 md:mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
             Property Investment Calculator
           </h1>
           <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
@@ -98,7 +98,7 @@ export function PropertyCalculator() {
             />
             <button
               onClick={resetToDefaults}
-              className="inline-flex items-center gap-2 bg-gradient-to-b from-slate-50 to-slate-100 px-4 py-2.5 text-sm font-medium text-slate-700 border border-slate-200 rounded-lg shadow-sm hover:from-slate-100 hover:to-slate-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors duration-200"
+              className="inline-flex items-center gap-2 bg-gradient-to-b from-slate-50 to-slate-100 px-3 sm:px-4 py-2 sm:py-2.5 text-sm font-medium text-slate-700 border border-slate-200 rounded-lg shadow-sm hover:from-slate-100 hover:to-slate-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors duration-200"
             >
               <svg 
                 className="w-4 h-4" 
@@ -118,7 +118,7 @@ export function PropertyCalculator() {
           </div>
         </div>
         
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-3 sm:p-4 md:p-6 overflow-x-hidden">
           <CalculatorTabs
             propertyDetails={propertyDetails}
             marketData={marketData}
@@ -135,14 +135,14 @@ export function PropertyCalculator() {
             renderComponent={renderComponent}
           />
 
-          <div className="mt-8">
+          <div className="mt-4 sm:mt-6 md:mt-8">
             <CombinedMetrics 
               calculationResults={calculationResults}
               costStructure={costStructure}
             />
           </div>
 
-          <div className="mt-8">
+          <div className="mt-4 sm:mt-6 md:mt-8">
             <YearlyProjectionsTable
               yearlyProjections={calculationResults.yearlyProjections}
               marketData={marketData}

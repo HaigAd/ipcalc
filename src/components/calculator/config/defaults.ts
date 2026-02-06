@@ -20,20 +20,28 @@ export const defaultPropertyDetails: PropertyDetails = {
     frequency: 'monthly'
   },
   manualOffsetAmount: undefined, // Default to automatic calculation
+  interestRateChanges: [], // Initialize empty array for interest rate changes
   managementFee: {
     type: 'percentage',
     value: 7.5
   },
   depreciationSchedule: defaultDepreciationSchedule,
   taxableIncome: 120000,
-  isCGTExempt: false  // Default to not using 6-year rule
+  isCGTExempt: false,  // Default to not using 6-year rule
+  isPPOR: false,
+  useCustomCGTDiscount: false,
+  cgtDiscountRate: 0.5,
+  noNegativeGearing: false,
+  noNegativeGearingStartYear: 1
 };
 
 export const defaultMarketData: MarketData = {
   propertyGrowthRate: 3,
   rentIncreaseRate: 3,
-  opportunityCostRate: 3,
-  operatingExpensesGrowthRate: 2.5  // Default 2.5% annual growth in operating expenses
+  operatingExpensesGrowthRate: 2.5,  // Default 2.5% annual growth in operating expenses
+  currentValueYear: undefined,
+  currentPropertyValue: undefined,
+  propertyValueCorrections: undefined
 };
 
 export const defaultCostStructure: CostStructure = {
