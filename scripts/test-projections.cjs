@@ -100,6 +100,8 @@ runTest('negative gearing quarantine accumulates losses and defers tax benefit',
   assert.ok(year30, 'Expected to find year 30 projection');
 
   assert.equal(year1.taxBenefit, 0);
+  assert.equal(year1.taxableIncome, 0);
+  assert.equal(year2.taxableIncome, 0);
   approxEqual(year1.quarantinedLosses, 44_023.36458386974);
   approxEqual(year2.quarantinedLosses, 86_413.64369314579);
   assert.ok(year30.quarantinedLossesUsed > 0, 'Expected quarantined losses to be applied in later profitable years');

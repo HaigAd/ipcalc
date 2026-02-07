@@ -256,7 +256,7 @@ export const calculatePropertyProjections = (
       // Calculate cash flow (includes tax benefits)
       // For IO loans, no principal payments to deduct
       const effectiveTaxBenefit = propertyDetails.isPPOR ? 0 : taxBenefit;
-      const effectiveTaxableIncome = propertyDetails.isPPOR ? 0 : propertyIncome;
+      const effectiveTaxableIncome = propertyDetails.isPPOR ? 0 : taxablePropertyIncome;
       const effectiveQuarantinedLoss = propertyDetails.isPPOR ? 0 : quarantinedLoss;
       const effectiveQuarantinedLossUsed = propertyDetails.isPPOR ? 0 : quarantinedLossUsed;
 
