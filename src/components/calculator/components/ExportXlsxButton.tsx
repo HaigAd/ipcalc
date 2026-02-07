@@ -164,6 +164,8 @@ export function ExportXlsxButton({
 }: ExportXlsxButtonProps) {
   const [isExporting, setIsExporting] = useState(false);
   const scenarioLabel = scenarioName?.trim() ? scenarioName.trim() : 'Current scenario';
+  const finalProjection =
+    calculationResults.yearlyProjections[calculationResults.yearlyProjections.length - 1];
 
   const handleExport = async () => {
     setIsExporting(true);
@@ -307,7 +309,7 @@ export function ExportXlsxButton({
         ['Years Reduced From Loan', calculationResults.yearsReducedFromLoan],
         ['Months Reduced From Loan', calculationResults.monthsReducedFromLoan],
         ['Final CGT Payable', calculationResults.finalCGTPayable],
-        ['Final Net Position', calculationResults.netPositionAtEnd],
+        ['Final Net Position (excl principal contributions)', finalProjection?.netPosition ?? 0],
         ['Average ROI', calculationResults.averageROI],
       ]);
 
