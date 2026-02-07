@@ -13,7 +13,6 @@ export function TableFooter({ marketData }: TableFooterProps) {
       <p>• Tax Benefits include negative gearing and depreciation benefits</p>
       <p>• ROI (Total Cash) uses cumulative cash invested including principal</p>
       <p>• ROI (Initial) uses initial investment only</p>
-      <p>• IRR is calculated assuming the property is sold in that year</p>
     </div>
   );
 }

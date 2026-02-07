@@ -18,7 +18,7 @@ export const useFinancialMetrics = (
     const totalInvestment = propertyDetails.depositAmount + costStructure.purchaseCosts.total;
 
     // First year metrics
-    const firstYearProjection = yearlyProjections[0];
+    const firstYearProjection = yearlyProjections.find((projection) => projection.year === 1) ?? yearlyProjections[1];
     const annualRent = propertyDetails.investmentRent * 52;
     const annualCosts = costStructure.annualPropertyCosts + (firstYearProjection?.totalCosts ?? 0);
 

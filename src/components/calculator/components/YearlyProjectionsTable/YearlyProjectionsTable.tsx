@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CalculationResults, MarketData } from '../../types';
+import { CalculationResults, MarketData, PropertyDetails, CostStructure } from '../../types';
 import { getColumns } from './columns';
 import { TableHeader } from './TableHeader';
 import { TableBody } from './TableBody';
@@ -9,10 +9,12 @@ import { ColumnCustomizerModal } from './ColumnCustomizerModal';
 interface YearlyProjectionsTableProps {
   yearlyProjections: CalculationResults['yearlyProjections'];
   marketData: MarketData;
+  propertyDetails: PropertyDetails;
+  costStructure: CostStructure;
 }
 
-export function YearlyProjectionsTable({ yearlyProjections, marketData }: YearlyProjectionsTableProps) {
-  const columns = getColumns(marketData);
+export function YearlyProjectionsTable({ yearlyProjections, marketData, propertyDetails, costStructure }: YearlyProjectionsTableProps) {
+  const columns = getColumns(marketData, propertyDetails, costStructure);
   // Default to showing only essential columns on mobile
   const defaultVisibleColumns = [
     'year',
@@ -21,8 +23,7 @@ export function YearlyProjectionsTable({ yearlyProjections, marketData }: Yearly
     'cashFlow',
     'netPosition',
     'roi',
-    'roiInitialInvestment',
-    'irr'
+    'roiInitialInvestment'
   ];
 
   const [visibleColumns, setVisibleColumns] = useState<string[]>(defaultVisibleColumns);

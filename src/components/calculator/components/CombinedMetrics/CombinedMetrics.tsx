@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { CalculationResults, CostStructure } from '../../types';
+import { useMemo, useState, useEffect } from 'react';
+import { CalculationResults, CostStructure, PropertyDetails } from '../../types';
 import { OffsetBenefits } from '../OffsetBenefits';
 import { MetricCard } from './MetricCard';
 import { TaxEquitySection } from './TaxEquitySection';
@@ -8,27 +8,36 @@ import { formatNumberWithKMB } from '../../utils/formatters';
 interface CombinedMetricsProps {
   calculationResults: CalculationResults;
   costStructure?: CostStructure;
+  propertyDetails: PropertyDetails;
 }
 
-export function CombinedMetrics({ calculationResults, costStructure }: CombinedMetricsProps) {
+export function CombinedMetrics({ calculationResults, costStructure, propertyDetails }: CombinedMetricsProps) {
   const { yearlyProjections, monthlyMortgagePayment, averageROI } = calculationResults;
-  const [selectedYear, setSelectedYear] = useState(0);
+  const [selectedYear, setSelectedYear] = useState(1);
+  useEffect(() => {
+    if (!yearlyProjections.length) return;
+    const hasYearOne = yearlyProjections.some((projection) => projection.year === 1);
+    if (hasYearOne && selectedYear === 0) {
+      setSelectedYear(1);
+    }
+  }, [yearlyProjections, selectedYear]);
   const { currentYear, lastProjection, monthlyMetrics } = useMemo(() => {
     const current =
       yearlyProjections.find((projection) => projection.year === selectedYear) ||
       yearlyProjections[0];
     const last = yearlyProjections[yearlyProjections.length - 1];
+    const rentalValue = propertyDetails.isPPOR ? current.rentSavings : current.rentalIncome;
     return {
       currentYear: current,
       lastProjection: last,
       monthlyMetrics: {
-        rental: current.rentalIncome / 12,
+        rental: rentalValue / 12,
         expenses: current.yearlyExpenses / 12,
         cashFlow: current.cashFlow / 12,
-        totalCost: (current.yearlyExpenses - current.taxBenefit - current.rentalIncome) /12
+        totalCost: (current.yearlyExpenses - current.taxBenefit - rentalValue) /12
       }
     };
-  }, [yearlyProjections, monthlyMortgagePayment, selectedYear]);
+  }, [yearlyProjections, monthlyMortgagePayment, selectedYear, propertyDetails.isPPOR]);
 
   const years = useMemo(() => {
     return yearlyProjections.map((projection) => projection.year);
@@ -60,7 +69,7 @@ export function CombinedMetrics({ calculationResults, costStructure }: CombinedM
             variant="blue"
           />
           <MetricCard
-            label="Monthly Rental Income"
+            label={propertyDetails.isPPOR ? "Monthly Rent Savings" : "Monthly Rental Income"}
             value={formatNumberWithKMB(monthlyMetrics.rental)}
             prefix="$"
             variant="amber"

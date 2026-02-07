@@ -9,6 +9,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '..
 import { Label } from '../../../ui/label';
 import { Switch } from '../../../ui/switch';
 import { Input } from '../../../ui/input';
+import { cn } from '../../../../lib/utils';
 
 interface TaxImplicationsProps {
   yearlyProjections: {
@@ -25,8 +26,8 @@ export function TaxImplications({
   yearlyProjections,
   onPropertyDetailsChange 
 }: TaxImplicationsProps) {
-  const firstYearProjection = yearlyProjections[0];
-  const firstYearCGTProjection = yearlyProjections[0];
+  const firstYearProjection = yearlyProjections[1] ?? yearlyProjections[0];
+  const firstYearCGTProjection = yearlyProjections[1] ?? yearlyProjections[0];
 
   const {
     inputValue,
@@ -57,7 +58,13 @@ export function TaxImplications({
   const isCGTExempt = propertyDetails.isPPOR || propertyDetails.isCGTExempt;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="space-y-4">
+      {propertyDetails.isPPOR && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          PPOR selected: tax deductions and CGT don’t apply. These settings are shown for reference.
+        </div>
+      )}
+      <div className={cn("grid grid-cols-1 md:grid-cols-2 gap-6", propertyDetails.isPPOR && "opacity-60 pointer-events-none")}>
       {/* Left Column - Tax Details */}
       <div className="space-y-6">
         <TaxableIncomeSection
@@ -78,6 +85,7 @@ export function TaxImplications({
             })
           }
           loanTerm={propertyDetails.loanTerm}
+          isPPOR={propertyDetails.isPPOR}
         />
 
         <CGTExemptionToggle
@@ -190,6 +198,7 @@ export function TaxImplications({
           isPPOR={propertyDetails.isPPOR}
           cgtDiscountPercent={effectiveCGTDiscountPercent}
         />
+      </div>
       </div>
     </div>
   );

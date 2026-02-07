@@ -31,7 +31,9 @@ export function InvestmentTab({
   return (
     <div className="space-y-4">
       <Card className="p-4 sm:p-6">
-        <h2 className="text-lg sm:text-xl font-semibold mb-4">Rental Income</h2>
+        <h2 className="text-lg sm:text-xl font-semibold mb-4">
+          {propertyDetails.isPPOR ? 'Rent Savings' : 'Rental Income'}
+        </h2>
         <InvestmentRentInput
           propertyDetails={propertyDetails}
           onInvestmentRentChange={handleInvestmentRentChange}
@@ -43,6 +45,7 @@ export function InvestmentTab({
         <ManagementFeeSlider
           propertyDetails={propertyDetails}
           onManagementFeeChange={handleManagementFeeChange}
+          disabled={propertyDetails.isPPOR}
         />
       </Card>
     </div>

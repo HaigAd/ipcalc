@@ -10,6 +10,10 @@ export function CustomTooltip({ active, payload, label }: TooltipProps) {
   if (!validPayload) return null;
 
   const data = validPayload.payload;
+  const hasRentSavings = (data.rentSavings ?? 0) > 0 && (data.rentalIncome ?? 0) === 0;
+  const incomeLabel = hasRentSavings ? 'Rent Savings' : 'Rental Income';
+  const incomeValue = hasRentSavings ? data.rentSavings : data.rentalIncome;
+  const cashFlowLabel = hasRentSavings ? 'Cash Flow (Excl. Rent Savings)' : 'Cash Flow';
 
   return (
     <Card className="p-3 sm:p-4 bg-white shadow-lg max-w-[280px] sm:max-w-none">
@@ -31,8 +35,8 @@ export function CustomTooltip({ active, payload, label }: TooltipProps) {
         title="Income & Expenses"
         items={[
           {
-            label: 'Rental Income',
-            value: data.rentalIncome,
+            label: incomeLabel,
+            value: incomeValue,
             valueClassName: 'text-green-600'
           },
           {
@@ -52,7 +56,7 @@ export function CustomTooltip({ active, payload, label }: TooltipProps) {
         title="Financial Position"
         items={[
           {
-            label: 'Cash Flow',
+            label: cashFlowLabel,
             value: data.cashFlow,
             valueClassName: data.cashFlow >= 0 ? 'text-green-700' : 'text-red-700'
           },

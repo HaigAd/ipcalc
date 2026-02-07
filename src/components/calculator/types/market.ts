@@ -12,6 +12,7 @@ export interface YearlyProjection {
   propertyValue: number;
   loanBalance: number;
   rentalIncome: number;
+  rentSavings: number; // Annual rent savings for PPOR scenarios
   offsetBalance: number;
   interestSaved: number;
   cumulativeInterestSaved: number;
@@ -32,10 +33,10 @@ export interface YearlyProjection {
   quarantinedLosses: number;
   quarantinedLossesUsed: number;
   cashFlow: number;
+  modelCashFlow: number; // Cash flow used for ROI modelling (includes rent savings for PPOR)
   equity: number;         // Property value minus loan balance
   roi: number;           // Return on investment percentage
   roiInitialInvestment: number; // ROI using initial cash invested
-  irr?: number;          // Internal rate of return (optional)
   capitalGain: number;   // Capital gain for the year (increase in property value)
   cgtPayable: number;
   netEquityAfterCGT: number;

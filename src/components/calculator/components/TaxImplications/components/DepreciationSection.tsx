@@ -17,12 +17,14 @@ interface DepreciationSectionProps {
   schedule: DepreciationSchedule;
   onScheduleChange: (schedule: DepreciationSchedule) => void;
   loanTerm?: number; // Optional: Used to determine number of years for manual input
+  isPPOR?: boolean;
 }
 
 export function DepreciationSection({
   schedule,
   onScheduleChange,
   loanTerm = 30, // Default to 30 years if not specified
+  isPPOR = false,
 }: DepreciationSectionProps) {
   const [yearlyInputs, setYearlyInputs] = useState<YearlyDepreciation[]>(
     schedule.yearlySchedule || Array(loanTerm).fill({ capitalWorks: 0, plantEquipment: 0 })
@@ -86,13 +88,14 @@ export function DepreciationSection({
   };
 
   return (
-    <div className="space-y-6">
+    <div className={cn("space-y-6", isPPOR && "opacity-60")}>
       <div className="rounded-lg border border-slate-200 p-4">
         <Label className="text-sm font-medium mb-4 block">Depreciation Mode</Label>
         <RadioGroup
           value={schedule.mode}
           onValueChange={value => handleModeChange(value as DepreciationMode)}
           className="grid gap-4"
+          disabled={isPPOR}
         >
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="fixed" id="fixed" />
@@ -139,6 +142,7 @@ export function DepreciationSection({
                   "h-10 text-lg font-medium text-slate-900",
                   "focus-visible:ring-1 focus-visible:ring-slate-300"
                 )}
+                disabled={isPPOR}
               />
               <span className="text-sm text-slate-500">per year</span>
             </div>
@@ -172,6 +176,7 @@ export function DepreciationSection({
                   "h-10 text-lg font-medium text-slate-900",
                   "focus-visible:ring-1 focus-visible:ring-slate-300"
                 )}
+                disabled={isPPOR}
               />
               <span className="text-sm text-slate-500">per year</span>
             </div>
@@ -194,6 +199,7 @@ export function DepreciationSection({
                       value={yearData.capitalWorks.toLocaleString()}
                       onChange={(e) => handleYearlyChange(index, 'capitalWorks', e.target.value)}
                       className="h-8 text-sm"
+                      disabled={isPPOR}
                     />
                   </div>
                 </div>
@@ -206,6 +212,7 @@ export function DepreciationSection({
                       value={yearData.plantEquipment.toLocaleString()}
                       onChange={(e) => handleYearlyChange(index, 'plantEquipment', e.target.value)}
                       className="h-8 text-sm"
+                      disabled={isPPOR}
                     />
                   </div>
                 </div>
@@ -229,10 +236,14 @@ export function DepreciationSection({
                 onChange={handleFileUpload}
                 className="hidden"
                 id="file-upload"
+                disabled={isPPOR}
               />
               <Label
                 htmlFor="file-upload"
-                className="inline-flex items-center justify-center px-4 py-2 border border-slate-200 rounded-md text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 cursor-pointer"
+                className={cn(
+                  "inline-flex items-center justify-center px-4 py-2 border border-slate-200 rounded-md text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 cursor-pointer",
+                  isPPOR && "pointer-events-none"
+                )}
               >
                 <Upload className="w-4 h-4 mr-2" />
                 Choose File
@@ -245,6 +256,11 @@ export function DepreciationSection({
             )}
           </div>
         </div>
+      )}
+      {isPPOR && (
+        <p className="text-sm text-slate-500">
+          Depreciation is disabled for PPOR properties.
+        </p>
       )}
     </div>
   );

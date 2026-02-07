@@ -139,6 +139,7 @@ export function PropertyCalculator() {
             <CombinedMetrics 
               calculationResults={calculationResults}
               costStructure={costStructure}
+              propertyDetails={propertyDetails}
             />
           </div>
 
@@ -146,6 +147,8 @@ export function PropertyCalculator() {
             <YearlyProjectionsTable
               yearlyProjections={calculationResults.yearlyProjections}
               marketData={marketData}
+              propertyDetails={propertyDetails}
+              costStructure={costStructure}
             />
           </div>
         </div>

@@ -19,7 +19,9 @@ export function InvestmentRentInput({
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="investmentRent">Weekly Rental Income</Label>
+        <Label htmlFor="investmentRent">
+          {propertyDetails.isPPOR ? 'Weekly Rent Savings' : 'Weekly Rental Income'}
+        </Label>
         <div className="relative">
           <span className="absolute left-3 top-1/2 -translate-y-1/2">$</span>
           <Input
@@ -33,7 +35,9 @@ export function InvestmentRentInput({
           />
         </div>
         <p className="text-sm text-gray-500">
-          Set the expected weekly rental income for this investment property
+          {propertyDetails.isPPOR
+            ? 'Estimate the weekly rent you avoid paying by living here'
+            : 'Set the expected weekly rental income for this investment property'}
         </p>
       </div>
     </div>

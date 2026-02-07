@@ -21,6 +21,7 @@ interface ProjectionsGraphProps {
 
 export function ProjectionsGraph({ calculationResults }: ProjectionsGraphProps) {
   const processedData = useProjectionsData(calculationResults?.yearlyProjections || []);
+  const hasRentSavings = processedData.some((point) => (point.rentSavings ?? 0) > 0 && (point.rentalIncome ?? 0) === 0);
   const [zoomDomain, setZoomDomain] = useState<{ x1: number, x2: number } | null>(null);
 
   const handleBrushChange = (domain: any) => {
@@ -97,8 +98,8 @@ export function ProjectionsGraph({ calculationResults }: ProjectionsGraphProps) 
             />
             <Line
               type="monotone"
-              dataKey="rentalIncome"
-              name="Rental Income"
+              dataKey={hasRentSavings ? "rentSavings" : "rentalIncome"}
+              name={hasRentSavings ? "Rent Savings" : "Rental Income"}
               stroke="#9333ea"
               strokeWidth={2}
               dot={false}

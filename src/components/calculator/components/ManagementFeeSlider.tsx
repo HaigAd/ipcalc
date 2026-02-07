@@ -10,11 +10,13 @@ import { Switch } from '../../ui/switch';
 interface ManagementFeeSliderProps {
   propertyDetails: PropertyDetails;
   onManagementFeeChange: (value: { type: 'percentage' | 'fixed'; value: number }) => void;
+  disabled?: boolean;
 }
 
 export function ManagementFeeSlider({ 
   propertyDetails, 
-  onManagementFeeChange 
+  onManagementFeeChange,
+  disabled = false
 }: ManagementFeeSliderProps) {
   const [inputValue, setInputValue] = useState(propertyDetails.managementFee.value.toLocaleString());
   const [isEditing, setIsEditing] = useState(false);
@@ -34,11 +36,12 @@ export function ManagementFeeSlider({
   }, [propertyDetails.investmentRent]);
 
   const annualFeeAmount = useMemo(() => {
+    if (disabled) return 0;
     if (isPercentage) {
       return (annualRentalIncome * sliderValue) / 100;
     }
     return sliderValue;
-  }, [sliderValue, annualRentalIncome, isPercentage]);
+  }, [sliderValue, annualRentalIncome, isPercentage, disabled]);
 
   const handleTypeToggle = (checked: boolean) => {
     const newType = checked ? 'percentage' : 'fixed';
@@ -77,6 +80,7 @@ export function ManagementFeeSlider({
   };
 
   const handlePencilClick = () => {
+    if (disabled) return;
     inputRef.current?.focus();
   };
 
@@ -99,7 +103,7 @@ export function ManagementFeeSlider({
   };
 
   return (
-    <div className="space-y-4">
+    <div className={cn("space-y-4", disabled && "opacity-60 pointer-events-none")}>
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -108,6 +112,7 @@ export function ManagementFeeSlider({
               onClick={handlePencilClick}
               className="p-1 hover:bg-slate-100 rounded-md transition-colors"
               aria-label="Edit management fee"
+              disabled={disabled}
             >
               <Pencil className="w-4 h-4 text-slate-400" />
             </button>
@@ -117,6 +122,7 @@ export function ManagementFeeSlider({
             <Switch
               checked={isPercentage}
               onCheckedChange={handleTypeToggle}
+              disabled={disabled}
             />
             <Label className="text-sm text-slate-500">Percentage</Label>
           </div>
@@ -136,6 +142,7 @@ export function ManagementFeeSlider({
                     "focus-visible:ring-0 hover:border-b-2 hover:border-slate-200 transition-all",
                     isEditing ? "border-b-2 border-slate-300" : ""
                   )}
+                  disabled={disabled}
                 />
                 <span className="text-2xl font-semibold text-slate-900 ml-1">%</span>
               </>
@@ -153,6 +160,7 @@ export function ManagementFeeSlider({
                     "focus-visible:ring-0 hover:border-b-2 hover:border-slate-200 transition-all",
                     isEditing ? "border-b-2 border-slate-300" : ""
                   )}
+                  disabled={disabled}
                 />
               </>
             )}
@@ -169,6 +177,7 @@ export function ManagementFeeSlider({
           onValueChange={handleSliderChange}
           onValueCommit={handleSliderCommit}
           className="py-4"
+          disabled={disabled}
         />
         
         <div className="flex justify-between text-xs font-medium text-slate-500">
@@ -195,18 +204,23 @@ export function ManagementFeeSlider({
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-slate-600">Management Fee</span>
-              <span className="font-medium text-slate-900">${annualFeeAmount.toLocaleString()}</span>
-            </div>
+                <span className="font-medium text-slate-900">${annualFeeAmount.toLocaleString()}</span>
+              </div>
             <div className="pt-2 border-t border-slate-200">
               <div className="flex justify-between text-sm">
                 <span className="text-slate-600">Percentage of Income</span>
                 <span className="font-medium text-slate-900">
-                  {((annualFeeAmount / annualRentalIncome) * 100).toFixed(1)}%
+                  {annualRentalIncome > 0 ? ((annualFeeAmount / annualRentalIncome) * 100).toFixed(1) : '0.0'}%
                 </span>
               </div>
             </div>
           </div>
         </div>
+        {disabled && (
+          <p className="text-xs text-slate-500">
+            Management fees don’t apply when the property is your PPOR.
+          </p>
+        )}
       </div>
     </div>
   );

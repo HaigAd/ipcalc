@@ -1,12 +1,22 @@
 import { useMemo } from 'react';
-import { usePropertyProjections } from '../../hooks/usePropertyProjections';
+import { calculatePropertyProjections } from '../../hooks/usePropertyProjections';
 import { Scenario } from '../../types/scenario';
 import { calculateStampDuty } from '../../calculations/stampDuty';
 import { calculateTransferFee } from '../../calculations/transferFee';
 
 const MORTGAGE_REGISTRATION_FEE = 224;
 
-export const useScenarioProjectionsData = (scenarios?: Scenario[]) => {
+export interface SensitivitySettings {
+  interestRateDelta: number;
+  rentIncreaseDelta: number;
+  propertyGrowthDelta: number;
+}
+
+export const useScenarioProjectionsData = (
+  scenarios?: Scenario[],
+  sensitivityEnabled: boolean = false,
+  sensitivitySettings?: SensitivitySettings
+) => {
     const safeScenarios = scenarios ?? [];
     const scenarioProjections = safeScenarios.map(scenario => {
         const stampDuty = calculateStampDuty(
@@ -48,14 +58,68 @@ export const useScenarioProjectionsData = (scenarios?: Scenario[]) => {
         const calculatedOffset = Math.max(0, scenario.state.propertyDetails.availableSavings - totalUpfrontCosts);
         const offsetAmount = scenario.state.propertyDetails.manualOffsetAmount ?? calculatedOffset;
 
-        return {
-          scenarioId: scenario.id,
-          projections: usePropertyProjections(
-            scenario.state.propertyDetails,
-            scenario.state.marketData,
+        const applySensitivity = (deltas: { interest: number; rent: number; growth: number }) => {
+          const updatedPropertyDetails = {
+            ...scenario.state.propertyDetails,
+            interestRate: Math.max(0, scenario.state.propertyDetails.interestRate + deltas.interest),
+            interestRateChanges: scenario.state.propertyDetails.interestRateChanges?.map((change) => ({
+              ...change,
+              rate: Math.max(0, change.rate + deltas.interest)
+            }))
+          };
+          const updatedMarketData = {
+            ...scenario.state.marketData,
+            propertyGrowthRate: scenario.state.marketData.propertyGrowthRate + deltas.growth,
+            rentIncreaseRate: scenario.state.marketData.rentIncreaseRate + deltas.rent
+          };
+          return { updatedPropertyDetails, updatedMarketData };
+        };
+
+        const baseProjections = calculatePropertyProjections(
+          scenario.state.propertyDetails,
+          scenario.state.marketData,
+          costStructure,
+          offsetAmount
+        ).yearlyProjections;
+
+        let lowProjections: typeof baseProjections | undefined;
+        let highProjections: typeof baseProjections | undefined;
+        if (sensitivityEnabled) {
+          const interestDelta = sensitivitySettings?.interestRateDelta ?? 0;
+          const rentDelta = sensitivitySettings?.rentIncreaseDelta ?? 0;
+          const growthDelta = sensitivitySettings?.propertyGrowthDelta ?? 0;
+
+          const { updatedPropertyDetails: lowPropertyDetails, updatedMarketData: lowMarketData } = applySensitivity({
+            interest: interestDelta,
+            rent: -rentDelta,
+            growth: -growthDelta
+          });
+          lowProjections = calculatePropertyProjections(
+            lowPropertyDetails,
+            lowMarketData,
             costStructure,
             offsetAmount
-          ).yearlyProjections
+          ).yearlyProjections;
+
+          const { updatedPropertyDetails: highPropertyDetails, updatedMarketData: highMarketData } = applySensitivity({
+            interest: -interestDelta,
+            rent: rentDelta,
+            growth: growthDelta
+          });
+          highProjections = calculatePropertyProjections(
+            highPropertyDetails,
+            highMarketData,
+            costStructure,
+            offsetAmount
+          ).yearlyProjections;
+        }
+
+        return {
+          scenarioId: scenario.id,
+          isPPOR: scenario.state.propertyDetails.isPPOR,
+          projections: baseProjections,
+          lowProjections,
+          highProjections
         }
       });
 
@@ -69,16 +133,40 @@ export const useScenarioProjectionsData = (scenarios?: Scenario[]) => {
       .reduce((acc, year) => acc.add(year), new Set<number>());
     const sortedYears = Array.from(allYears).sort((a, b) => a - b);
 
-    const processedData = sortedYears.map(year => {
-      const dataPoint: { year: number } & { [key: string]: { netPosition: number, afterTaxHolding: number } | null } = { year };
+    const rentSavingsByScenario = new Map<string, Map<number, number>>();
+    scenarioProjections.forEach((scenario) => {
+      if (!scenario.isPPOR) return;
+      let cumulative = 0;
+      const totalsByYear = new Map<number, number>();
+      scenario.projections.forEach((projection) => {
+        cumulative += projection.rentSavings;
+        totalsByYear.set(projection.year, cumulative);
+      });
+      rentSavingsByScenario.set(scenario.scenarioId, totalsByYear);
+    });
 
-      scenarioProjections.forEach((scenario, index) => {
+    const processedData = sortedYears.map(year => {
+      const dataPoint: { year: number } & { [key: string]: { netPosition: number, netPositionExRent?: number, afterTaxHolding: number, rentSavingsTotal?: number, offsetBalance: number, cumulativePrincipalPaid: number, netPositionLow?: number, netPositionHigh?: number } | null } = { year };
+
+      scenarioProjections.forEach((scenario) => {
         const projection = scenario.projections.find(item => item.year === year);
         if (projection) {
-          const afterTaxHolding = projection.rentalIncome - projection.yearlyExpenses + projection.taxBenefit;
+          const income = scenario.isPPOR ? projection.rentSavings : projection.rentalIncome;
+          const afterTaxHolding = income - projection.yearlyExpenses + projection.taxBenefit;
+          const rentSavingsTotal = scenario.isPPOR
+            ? rentSavingsByScenario.get(scenario.scenarioId)?.get(year) ?? 0
+            : 0;
+          const lowProjection = scenario.lowProjections?.find(item => item.year === year);
+          const highProjection = scenario.highProjections?.find(item => item.year === year);
           dataPoint[scenario.scenarioId] = {
             netPosition: projection.netPosition,
-            afterTaxHolding
+            netPositionExRent: scenario.isPPOR ? projection.netPosition - rentSavingsTotal : undefined,
+            afterTaxHolding,
+            rentSavingsTotal,
+            offsetBalance: projection.offsetBalance,
+            cumulativePrincipalPaid: projection.cumulativePrincipalPaid,
+            netPositionLow: lowProjection?.netPosition,
+            netPositionHigh: highProjection?.netPosition
           };
         } else {
           dataPoint[scenario.scenarioId] = null;

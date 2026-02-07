@@ -15,6 +15,9 @@ export const calculateMonthlyPayment = (
   } else {
     // For P&I loans, calculate amortized payment including principal
     const totalMonths = years * 12;
+    if (monthlyRate === 0) {
+      return totalMonths > 0 ? principal / totalMonths : 0;
+    }
     return (principal * monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / 
            (Math.pow(1 + monthlyRate, totalMonths) - 1);
   }

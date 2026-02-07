@@ -1,4 +1,4 @@
-import { CalculationResults, MarketData } from '../../types';
+import { CalculationResults, MarketData, PropertyDetails, CostStructure } from '../../types';
 
 export interface ColumnDef {
   id: string;
@@ -8,7 +8,15 @@ export interface ColumnDef {
   render: (projection: CalculationResults['yearlyProjections'][0]) => React.ReactNode;
 }
 
-export const getColumns = (marketData: MarketData): ColumnDef[] => [
+export const getColumns = (
+  marketData: MarketData,
+  propertyDetails: PropertyDetails,
+  costStructure: CostStructure
+): ColumnDef[] => {
+  const isPPOR = propertyDetails.isPPOR;
+  const initialInvestment = propertyDetails.depositAmount + costStructure.purchaseCosts.total;
+
+  return [
   {
     id: 'year',
     header: 'Year',
@@ -25,12 +33,14 @@ export const getColumns = (marketData: MarketData): ColumnDef[] => [
   },
   {
     id: 'rentalIncome',
-    header: 'Rental Income',
-    tooltip: 'Annual rental income after rent increases',
+    header: isPPOR ? 'Rent Savings' : 'Rental Income',
+    tooltip: isPPOR
+      ? 'Estimated annual rent saved by living in the property'
+      : 'Annual rental income after rent increases',
     group: 'Income',
     render: (projection) => (
       <span className="text-green-600">
-        ${Math.round(projection.rentalIncome).toLocaleString()}
+        ${Math.round(isPPOR ? projection.rentSavings : projection.rentalIncome).toLocaleString()}
       </span>
     )
   },
@@ -91,12 +101,42 @@ export const getColumns = (marketData: MarketData): ColumnDef[] => [
   },
   {
     id: 'cashFlow',
-    header: 'Cash Flow',
-    tooltip: 'Net cash position after all income, expenses and tax benefits',
+    header: isPPOR ? 'Cash Flow (Excl. Rent Savings)' : 'Cash Flow',
+    tooltip: isPPOR
+      ? 'Net cash position after expenses and tax benefits (rent savings excluded)'
+      : 'Net cash position after all income, expenses and tax benefits',
     group: 'Financial Position',
     render: (projection) => (
       <span className={projection.cashFlow >= 0 ? 'text-green-700' : 'text-red-700'}>
         ${Math.round(projection.cashFlow).toLocaleString()}
+      </span>
+    )
+  },
+  {
+    id: 'totalCashInvested',
+    header: 'Total Cash Invested',
+    tooltip: 'Deposit + purchase costs + cumulative principal + offset contributions',
+    group: 'Financial Position',
+    render: (projection) => (
+      <span className="text-slate-700 font-medium">
+        ${Math.round(
+          initialInvestment +
+          projection.cumulativePrincipalPaid +
+          projection.cumulativeOffsetContributions
+        ).toLocaleString()}
+      </span>
+    )
+  },
+  {
+    id: 'saleProceeds',
+    header: 'Sale Proceeds',
+    tooltip: 'Net equity after CGT minus estimated sale costs',
+    group: 'Financial Position',
+    render: (projection) => (
+      <span className="text-slate-700 font-medium">
+        ${Math.round(
+          projection.netEquityAfterCGT - (costStructure.futureSellCostsPercentage / 100) * projection.propertyValue
+        ).toLocaleString()}
       </span>
     )
   },
@@ -250,15 +290,5 @@ export const getColumns = (marketData: MarketData): ColumnDef[] => [
       </span>
     )
   },
-  {
-    id: 'irr',
-    header: 'IRR',
-    tooltip: 'Internal rate of return if sold this year',
-    group: 'Financial Position',
-    render: (projection) => (
-      <span className={projection.irr !== undefined && projection.irr >= 0 ? 'text-green-700 font-medium' : 'text-red-700 font-medium'}>
-        {projection.irr !== undefined ? `${projection.irr.toFixed(1)}%` : '—'}
-      </span>
-    )
-  }
 ];
+};

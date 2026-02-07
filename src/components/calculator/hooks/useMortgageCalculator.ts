@@ -19,8 +19,16 @@ export const useMortgageCalculator = (propertyDetails: PropertyDetails): Mortgag
     let totalInterestPaid = 0;
     let totalPrincipalPaid = 0;
 
+    yearlySchedule.push({
+      year: 0,
+      remainingBalance: Math.max(0, remainingBalance),
+      interestPaid: 0,
+      principalPaid: 0,
+    });
+
     // Calculate yearly amortization schedule
-    for (let year = 0; year < propertyDetails.loanTerm; year++) {
+    for (let yearIndex = 0; yearIndex < propertyDetails.loanTerm; yearIndex++) {
+      const projectionYear = yearIndex + 1;
       let yearlyInterest = 0;
       let yearlyPrincipal = 0;
 
@@ -38,7 +46,7 @@ export const useMortgageCalculator = (propertyDetails: PropertyDetails): Mortgag
       totalPrincipalPaid += yearlyPrincipal;
 
       yearlySchedule.push({
-        year,
+        year: projectionYear,
         remainingBalance: Math.max(0, remainingBalance),
         interestPaid: yearlyInterest,
         principalPaid: yearlyPrincipal,

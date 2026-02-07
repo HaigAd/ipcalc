@@ -1,62 +1,20 @@
 import { useMemo } from 'react';
 import { PropertyDetails, MarketData, YearlyProjection, CostStructure } from '../types';
-import { calculateTaxBenefit, calculateTaxPayable, getTaxBracket } from '../calculations/taxCalculations';
+import { calculateTaxBenefit, calculateTaxPayable } from '../calculations/taxCalculations';
 import { 
   calculateMonthlyPayment, 
   getMonthlyContribution,
-  calculateManagementFees,
-  calculateTotalDepreciation
+  calculateManagementFees
 } from './projectionUtils';
 import { getDepreciation } from '../utils/depreciation';
 import {calculateYearlyRates} from '../utils/interest';
 
-export const usePropertyProjections = (
+export const calculatePropertyProjections = (
   propertyDetails: PropertyDetails,
   marketData: MarketData,
   costStructure: CostStructure,
   offsetAmount: number
 ) => {
-  return useMemo(() => {
-    const computeIrr = (cashFlows: number[]) => {
-      if (cashFlows.length < 2) return null;
-      const hasPositive = cashFlows.some((value) => value > 0);
-      const hasNegative = cashFlows.some((value) => value < 0);
-      if (!hasPositive || !hasNegative) return null;
-
-      const npv = (rate: number) =>
-        cashFlows.reduce((total, value, index) => total + value / Math.pow(1 + rate, index), 0);
-
-      let low = -0.999;
-      let high = 1;
-      let npvLow = npv(low);
-      let npvHigh = npv(high);
-      let guard = 0;
-
-      while (npvLow * npvHigh > 0 && guard < 50) {
-        high *= 2;
-        npvHigh = npv(high);
-        guard += 1;
-      }
-
-      if (npvLow * npvHigh > 0) return null;
-
-      for (let i = 0; i < 100; i++) {
-        const mid = (low + high) / 2;
-        const npvMid = npv(mid);
-        if (Math.abs(npvMid) < 1e-6) {
-          return mid;
-        }
-        if (npvLow * npvMid < 0) {
-          high = mid;
-          npvHigh = npvMid;
-        } else {
-          low = mid;
-          npvLow = npvMid;
-        }
-      }
-
-      return (low + high) / 2;
-    };
 
     const principal = propertyDetails.purchasePrice - propertyDetails.depositAmount;
     // Calculate initial investment
@@ -95,7 +53,6 @@ export const usePropertyProjections = (
 
     let cumulativeOperatingPosition = -costStructure.purchaseCosts.total; // Cumulative yearly costs less principal payments, but start at zero (so )
     let cumulativeCapitalGain = 0;
-    const cashFlows: number[] = [-initialInvestment];
     let quarantinedLoss = 0;
     const negativeGearingStartYear = Math.max(1, Math.floor(propertyDetails.noNegativeGearingStartYear || 1));
 
@@ -106,19 +63,74 @@ export const usePropertyProjections = (
       propertyDetails.loanType
     );
 
-    for (let year = 0; year < propertyDetails.loanTerm; year++) {
+    const initialSaleCost = costStructure.futureSellCostsPercentage / 100 * currentPropertyValue;
+    const initialEquity = currentPropertyValue - loanBalance;
+    const initialNetEquityAfterCGT = initialEquity;
+    const initialNetPosition =
+      initialNetEquityAfterCGT -
+      cumulativePrincipalPaid +
+      cumulativeOperatingPosition -
+      propertyDetails.depositAmount -
+      initialSaleCost;
+
+    yearlyProjections.push({
+      year: 0,
+      propertyValue: currentPropertyValue,
+      loanBalance,
+      rentalIncome: 0,
+      rentSavings: 0,
+      offsetBalance: currentOffsetAmount,
+      interestSaved: 0,
+      cumulativeInterestSaved,
+      effectiveLoanBalance: effectiveBalance,
+      originalLoanBalance,
+      yearlyPrincipalPaid: 0,
+      cumulativePrincipalPaid,
+      yearlyInterestPaid: 0,
+      yearlyOffsetContributions: 0,
+      cumulativeOffsetContributions,
+      managementFees: 0,
+      capitalWorksDepreciation: 0,
+      plantEquipmentDepreciation: 0,
+      totalDepreciation: 0,
+      yearlyExpenses: 0,
+      taxableIncome: 0,
+      taxBenefit: 0,
+      quarantinedLosses: quarantinedLoss,
+      quarantinedLossesUsed: 0,
+      cashFlow: 0,
+      modelCashFlow: 0,
+      equity: initialEquity,
+      roi: 0,
+      roiInitialInvestment: 0,
+      capitalGain: 0,
+      cgtPayable: 0,
+      netEquityAfterCGT: initialNetEquityAfterCGT,
+      cumulativeOperatingPosition,
+      netPosition: initialNetPosition
+    });
+
+    const payoffThreshold = 0.01;
+    for (let yearIndex = 0; yearIndex < propertyDetails.loanTerm; yearIndex++) {
+        const projectionYear = yearIndex + 1;
+        if (loanBalance <= payoffThreshold) {
+          loanBalance = 0;
+          isLoanPaidOff = true;
+        }
         //Check interest rate for the year and determine monthly payments
         const monthlyMortgagePayment = calculateMonthlyPayment(
           noOffsetLoanBalance,
-          interestRates[year],
-          propertyDetails.loanTerm - year,
+          interestRates[yearIndex],
+          propertyDetails.loanTerm - yearIndex,
           propertyDetails.loanType
         );
         
-        const monthlyRate = interestRates[year] / 100 / 12;
+        const monthlyRate = interestRates[yearIndex] / 100 / 12;
 
       const previousPropertyValue = currentPropertyValue;
-      const yearRentalIncome = annualRent;
+      const rentSavings = propertyDetails.isPPOR ? annualRent : 0;
+      const rentalIncomeForTax = propertyDetails.isPPOR ? 0 : annualRent;
+      const modelIncome = propertyDetails.isPPOR ? rentSavings : rentalIncomeForTax;
       
       let yearlyOffsetContributions = 0;
       let yearlyInterestPaid = 0;
@@ -127,6 +139,12 @@ export const usePropertyProjections = (
 
       // Calculate monthly payments for more accurate compounding
       for (let month = 0; month < 12 && !isLoanPaidOff; month++) {
+        if (loanBalance <= payoffThreshold) {
+          loanBalance = 0;
+          isLoanPaidOff = true;
+          monthsToPayoff = currentMonth;
+          break;
+        }
         currentMonth++;
         
         // Add monthly contribution to offset
@@ -137,14 +155,16 @@ export const usePropertyProjections = (
         const noOffsetInterest = noOffsetLoanBalance * monthlyRate;
         const noOffsetPrincipal = propertyDetails.loanType === 'interest-only' ? 0 : 
           monthlyMortgagePayment - noOffsetInterest;
-        noOffsetLoanBalance = Math.max(0, noOffsetLoanBalance - noOffsetPrincipal);
+        const appliedNoOffsetPrincipal = Math.min(noOffsetPrincipal, noOffsetLoanBalance);
+        noOffsetLoanBalance = Math.max(0, noOffsetLoanBalance - appliedNoOffsetPrincipal);
         yearlyNoOffsetInterest += noOffsetInterest;
         
         // Calculate actual payments with offset
         effectiveBalance = Math.max(0, loanBalance - currentOffsetAmount);
         const monthlyInterest = effectiveBalance * monthlyRate;
-        const principalPaid = propertyDetails.loanType === 'interest-only' ? 0 : 
+        const basePrincipalPaid = propertyDetails.loanType === 'interest-only' ? 0 : 
           monthlyMortgagePayment - monthlyInterest;
+        const principalPaid = Math.min(basePrincipalPaid, loanBalance);
         
         // Update balances
         if (propertyDetails.loanType === 'principal-and-interest') {
@@ -157,10 +177,16 @@ export const usePropertyProjections = (
 
         // For P&I loans, check if loan is paid off
         // For IO loans, loan is never "paid off" as principal remains constant
-        if (propertyDetails.loanType === 'principal-and-interest' && loanBalance === 0) {
+        if (propertyDetails.loanType === 'principal-and-interest' && loanBalance <= payoffThreshold) {
+          loanBalance = 0;
           isLoanPaidOff = true;
           monthsToPayoff = currentMonth;
         }
+      }
+
+      if (propertyDetails.loanType === 'principal-and-interest' && loanBalance <= payoffThreshold) {
+        loanBalance = 0;
+        isLoanPaidOff = true;
       }
 
       // Calculate interest saved and update running totals
@@ -170,14 +196,18 @@ export const usePropertyProjections = (
       cumulativeOffsetContributions += yearlyOffsetContributions;
 
       // Calculate management fees based on rental income
-      const managementFees = calculateManagementFees(
-        yearRentalIncome,
-        propertyDetails.managementFee.type,
-        propertyDetails.managementFee.value
-      );
+      const managementFees = propertyDetails.isPPOR
+        ? 0
+        : calculateManagementFees(
+            rentalIncomeForTax,
+            propertyDetails.managementFee.type,
+            propertyDetails.managementFee.value
+          );
 
       // Get depreciation for this year
-      const depreciation = getDepreciation(propertyDetails.depreciationSchedule, year + 1);
+      const depreciation = propertyDetails.isPPOR
+        ? { capitalWorks: 0, plantEquipment: 0 }
+        : getDepreciation(propertyDetails.depreciationSchedule, projectionYear);
       const totalDepreciation = depreciation.capitalWorks + depreciation.plantEquipment;
       cumulativeDepreciation += totalDepreciation;
 
@@ -188,7 +218,7 @@ export const usePropertyProjections = (
         currentAnnualPropertyCosts;            // Other property costs (maintenance, insurance, etc.) with growth
 
       // Calculate property income (rental income minus deductible expenses and depreciation) - tax purposes
-      const propertyIncome = yearRentalIncome - 
+      const propertyIncome = rentalIncomeForTax - 
                            yearlyExpenses - 
                            totalDepreciation;
 
@@ -196,40 +226,57 @@ export const usePropertyProjections = (
       let taxablePropertyIncome = propertyIncome;
       let taxBenefit = 0;
       let quarantinedLossUsed = 0;
-      const negativeGearingActive = propertyDetails.noNegativeGearing && (year + 1) >= negativeGearingStartYear;
-      if (negativeGearingActive) {
-        if (taxablePropertyIncome < 0) {
-          quarantinedLoss += Math.abs(taxablePropertyIncome);
-          taxablePropertyIncome = 0;
-        } else if (quarantinedLoss > 0) {
-          const offsetAmount = Math.min(quarantinedLoss, taxablePropertyIncome);
-          quarantinedLoss -= offsetAmount;
-          quarantinedLossUsed = offsetAmount;
-          taxablePropertyIncome -= offsetAmount;
+      const negativeGearingActive = propertyDetails.noNegativeGearing && projectionYear >= negativeGearingStartYear;
+      if (!propertyDetails.isPPOR) {
+        if (negativeGearingActive) {
+          if (taxablePropertyIncome < 0) {
+            quarantinedLoss += Math.abs(taxablePropertyIncome);
+            taxablePropertyIncome = 0;
+          } else if (quarantinedLoss > 0) {
+            const offsetAmount = Math.min(quarantinedLoss, taxablePropertyIncome);
+            quarantinedLoss -= offsetAmount;
+            quarantinedLossUsed = offsetAmount;
+            taxablePropertyIncome -= offsetAmount;
+          }
+          taxBenefit = calculateTaxBenefit(
+            propertyDetails.taxableIncome,
+            taxablePropertyIncome
+          );
+        } else {
+          taxBenefit = calculateTaxBenefit(
+            propertyDetails.taxableIncome,
+            taxablePropertyIncome
+          );
         }
-        taxBenefit = calculateTaxBenefit(
-          propertyDetails.taxableIncome,
-          taxablePropertyIncome
-        );
       } else {
-        taxBenefit = calculateTaxBenefit(
-          propertyDetails.taxableIncome,
-          taxablePropertyIncome
-        );
+        taxablePropertyIncome = 0;
+        taxBenefit = 0;
+        quarantinedLossUsed = 0;
       }
 
       // Calculate cash flow (includes tax benefits)
       // For IO loans, no principal payments to deduct
-      const cashFlow = yearRentalIncome - 
+      const effectiveTaxBenefit = propertyDetails.isPPOR ? 0 : taxBenefit;
+      const effectiveTaxableIncome = propertyDetails.isPPOR ? 0 : propertyIncome;
+      const effectiveQuarantinedLoss = propertyDetails.isPPOR ? 0 : quarantinedLoss;
+      const effectiveQuarantinedLossUsed = propertyDetails.isPPOR ? 0 : quarantinedLossUsed;
+
+      const cashIncome = propertyDetails.isPPOR ? 0 : rentSavings;
+      const cashFlow = cashIncome - 
                       yearlyExpenses -
                       (propertyDetails.loanType === 'principal-and-interest' ? yearlyPrincipalPaid : 0) +
-                      taxBenefit;
+                      effectiveTaxBenefit;
+      const modelCashFlow = modelIncome -
+        yearlyExpenses -
+        (propertyDetails.loanType === 'principal-and-interest' ? yearlyPrincipalPaid : 0) +
+        effectiveTaxBenefit -
+        yearlyOffsetContributions;
 
       // Update values for end-of-year growth (respect optional anchor)
-      const correction = marketData.propertyValueCorrections?.find((item) => item.year === year + 1);
+      const correction = marketData.propertyValueCorrections?.find((item) => item.year === projectionYear);
       const propertyGrowthRate = correction
         ? correction.change
-        : (anchorGrowthRate !== null && year < anchorYear
+        : (anchorGrowthRate !== null && yearIndex < anchorYear
           ? anchorGrowthRate
           : marketData.propertyGrowthRate);
       currentPropertyValue *= (1 + propertyGrowthRate / 100);
@@ -250,19 +297,14 @@ export const usePropertyProjections = (
       let yearlyCGTPayable = 0;
       const isPPOR = propertyDetails.isPPOR;
       const useSixYearRule = propertyDetails.isCGTExempt;
-      if (!isPPOR && (!useSixYearRule || year + 1 > 6)) {
+      if (!isPPOR && (!useSixYearRule || projectionYear > 6)) {
         cumulativeCapitalGain += capitalGain;
         // Calculate CGT on this year's gain only
         if (capitalGain > 0) {
           // Apply CGT discount to get the taxable portion of the gain.
           const discountedGain = capitalGain * taxableGainRate;
-          // Get the actual tax bracket for the total income
-          const taxBracket = getTaxBracket(
-            propertyDetails.taxableIncome + taxablePropertyIncome + (cumulativeCapitalGain * taxableGainRate)
-          );
-          if (taxBracket) {
-            yearlyCGTPayable = discountedGain * (taxBracket.rate + 0.02); // Include Medicare levy
-          }
+          const baseIncome = propertyDetails.taxableIncome + taxablePropertyIncome;
+          yearlyCGTPayable = calculateTaxPayable(baseIncome + discountedGain) - calculateTaxPayable(baseIncome);
         }
       }
 
@@ -277,34 +319,29 @@ export const usePropertyProjections = (
                       cumulativeDepreciation;
       
       let cumulativeCGTPayable = 0;
-      if (!isPPOR && (!useSixYearRule || year + 1 > 6)) {
+      if (!isPPOR && (!useSixYearRule || projectionYear > 6)) {
         const totalGain = currentPropertyValue - costBase;
         if (totalGain > 0) {
           const cgtLossOffset = negativeGearingActive ? Math.min(quarantinedLoss, totalGain) : 0;
           const adjustedGain = totalGain - cgtLossOffset;
           const discountedGain = adjustedGain * taxableGainRate;
-          const taxBracket = getTaxBracket(propertyDetails.taxableIncome + taxablePropertyIncome);
-          if (taxBracket) {
-            cumulativeCGTPayable = discountedGain * (taxBracket.rate + 0.02);
-          }
+          const baseIncome = propertyDetails.taxableIncome + taxablePropertyIncome;
+          cumulativeCGTPayable = calculateTaxPayable(baseIncome + discountedGain) - calculateTaxPayable(baseIncome);
         }
       }
       
       // Calculate net equity after CGT (using cumulative CGT for equity calculation)
       const netEquityAfterCGT = equity - cumulativeCGTPayable;
-      cumulativeOperatingPosition += yearRentalIncome + taxBenefit - yearlyExpenses;//
+      cumulativeOperatingPosition += modelIncome + effectiveTaxBenefit - yearlyExpenses;//
       const netPosition = netEquityAfterCGT - cumulativePrincipalPaid + cumulativeOperatingPosition - propertyDetails.depositAmount - saleCost;
       const roi = totalInvestedCapital > 0 ? (netPosition / totalInvestedCapital) * 100 : 0;
       const roiInitialInvestment = initialInvestment > 0 ? (netPosition / initialInvestment) * 100 : 0;
-      cashFlows.push(cashFlow);
-      const irrFlows = cashFlows.slice();
-      irrFlows[irrFlows.length - 1] += netEquityAfterCGT - saleCost;
-      const irrRate = computeIrr(irrFlows);
       yearlyProjections.push({
-        year,
+        year: projectionYear,
         propertyValue: currentPropertyValue,
         loanBalance,
-        rentalIncome: yearRentalIncome,
+        rentalIncome: rentalIncomeForTax,
+        rentSavings,
         offsetBalance: currentOffsetAmount,
         interestSaved: yearlyInterestSaved,
         cumulativeInterestSaved,
@@ -320,15 +357,15 @@ export const usePropertyProjections = (
         plantEquipmentDepreciation: depreciation.plantEquipment,
         totalDepreciation,
         yearlyExpenses,
-        taxableIncome: propertyIncome,
-        taxBenefit,
-        quarantinedLosses: quarantinedLoss,
-        quarantinedLossesUsed: quarantinedLossUsed,
+        taxableIncome: effectiveTaxableIncome,
+        taxBenefit: effectiveTaxBenefit,
+        quarantinedLosses: effectiveQuarantinedLoss,
+        quarantinedLossesUsed: effectiveQuarantinedLossUsed,
         cashFlow,
+        modelCashFlow,
         equity,
         roi,
         roiInitialInvestment,
-        irr: irrRate !== null ? irrRate * 100 : undefined,
         capitalGain,
         cgtPayable: cumulativeCGTPayable, // Keep cumulative CGT for reporting
         netEquityAfterCGT,
@@ -348,21 +385,33 @@ export const usePropertyProjections = (
     const lastProjection = yearlyProjections[yearlyProjections.length - 1];
     const netPositionAtEnd = lastProjection.netEquityAfterCGT + lastProjection.cashFlow;
     const totalDepreciation = yearlyProjections.reduce((acc, curr) => acc + curr.totalDepreciation, 0);
-    const averageROI = yearlyProjections.length > 0
-      ? yearlyProjections.reduce((acc, curr) => acc + curr.roi, 0) / yearlyProjections.length
+    const roiProjections = yearlyProjections.filter((projection) => projection.year > 0);
+    const averageROI = roiProjections.length > 0
+      ? roiProjections.reduce((acc, curr) => acc + curr.roi, 0) / roiProjections.length
       : 0;
 
-    return {
-      yearlyProjections,
-      initialMonthlyMortgagePayment,
-      principal,
-      totalInterestSaved: cumulativeInterestSaved,
-      yearsReducedFromLoan,
-      monthsReducedFromLoan,
-      netPositionAtEnd,
-      totalDepreciation,
-      averageROI,
-      finalCGTPayable: lastProjection.cgtPayable
-    };
-  }, [propertyDetails, marketData, costStructure, offsetAmount]);
+  return {
+    yearlyProjections,
+    initialMonthlyMortgagePayment,
+    principal,
+    totalInterestSaved: cumulativeInterestSaved,
+    yearsReducedFromLoan,
+    monthsReducedFromLoan,
+    netPositionAtEnd,
+    totalDepreciation,
+    averageROI,
+    finalCGTPayable: lastProjection.cgtPayable
+  };
+};
+
+export const usePropertyProjections = (
+  propertyDetails: PropertyDetails,
+  marketData: MarketData,
+  costStructure: CostStructure,
+  offsetAmount: number
+) => {
+  return useMemo(
+    () => calculatePropertyProjections(propertyDetails, marketData, costStructure, offsetAmount),
+    [propertyDetails, marketData, costStructure, offsetAmount]
+  );
 };

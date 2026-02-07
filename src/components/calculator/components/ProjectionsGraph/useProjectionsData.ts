@@ -13,7 +13,8 @@ export const useProjectionsData = (yearlyProjections: YearlyProjection[]): Proce
       year: point.year,
       equity: point.equity,
       cashFlow: point.cashFlow,
-      rentalIncome: point.rentalIncome
+      rentalIncome: point.rentalIncome,
+      rentSavings: point.rentSavings
     }));
   }, [yearlyProjections]);
 };
