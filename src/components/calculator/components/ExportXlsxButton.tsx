@@ -32,7 +32,7 @@ const createChartImage = (
     return null;
   }
 
-  const points = yearlyProjections.filter((row) => row.year > 0);
+  const points = [...yearlyProjections].sort((a, b) => a.year - b.year);
   if (!points.length) return null;
 
   const canvas = document.createElement('canvas');
