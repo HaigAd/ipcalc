@@ -272,7 +272,18 @@ export function ExportXlsxButton({
         ['Taxable Income Baseline', propertyDetails.taxableIncome],
         ['CGT Exempt', propertyDetails.isCGTExempt ? 'Yes' : 'No'],
         ['Custom CGT Discount', propertyDetails.useCustomCGTDiscount ? 'Yes' : 'No'],
-        ['CGT Discount Rate', propertyDetails.cgtDiscountRate],
+        [
+          'CGT Discount Applied',
+          propertyDetails.useCustomCGTDiscount
+            ? `${(propertyDetails.cgtDiscountRate * 100).toFixed(1)}% (custom)`
+            : '50.0% (standard)',
+        ],
+        [
+          'Custom CGT Discount Input',
+          propertyDetails.useCustomCGTDiscount
+            ? `${(propertyDetails.cgtDiscountRate * 100).toFixed(1)}%`
+            : 'N/A',
+        ],
         ['No Negative Gearing', propertyDetails.noNegativeGearing ? 'Yes' : 'No'],
         ['No Negative Gearing Start Year', propertyDetails.noNegativeGearingStartYear],
       ]);
