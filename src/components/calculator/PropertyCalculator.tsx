@@ -10,6 +10,7 @@ import { useCallback } from 'react';
 import { CombinedMetrics } from './components/CombinedMetrics';
 import { TaxImplications } from './components/TaxImplications';
 import { ScenariosMenu } from './components/ScenariosMenu/index';
+import { AssumptionsSummary } from './components/AssumptionsSummary';
 
 export function PropertyCalculator() {
   const {
@@ -24,6 +25,7 @@ export function PropertyCalculator() {
     purchaseCosts,
     calculationResults,
     resetToDefaults,
+    state,
     setState,
     // Scenarios
     scenarios,
@@ -134,6 +136,14 @@ export function PropertyCalculator() {
             onStateChange={setState}
             setPropertyDetails={setPropertyDetails}
             renderComponent={renderComponent}
+          />
+
+          <AssumptionsSummary
+            propertyDetails={propertyDetails}
+            marketData={marketData}
+            costStructure={costStructure}
+            calculationResults={calculationResults}
+            state={state}
           />
 
           <div className="mt-4 sm:mt-6 md:mt-8">
