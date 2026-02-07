@@ -50,16 +50,19 @@ export function LoanDetailsForm({ propertyDetails, setPropertyDetails, costStruc
     return summary;
   };
 
-  const handleOffsetUpdate = (field: keyof PropertyDetails, value: any) => {
-    if (field === 'offsetContribution' && !propertyDetails.offsetContribution) {
-      value = {
-        ...defaultPropertyDetails.offsetContribution,
-        ...value
-      };
-    }
+  const handleOffsetUpdate = (
+    field: 'offsetContribution',
+    value: PropertyDetails['offsetContribution']
+  ) => {
+    const mergedValue = !propertyDetails.offsetContribution
+      ? {
+          ...defaultPropertyDetails.offsetContribution,
+          ...value,
+        }
+      : value;
     setPropertyDetails({
       ...propertyDetails,
-      [field]: value
+      [field]: mergedValue
     });
   };
 

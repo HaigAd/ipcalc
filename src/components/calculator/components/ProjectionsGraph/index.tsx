@@ -24,7 +24,8 @@ export function ProjectionsGraph({ calculationResults }: ProjectionsGraphProps) 
   const hasRentSavings = processedData.some((point) => (point.rentSavings ?? 0) > 0 && (point.rentalIncome ?? 0) === 0);
   const [zoomDomain, setZoomDomain] = useState<{ x1: number, x2: number } | null>(null);
 
-  const handleBrushChange = (domain: any) => {
+  const handleBrushChange = (domain: { startIndex?: number; endIndex?: number } | null) => {
+    if (domain?.startIndex == null || domain?.endIndex == null) return;
     setZoomDomain({ x1: domain.startIndex, x2: domain.endIndex });
   };
 

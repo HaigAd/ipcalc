@@ -52,7 +52,6 @@ export const calculatePropertyProjections = (
     const monthlyContribution = getMonthlyContribution(propertyDetails.offsetContribution);
 
     let cumulativeOperatingPosition = -costStructure.purchaseCosts.total; // Cumulative yearly costs less principal payments, but start at zero (so )
-    let cumulativeCapitalGain = 0;
     let quarantinedLoss = 0;
     const negativeGearingStartYear = Math.max(1, Math.floor(propertyDetails.noNegativeGearingStartYear || 1));
 
@@ -296,9 +295,6 @@ export const calculatePropertyProjections = (
 
       const isPPOR = propertyDetails.isPPOR;
       const useSixYearRule = propertyDetails.isCGTExempt;
-      if (!isPPOR && (!useSixYearRule || projectionYear > 6)) {
-        cumulativeCapitalGain += capitalGain;
-      }
 
       // Calculate total invested capital (initial investment + cumulative principal + offset contributions)
       const totalInvestedCapital = initialInvestment + cumulativePrincipalPaid + cumulativeOffsetContributions;

@@ -5,7 +5,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 
 interface OffsetContributionFormProps {
   propertyDetails: PropertyDetails;
-  onUpdate: (field: keyof PropertyDetails, value: any) => void;
+  onUpdate: (
+    field: 'offsetContribution',
+    value: PropertyDetails['offsetContribution']
+  ) => void;
 }
 
 export function OffsetContributionForm({ propertyDetails, onUpdate }: OffsetContributionFormProps) {

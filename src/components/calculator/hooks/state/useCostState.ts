@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { CostStructure, PropertyDetails } from '../../types';
+import { CostStructure, PropertyDetails, YearlyProjection } from '../../types';
 import { defaultCostStructure } from '../../config/defaults';
 import { getStoredState } from '../useFormPersistence';
 
-export function useCostState(propertyDetails: PropertyDetails, yearlyProjections: any[] = []) {
+export function useCostState(propertyDetails: PropertyDetails, yearlyProjections: YearlyProjection[] = []) {
   const storedState = getStoredState();
   
   const [costStructure, setCostStructure] = useState<CostStructure>(

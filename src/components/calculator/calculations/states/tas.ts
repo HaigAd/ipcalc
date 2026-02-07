@@ -39,7 +39,8 @@ export const calculateTASStampDuty = (price: number, _isPPOR: boolean, isFirstHo
     return calculateTASBaseDuty(price);
 };
 
-export const calculateTASTransferFee = (_price: number): number => {
+export const calculateTASTransferFee = (price: number): number => {
+    void price;
     // Using a default transfer fee calculation until actual TAS transfer fee details are available
     return 233;
 };

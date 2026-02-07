@@ -6,6 +6,7 @@ import {
   TAB_CONFIG,
   CustomTabTrigger,
   TabContent,
+  RenderComponentExtraProps,
   OverviewTabContent,
   IncomeTabContent,
   MarketTabContent,
@@ -27,7 +28,7 @@ interface CalculatorTabsProps {
   onCostStructureChange: (costs: Partial<CostStructure>) => void;
   onStateChange: (state: AustralianState) => void;
   setPropertyDetails: (details: PropertyDetails) => void;
-  renderComponent: (id: ComponentId, extraProps?: any) => React.ReactNode;
+  renderComponent: (id: ComponentId, extraProps?: RenderComponentExtraProps) => React.ReactNode;
 }
 
 export function CalculatorTabs({

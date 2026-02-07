@@ -3,13 +3,14 @@ import { PropertyPriceForm } from './PropertyPriceForm';
 import { LoanDetailsForm } from './LoanDetailsForm';
 import { TaxImplications } from './TaxImplications';
 import { PropertyDetails, CostStructure } from '../types';
+import { RenderComponentExtraProps } from './Tabs';
 
 interface ComponentRendererProps {
   id: ComponentId;
   propertyDetails: PropertyDetails;
   setPropertyDetails: (details: PropertyDetails) => void;
   costStructure: CostStructure;
-  extraProps?: any;
+  extraProps?: RenderComponentExtraProps;
 }
 
 export function ComponentRenderer({ 

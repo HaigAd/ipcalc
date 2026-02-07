@@ -8,7 +8,7 @@ interface PropertyPriceFormProps {
   propertyDetails: PropertyDetails;
   setPropertyDetails: (details: PropertyDetails) => void;
   purchaseCosts: PurchaseCosts;
-  onStateClick: () => void;
+  onStateClick?: () => void;
 }
 
 export function PropertyPriceForm({ propertyDetails, setPropertyDetails, purchaseCosts, onStateClick }: PropertyPriceFormProps) {

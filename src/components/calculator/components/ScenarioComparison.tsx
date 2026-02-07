@@ -23,6 +23,31 @@ import {
 } from 'recharts';
 import { formatNumberWithKMB } from '../utils/formatters';
 
+type ScenarioComparisonPoint = {
+  year: number;
+  [scenarioId: string]:
+    | number
+    | {
+        netPosition: number;
+        netPositionExRent?: number;
+        afterTaxHolding: number;
+        rentSavingsTotal?: number;
+        offsetBalance: number;
+        cumulativePrincipalPaid: number;
+        netPositionLow?: number;
+        netPositionHigh?: number;
+      }
+    | null;
+};
+
+type ComparisonTooltipEntry = {
+  dataKey?: string | number;
+  value?: number;
+  color?: string;
+  name?: string;
+  payload?: Record<string, unknown>;
+};
+
 const getScenarioColor = (id: string) => {
   // Use a curated palette for readability and a stable hash for fallback.
   const palette = [
@@ -198,12 +223,7 @@ const ScenarioComparison = () => {
     return scenarios.filter(s => s.name.toLowerCase().includes(query));
   }, [scenarios, scenarioFilter]);
 
-
-  if (!scenarios || scenarios.length === 0) {
-    return <div>No scenarios saved yet.</div>;
-  }
-
-  const filteredData = useMemo((): any[] => {
+  const filteredData = useMemo(() => {
     if (!zoomDomain) return processedData || [];
     return (processedData || []).filter(d => 
       d.year >= zoomDomain[0] && d.year <= zoomDomain[1]
@@ -257,6 +277,10 @@ const ScenarioComparison = () => {
       [key]: sanitized
     }));
   };
+
+  if (!scenarios || scenarios.length === 0) {
+    return <div>No scenarios saved yet.</div>;
+  }
 
   return (
     <div className="p-4">
@@ -548,7 +572,7 @@ const ScenarioComparison = () => {
                   <ReferenceLine y={0} stroke="black" strokeWidth={1} />
                 <RechartsTooltip
                   wrapperStyle={{ outline: 'none' }}
-                  content={({ payload, label }: TooltipProps<number, string> & { payload?: any[] }) => {
+                  content={({ payload, label }: TooltipProps<number, string> & { payload?: ComparisonTooltipEntry[] }) => {
                       if (!payload || payload.length === 0) return null;
                       
                       // Ensure payload values are numbers
@@ -580,8 +604,19 @@ const ScenarioComparison = () => {
                               const isExRentLine = typeof entry.dataKey === 'string' && entry.dataKey.includes('netPositionExRent');
                               
                               // Calculate year-over-year change
-                              const prevYearData = filteredData?.find(d => d.year === Number(label) - 1);
-                              const prevValue = prevYearData && scenarioId && prevYearData[scenarioId] ? prevYearData[scenarioId].netPosition : 0;
+                              const prevYearData = filteredData?.find(
+                                (d): d is ScenarioComparisonPoint => d.year === Number(label) - 1
+                              );
+                              const prevScenarioData =
+                                prevYearData && scenarioId
+                                  ? prevYearData[scenarioId]
+                                  : null;
+                              const prevValue =
+                                prevScenarioData &&
+                                typeof prevScenarioData === 'object' &&
+                                'netPosition' in prevScenarioData
+                                  ? prevScenarioData.netPosition
+                                  : 0;
                               void prevValue;
                               
                               return (

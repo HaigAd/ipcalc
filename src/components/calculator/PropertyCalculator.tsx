@@ -4,6 +4,7 @@ import { PropertyPriceForm } from './components/PropertyPriceForm';
 import { LoanDetailsForm } from './components/LoanDetailsForm';
 import { YearlyProjectionsTable } from './components/YearlyProjectionsTable';
 import { CalculatorTabs } from './components/CalculatorTabs';
+import { RenderComponentExtraProps } from './components/Tabs';
 import { ComponentId } from './hooks/useComponentOrder';
 import { useCallback } from 'react';
 import { CombinedMetrics } from './components/CombinedMetrics';
@@ -38,7 +39,7 @@ export function PropertyCalculator() {
 
   const { components } = useComponentOrder();
 
-  const renderComponent = useCallback((id: ComponentId, extraProps?: any) => {
+  const renderComponent = useCallback((id: ComponentId, extraProps?: RenderComponentExtraProps) => {
     switch (id) {
       case 'price':
         return (

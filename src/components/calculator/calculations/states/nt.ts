@@ -18,11 +18,14 @@ const calculateNTBaseDuty = (price: number): number => {
     }
 };
 
-export const calculateNTStampDuty = (price: number, _isPPOR: boolean, _isFirstHomeBuyer: boolean): number => {
+export const calculateNTStampDuty = (price: number, isPPOR: boolean, isFirstHomeBuyer: boolean): number => {
+    void isPPOR;
+    void isFirstHomeBuyer;
     return calculateNTBaseDuty(price);
 };
 
-export const calculateNTTransferFee = (_price: number): number => {
+export const calculateNTTransferFee = (price: number): number => {
+    void price;
     // Using a default transfer fee calculation until actual NT transfer fee details are provided
     return 165; //flate rate
 };

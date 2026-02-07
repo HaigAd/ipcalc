@@ -10,7 +10,7 @@ interface DepositSliderProps {
   propertyDetails: PropertyDetails;
   purchaseCosts: PurchaseCosts;
   onDepositChange: (value: number[]) => void;
-  onStateClick: () => void;
+  onStateClick?: () => void;
 }
 
 export function DepositSlider({ propertyDetails, purchaseCosts, onDepositChange, onStateClick }: DepositSliderProps) {
@@ -41,7 +41,7 @@ export function DepositSlider({ propertyDetails, purchaseCosts, onDepositChange,
 
   const handleStateClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
-    onStateClick();
+    onStateClick?.();
   }, [onStateClick]);
 
   // Update input value when deposit amount changes externally

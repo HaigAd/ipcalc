@@ -18,7 +18,6 @@ export const useMortgageCalculator = (propertyDetails: PropertyDetails): Mortgag
     const yearlySchedule = [];
     let remainingBalance = principal;
     let totalInterestPaid = 0;
-    let totalPrincipalPaid = 0;
 
     yearlySchedule.push({
       year: 0,
@@ -44,7 +43,6 @@ export const useMortgageCalculator = (propertyDetails: PropertyDetails): Mortgag
       }
 
       totalInterestPaid += yearlyInterest;
-      totalPrincipalPaid += yearlyPrincipal;
 
       yearlySchedule.push({
         year: projectionYear,

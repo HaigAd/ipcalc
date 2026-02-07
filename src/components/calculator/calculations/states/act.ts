@@ -3,8 +3,9 @@ import { StateCalculations, StampDutyCalculator } from "./types";
 export const calculateActStampDuty: StampDutyCalculator = (
   price: number,
   isPPOR: boolean,
-  _isFirstHomeBuyer: boolean
+  isFirstHomeBuyer: boolean
 ): number => {
+  void isFirstHomeBuyer;
   // ACT stamp duty calculation for owner occupiers
   if (isPPOR) {
     if (price <= 260000) {

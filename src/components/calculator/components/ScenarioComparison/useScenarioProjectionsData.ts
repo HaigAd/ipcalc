@@ -12,12 +12,27 @@ export interface SensitivitySettings {
   propertyGrowthDelta: number;
 }
 
+interface ScenarioPoint {
+  netPosition: number;
+  netPositionExRent?: number;
+  afterTaxHolding: number;
+  rentSavingsTotal?: number;
+  offsetBalance: number;
+  cumulativePrincipalPaid: number;
+  netPositionLow?: number;
+  netPositionHigh?: number;
+}
+
+type ProcessedScenarioDataPoint = {
+  year: number;
+} & Record<string, ScenarioPoint | null | number>;
+
 export const useScenarioProjectionsData = (
   scenarios?: Scenario[],
   sensitivityEnabled: boolean = false,
   sensitivitySettings?: SensitivitySettings
 ) => {
-    const safeScenarios = scenarios ?? [];
+    const safeScenarios = useMemo(() => scenarios ?? [], [scenarios]);
     const scenarioProjections = safeScenarios.map(scenario => {
         const stampDuty = calculateStampDuty(
           scenario.state.propertyDetails.purchasePrice,
@@ -145,8 +160,8 @@ export const useScenarioProjectionsData = (
       rentSavingsByScenario.set(scenario.scenarioId, totalsByYear);
     });
 
-    const processedData = sortedYears.map(year => {
-      const dataPoint: { year: number; [key: string]: any } = { year };
+    const processedData = sortedYears.map((year) => {
+      const dataPoint: ProcessedScenarioDataPoint = { year };
 
       scenarioProjections.forEach((scenario) => {
         const projection = scenario.projections.find(item => item.year === year);
