@@ -215,6 +215,7 @@ export function ExportXlsxButton({
       };
 
       const keyOutputRows: Array<[string, number]> = [
+        ['Initial Outlay (Deposit + Purchase Costs)', propertyDetails.depositAmount + costStructure.purchaseCosts.total],
         ['Final Net Position (excl principal contributions)', finalProjection?.netPosition ?? 0],
         ['Year 1 Cash Flow', calculationResults.yearlyProjections.find((row) => row.year === 1)?.cashFlow ?? 0],
         ['Total Interest Saved', calculationResults.totalInterestSaved],
