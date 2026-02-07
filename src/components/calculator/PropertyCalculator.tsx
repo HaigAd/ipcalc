@@ -6,11 +6,140 @@ import { YearlyProjectionsTable } from './components/YearlyProjectionsTable';
 import { CalculatorTabs } from './components/CalculatorTabs';
 import { RenderComponentExtraProps } from './components/Tabs';
 import { ComponentId } from './hooks/useComponentOrder';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { CombinedMetrics } from './components/CombinedMetrics';
 import { TaxImplications } from './components/TaxImplications';
 import { ScenariosMenu } from './components/ScenariosMenu/index';
 import { AssumptionsSummary } from './components/AssumptionsSummary';
+import { ChangeImpactSummary } from './components/ChangeImpactSummary';
+import { CalculationResults, MarketData, PropertyDetails } from './types';
+
+interface AssumptionSnapshot {
+  isPPOR: boolean;
+  loanType: PropertyDetails['loanType'];
+  interestRate: number;
+  loanTerm: number;
+  noNegativeGearing: boolean;
+  noNegativeGearingStartYear: number;
+  isCGTExempt: boolean;
+  propertyGrowthRate: number;
+  rentIncreaseRate: number;
+  operatingExpensesGrowthRate: number;
+  offsetMode: 'manual' | 'auto';
+  offsetContributionAmount: number;
+  offsetContributionFrequency: PropertyDetails['offsetContribution']['frequency'];
+}
+
+interface MetricsSnapshot {
+  year1CashFlow: number;
+  finalNetPosition: number;
+  finalCGT: number;
+}
+
+interface ChangeSummary {
+  reasons: string[];
+  deltas: { label: string; value: number }[];
+}
+
+const getAssumptionSnapshot = (
+  propertyDetails: PropertyDetails,
+  marketData: MarketData
+): AssumptionSnapshot => ({
+  isPPOR: propertyDetails.isPPOR,
+  loanType: propertyDetails.loanType,
+  interestRate: propertyDetails.interestRate,
+  loanTerm: propertyDetails.loanTerm,
+  noNegativeGearing: propertyDetails.noNegativeGearing,
+  noNegativeGearingStartYear: propertyDetails.noNegativeGearingStartYear,
+  isCGTExempt: propertyDetails.isCGTExempt,
+  propertyGrowthRate: marketData.propertyGrowthRate,
+  rentIncreaseRate: marketData.rentIncreaseRate,
+  operatingExpensesGrowthRate: marketData.operatingExpensesGrowthRate,
+  offsetMode: propertyDetails.manualOffsetAmount !== undefined ? 'manual' : 'auto',
+  offsetContributionAmount: propertyDetails.offsetContribution.amount,
+  offsetContributionFrequency: propertyDetails.offsetContribution.frequency,
+});
+
+const getMetricsSnapshot = (calculationResults: CalculationResults): MetricsSnapshot => {
+  const year1 = calculationResults.yearlyProjections.find((projection) => projection.year === 1);
+  const finalProjection =
+    calculationResults.yearlyProjections[calculationResults.yearlyProjections.length - 1];
+
+  return {
+    year1CashFlow: year1?.cashFlow ?? 0,
+    finalNetPosition: finalProjection?.netPosition ?? 0,
+    finalCGT: calculationResults.finalCGTPayable,
+  };
+};
+
+const getChangeReasons = (previous: AssumptionSnapshot, current: AssumptionSnapshot): string[] => {
+  const reasons: string[] = [];
+
+  if (previous.isPPOR !== current.isPPOR) {
+    reasons.push(current.isPPOR ? 'Use case switched to PPOR.' : 'Use case switched to investment property.');
+  }
+  if (previous.loanType !== current.loanType) {
+    reasons.push(
+      current.loanType === 'interest-only'
+        ? 'Loan type changed to Interest-Only.'
+        : 'Loan type changed to Principal & Interest.'
+    );
+  }
+  if (previous.noNegativeGearing !== current.noNegativeGearing) {
+    reasons.push(
+      current.noNegativeGearing
+        ? `Loss quarantine enabled from year ${current.noNegativeGearingStartYear}.`
+        : 'Loss quarantine disabled.'
+    );
+  }
+  if (
+    current.noNegativeGearing &&
+    previous.noNegativeGearingStartYear !== current.noNegativeGearingStartYear
+  ) {
+    reasons.push(`Loss quarantine start year changed to year ${current.noNegativeGearingStartYear}.`);
+  }
+  if (Math.abs(previous.interestRate - current.interestRate) >= 0.01) {
+    reasons.push(`Interest rate changed from ${previous.interestRate.toFixed(2)}% to ${current.interestRate.toFixed(2)}%.`);
+  }
+  if (previous.loanTerm !== current.loanTerm) {
+    reasons.push(`Loan term changed from ${previous.loanTerm} to ${current.loanTerm} years.`);
+  }
+  if (Math.abs(previous.propertyGrowthRate - current.propertyGrowthRate) >= 0.01) {
+    reasons.push(
+      `Property growth changed from ${previous.propertyGrowthRate.toFixed(2)}% to ${current.propertyGrowthRate.toFixed(2)}%.`
+    );
+  }
+  if (Math.abs(previous.rentIncreaseRate - current.rentIncreaseRate) >= 0.01) {
+    reasons.push(
+      `Rent growth changed from ${previous.rentIncreaseRate.toFixed(2)}% to ${current.rentIncreaseRate.toFixed(2)}%.`
+    );
+  }
+  if (
+    Math.abs(previous.operatingExpensesGrowthRate - current.operatingExpensesGrowthRate) >= 0.01
+  ) {
+    reasons.push(
+      `Operating expense growth changed from ${previous.operatingExpensesGrowthRate.toFixed(2)}% to ${current.operatingExpensesGrowthRate.toFixed(2)}%.`
+    );
+  }
+  if (previous.offsetMode !== current.offsetMode) {
+    reasons.push(`Offset mode changed to ${current.offsetMode === 'manual' ? 'manual' : 'automatic'}.`);
+  }
+  if (Math.abs(previous.offsetContributionAmount - current.offsetContributionAmount) >= 1) {
+    reasons.push(
+      `Offset contribution changed from $${Math.round(previous.offsetContributionAmount).toLocaleString()} to $${Math.round(current.offsetContributionAmount).toLocaleString()}.`
+    );
+  }
+  if (previous.offsetContributionFrequency !== current.offsetContributionFrequency) {
+    reasons.push(
+      `Offset contribution frequency changed from ${previous.offsetContributionFrequency} to ${current.offsetContributionFrequency}.`
+    );
+  }
+  if (previous.isCGTExempt !== current.isCGTExempt) {
+    reasons.push(current.isCGTExempt ? 'CGT exemption enabled.' : 'CGT exemption disabled.');
+  }
+
+  return reasons.slice(0, 4);
+};
 
 export function PropertyCalculator() {
   const {
@@ -38,8 +167,50 @@ export function PropertyCalculator() {
     deleteScenario,
     updateScenarioName,
   } = useCalculatorState();
+  const previousSnapshotRef = useRef<{ assumptions: AssumptionSnapshot; metrics: MetricsSnapshot } | null>(null);
+  const [changeSummary, setChangeSummary] = useState<ChangeSummary | null>(null);
 
   const { components } = useComponentOrder();
+
+  useEffect(() => {
+    const currentAssumptions = getAssumptionSnapshot(propertyDetails, marketData);
+    const currentMetrics = getMetricsSnapshot(calculationResults);
+    const previousSnapshot = previousSnapshotRef.current;
+
+    if (!previousSnapshot) {
+      previousSnapshotRef.current = {
+        assumptions: currentAssumptions,
+        metrics: currentMetrics,
+      };
+      return;
+    }
+
+    const reasons = getChangeReasons(previousSnapshot.assumptions, currentAssumptions);
+    if (reasons.length > 0) {
+      setChangeSummary({
+        reasons,
+        deltas: [
+          {
+            label: 'Year 1 cash flow change',
+            value: currentMetrics.year1CashFlow - previousSnapshot.metrics.year1CashFlow,
+          },
+          {
+            label: 'Final net position change',
+            value: currentMetrics.finalNetPosition - previousSnapshot.metrics.finalNetPosition,
+          },
+          {
+            label: 'Final CGT change',
+            value: currentMetrics.finalCGT - previousSnapshot.metrics.finalCGT,
+          },
+        ],
+      });
+    }
+
+    previousSnapshotRef.current = {
+      assumptions: currentAssumptions,
+      metrics: currentMetrics,
+    };
+  }, [propertyDetails, marketData, calculationResults]);
 
   const renderComponent = useCallback((id: ComponentId, extraProps?: RenderComponentExtraProps) => {
     switch (id) {
@@ -145,6 +316,13 @@ export function PropertyCalculator() {
             calculationResults={calculationResults}
             state={state}
           />
+
+          {changeSummary && (
+            <ChangeImpactSummary
+              reasons={changeSummary.reasons}
+              deltas={changeSummary.deltas}
+            />
+          )}
 
           <div className="mt-4 sm:mt-6 md:mt-8">
             <CombinedMetrics 
