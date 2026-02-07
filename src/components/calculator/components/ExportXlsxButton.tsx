@@ -26,7 +26,11 @@ const formatScenarioName = (name?: string) =>
     .replace(/(^-|-$)/g, '');
 
 const createChartImage = (
-  yearlyProjections: CalculationResults['yearlyProjections']
+  yearlyProjections: CalculationResults['yearlyProjections'],
+  valueSelector: (row: CalculationResults['yearlyProjections'][number]) => number,
+  title: string,
+  subtitle: string,
+  lineColor: string
 ): string | null => {
   if (typeof document === 'undefined' || yearlyProjections.length === 0) {
     return null;
@@ -49,7 +53,7 @@ const createChartImage = (
   const plotHeight = height - padding.top - padding.bottom;
 
   const years = points.map((point) => point.year);
-  const values = points.map((point) => point.netPosition);
+  const values = points.map((point) => valueSelector(point));
   const minYear = Math.min(...years);
   const maxYear = Math.max(...years);
   const minValue = Math.min(...values, 0);
@@ -66,10 +70,10 @@ const createChartImage = (
 
   ctx.fillStyle = '#0f172a';
   ctx.font = 'bold 22px Arial';
-  ctx.fillText('Scenario Net Position Over Time', padding.left, 30);
+  ctx.fillText(title, padding.left, 30);
   ctx.fillStyle = '#475569';
   ctx.font = '14px Arial';
-  ctx.fillText('Generated from current assumptions and yearly projections', padding.left, 50);
+  ctx.fillText(subtitle, padding.left, 50);
 
   ctx.strokeStyle = '#e2e8f0';
   ctx.lineWidth = 1;
@@ -95,24 +99,24 @@ const createChartImage = (
   ctx.lineTo(width - padding.right, zeroY);
   ctx.stroke();
 
-  ctx.strokeStyle = '#0ea5e9';
+  ctx.strokeStyle = lineColor;
   ctx.lineWidth = 3;
   ctx.beginPath();
   points.forEach((point, index) => {
     const px = x(point.year);
-    const py = y(point.netPosition);
+    const py = y(valueSelector(point));
     if (index === 0) ctx.moveTo(px, py);
     else ctx.lineTo(px, py);
   });
   ctx.stroke();
 
-  ctx.fillStyle = '#0284c7';
+  ctx.fillStyle = lineColor;
   points.forEach((point, index) => {
     if (index % Math.max(1, Math.floor(points.length / 6)) !== 0 && index !== points.length - 1) {
       return;
     }
     const px = x(point.year);
-    const py = y(point.netPosition);
+    const py = y(valueSelector(point));
     ctx.beginPath();
     ctx.arc(px, py, 4, 0, Math.PI * 2);
     ctx.fill();
@@ -120,7 +124,7 @@ const createChartImage = (
     ctx.fillStyle = '#334155';
     ctx.font = '12px Arial';
     ctx.fillText(`Y${point.year}`, px - 10, height - padding.bottom + 22);
-    ctx.fillStyle = '#0284c7';
+    ctx.fillStyle = lineColor;
   });
 
   ctx.strokeStyle = '#334155';
@@ -199,8 +203,38 @@ export function ExportXlsxButton({
       summarySheet.mergeCells('A2:B2');
       summarySheet.getCell('A2').value = `Scenario: ${scenarioName || 'Current model'} · Exported ${timestamp.toLocaleString()}`;
       summarySheet.getCell('A2').font = { name: 'Calibri', size: 11, color: { argb: 'FF334155' } };
+      const keyOutputsStartRow = 4;
+      summarySheet.mergeCells(`A${keyOutputsStartRow}:B${keyOutputsStartRow}`);
+      const keyOutputHeaderCell = summarySheet.getCell(`A${keyOutputsStartRow}`);
+      keyOutputHeaderCell.value = 'Key Outputs (Read First)';
+      keyOutputHeaderCell.font = { name: 'Calibri', size: 12, bold: true, color: { argb: 'FFFFFFFF' } };
+      keyOutputHeaderCell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF0F766E' },
+      };
 
-      let rowPointer = 4;
+      const keyOutputRows: Array<[string, number]> = [
+        ['Final Net Position (excl principal contributions)', finalProjection?.netPosition ?? 0],
+        ['Year 1 Cash Flow', calculationResults.yearlyProjections.find((row) => row.year === 1)?.cashFlow ?? 0],
+        ['Total Interest Saved', calculationResults.totalInterestSaved],
+        ['Final CGT Payable', calculationResults.finalCGTPayable],
+      ];
+
+      keyOutputRows.forEach(([label, value], index) => {
+        const rowNum = keyOutputsStartRow + 1 + index;
+        const row = summarySheet.getRow(rowNum);
+        row.getCell(1).value = label;
+        row.getCell(2).value = value;
+        row.getCell(1).font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF0F172A' } };
+        row.getCell(2).font = { name: 'Calibri', size: 12, bold: true, color: { argb: 'FF0F172A' } };
+        row.getCell(2).numFmt = '$#,##0';
+        const bg = index % 2 === 0 ? 'FFECFDF5' : 'FFF0FDFA';
+        row.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
+        row.getCell(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
+      });
+
+      let rowPointer = keyOutputsStartRow + keyOutputRows.length + 2;
       const addSection = (label: string, rows: Array<[string, string | number]>) => {
         summarySheet.mergeCells(`A${rowPointer}:B${rowPointer}`);
         const sectionCell = summarySheet.getCell(`A${rowPointer}`);
@@ -313,6 +347,13 @@ export function ExportXlsxButton({
         ['Average ROI', calculationResults.averageROI],
       ]);
 
+      addSection('Metric Notes', [
+        ['Final Net Position', 'Excludes principal contributions and reflects net money made/lost after operating cash flows, sale costs, and CGT.'],
+        ['Tax Benefit', 'Tax impact from property income/loss under the selected tax policy (including loss quarantine if enabled).'],
+        ['CGT Payable', 'Estimated CGT on disposal for each year based on selected CGT settings and taxable gain.'],
+        ['Offset Amount', 'Starting offset balance used in the model. Auto mode derives from available savings less upfront costs.'],
+      ]);
+
       const projectionColumns: ProjectionColumn[] = [
         { key: 'year', header: 'Year', width: 8 },
         { key: 'propertyValue', header: 'Property Value', width: 16, numFmt: '$#,##0' },
@@ -371,14 +412,28 @@ export function ExportXlsxButton({
         });
       });
 
-      const chartDataUrl = createChartImage(calculationResults.yearlyProjections);
-      if (chartDataUrl) {
+      const netPositionChart = createChartImage(
+        calculationResults.yearlyProjections,
+        (row) => row.netPosition,
+        'Scenario Net Position Over Time',
+        'Net position by year (excluding principal contributions)',
+        '#0ea5e9'
+      );
+      const cashFlowChart = createChartImage(
+        calculationResults.yearlyProjections,
+        (row) => row.cashFlow,
+        'Scenario Yearly Cash Flow',
+        'Annual cash flow by year after operating income, costs, and tax impact',
+        '#16a34a'
+      );
+
+      if (netPositionChart || cashFlowChart) {
         const chartSheet = workbook.addWorksheet('Scenario Chart', {
           views: [{ showGridLines: false }],
         });
-        chartSheet.columns = [{ width: 20 }, { width: 20 }, { width: 20 }, { width: 20 }, { width: 20 }];
+        chartSheet.columns = [{ width: 20 }, { width: 20 }, { width: 20 }, { width: 20 }, { width: 20 }, { width: 20 }];
 
-        chartSheet.mergeCells('A1:E1');
+        chartSheet.mergeCells('A1:F1');
         chartSheet.getCell('A1').value = `Scenario Chart · ${scenarioLabel}`;
         chartSheet.getCell('A1').font = { name: 'Calibri', size: 16, bold: true, color: { argb: 'FFFFFFFF' } };
         chartSheet.getCell('A1').fill = {
@@ -388,19 +443,31 @@ export function ExportXlsxButton({
         };
         chartSheet.getRow(1).height = 28;
 
-        chartSheet.mergeCells('A2:E2');
-        chartSheet.getCell('A2').value = 'Net Position by Year (from yearly projection model)';
+        chartSheet.mergeCells('A2:F2');
+        chartSheet.getCell('A2').value = 'Charts generated from current scenario projections';
         chartSheet.getCell('A2').font = { name: 'Calibri', size: 11, color: { argb: 'FF334155' } };
 
-        const imageId = workbook.addImage({
-          base64: chartDataUrl,
-          extension: 'png',
-        });
+        if (netPositionChart) {
+          const imageId = workbook.addImage({
+            base64: netPositionChart,
+            extension: 'png',
+          });
+          chartSheet.addImage(imageId, {
+            tl: { col: 0, row: 3 },
+            ext: { width: 1000, height: 430 },
+          });
+        }
 
-        chartSheet.addImage(imageId, {
-          tl: { col: 0, row: 3 },
-          ext: { width: 1000, height: 430 },
-        });
+        if (cashFlowChart) {
+          const imageId = workbook.addImage({
+            base64: cashFlowChart,
+            extension: 'png',
+          });
+          chartSheet.addImage(imageId, {
+            tl: { col: 0, row: 27 },
+            ext: { width: 1000, height: 430 },
+          });
+        }
       }
 
       const safeScenarioName = formatScenarioName(scenarioName);
