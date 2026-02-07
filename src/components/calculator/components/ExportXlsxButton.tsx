@@ -30,13 +30,16 @@ const createChartImage = (
   valueSelector: (row: CalculationResults['yearlyProjections'][number]) => number,
   title: string,
   subtitle: string,
-  lineColor: string
+  lineColor: string,
+  includeYearZero: boolean = true
 ): string | null => {
   if (typeof document === 'undefined' || yearlyProjections.length === 0) {
     return null;
   }
 
-  const points = [...yearlyProjections].sort((a, b) => a.year - b.year);
+  const points = [...yearlyProjections]
+    .filter((row) => includeYearZero || row.year > 0)
+    .sort((a, b) => a.year - b.year);
   if (!points.length) return null;
 
   const canvas = document.createElement('canvas');
@@ -425,7 +428,8 @@ export function ExportXlsxButton({
         (row) => row.cashFlow,
         'Scenario Yearly Cash Flow',
         'Annual cash flow by year after operating income, costs, and tax impact',
-        '#16a34a'
+        '#16a34a',
+        false
       );
 
       if (netPositionChart || cashFlowChart) {
