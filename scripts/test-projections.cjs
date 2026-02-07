@@ -45,6 +45,8 @@ runTest('base investment scenario snapshot remains stable', () => {
 
   assert.equal(result.yearlyProjections.length, 31);
   assert.equal(year1.propertyValue, 1_215_400);
+  approxEqual(year1.cashFlow, -45_742.65035112211);
+  approxEqual(year1.modelCashFlow, -45_742.65035112211);
   approxEqual(year1.yearlyInterestPaid, 61_998.36458386974);
   approxEqual(result.totalInterestSaved, 213_615.75733923828);
   assert.equal(result.yearsReducedFromLoan, 2);

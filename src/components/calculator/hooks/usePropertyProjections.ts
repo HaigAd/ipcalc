@@ -260,7 +260,7 @@ export const calculatePropertyProjections = (
       const effectiveQuarantinedLoss = propertyDetails.isPPOR ? 0 : quarantinedLoss;
       const effectiveQuarantinedLossUsed = propertyDetails.isPPOR ? 0 : quarantinedLossUsed;
 
-      const cashIncome = propertyDetails.isPPOR ? 0 : rentSavings;
+      const cashIncome = propertyDetails.isPPOR ? 0 : rentalIncomeForTax;
       const cashFlow = cashIncome - 
                       yearlyExpenses -
                       (propertyDetails.loanType === 'principal-and-interest' ? yearlyPrincipalPaid : 0) +
