@@ -1,5 +1,5 @@
 import { TooltipSectionProps } from './types';
-import { formatCurrency } from '../../../../lib/utils';
+import { formatCurrency } from '../../utils/formatters';
 
 export function TooltipSection({ title, items }: TooltipSectionProps) {
   return (

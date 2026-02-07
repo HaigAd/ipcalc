@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { CalculationResults, MarketData, PropertyDetails, CostStructure } from '../../types';
 import { getColumns } from './columns';
 import { TableHeader } from './TableHeader';
@@ -14,7 +14,7 @@ interface YearlyProjectionsTableProps {
 }
 
 export function YearlyProjectionsTable({ yearlyProjections, marketData, propertyDetails, costStructure }: YearlyProjectionsTableProps) {
-  const columns = getColumns(marketData, propertyDetails, costStructure);
+  const columns = getColumns(propertyDetails, costStructure);
   // Default to showing only essential columns on mobile
   const defaultVisibleColumns = [
     'year',

@@ -1,15 +1,15 @@
-import { CalculationResults, MarketData, PropertyDetails, CostStructure } from '../../types';
+import { CalculationResults, PropertyDetails, CostStructure } from '../../types';
+import { ReactNode } from 'react';
 
 export interface ColumnDef {
   id: string;
   header: string;
   tooltip: string;
   group: string;
-  render: (projection: CalculationResults['yearlyProjections'][0]) => React.ReactNode;
+  render: (projection: CalculationResults['yearlyProjections'][0]) => ReactNode;
 }
 
 export const getColumns = (
-  marketData: MarketData,
   propertyDetails: PropertyDetails,
   costStructure: CostStructure
 ): ColumnDef[] => {

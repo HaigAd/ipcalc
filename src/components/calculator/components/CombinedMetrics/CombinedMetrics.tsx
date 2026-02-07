@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from 'react';
-import { CalculationResults, CostStructure, PropertyDetails } from '../../types';
+import { CalculationResults, PropertyDetails } from '../../types';
 import { OffsetBenefits } from '../OffsetBenefits';
 import { MetricCard } from './MetricCard';
 import { TaxEquitySection } from './TaxEquitySection';
@@ -7,12 +7,11 @@ import { YearSelector } from './YearSelector';
 import { formatNumberWithKMB } from '../../utils/formatters';
 interface CombinedMetricsProps {
   calculationResults: CalculationResults;
-  costStructure?: CostStructure;
   propertyDetails: PropertyDetails;
 }
 
-export function CombinedMetrics({ calculationResults, costStructure, propertyDetails }: CombinedMetricsProps) {
-  const { yearlyProjections, monthlyMortgagePayment, averageROI } = calculationResults;
+export function CombinedMetrics({ calculationResults, propertyDetails }: CombinedMetricsProps) {
+  const { yearlyProjections, monthlyMortgagePayment } = calculationResults;
   const [selectedYear, setSelectedYear] = useState(1);
   useEffect(() => {
     if (!yearlyProjections.length) return;

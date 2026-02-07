@@ -35,7 +35,6 @@ export interface CreateScenarioProps {
 }
 
 export interface SaveChangesButtonProps {
-  activeScenario: Scenario;
   isSaving: boolean;
   showGleam: string | null;
   onUpdate: () => void;

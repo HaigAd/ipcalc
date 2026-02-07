@@ -276,7 +276,7 @@ export const calculatePropertyProjections = (
       const correction = marketData.propertyValueCorrections?.find((item) => item.year === projectionYear);
       const propertyGrowthRate = correction
         ? correction.change
-        : (anchorGrowthRate !== null && yearIndex < anchorYear
+        : (anchorGrowthRate !== null && yearIndex < (anchorYear ?? 0)
           ? anchorGrowthRate
           : marketData.propertyGrowthRate);
       currentPropertyValue *= (1 + propertyGrowthRate / 100);
@@ -294,18 +294,10 @@ export const calculatePropertyProjections = (
         : 0.5;
       const taxableGainRate = Math.max(0, Math.min(1, 1 - cgtDiscountRate));
 
-      let yearlyCGTPayable = 0;
       const isPPOR = propertyDetails.isPPOR;
       const useSixYearRule = propertyDetails.isCGTExempt;
       if (!isPPOR && (!useSixYearRule || projectionYear > 6)) {
         cumulativeCapitalGain += capitalGain;
-        // Calculate CGT on this year's gain only
-        if (capitalGain > 0) {
-          // Apply CGT discount to get the taxable portion of the gain.
-          const discountedGain = capitalGain * taxableGainRate;
-          const baseIncome = propertyDetails.taxableIncome + taxablePropertyIncome;
-          yearlyCGTPayable = calculateTaxPayable(baseIncome + discountedGain) - calculateTaxPayable(baseIncome);
-        }
       }
 
       // Calculate total invested capital (initial investment + cumulative principal + offset contributions)

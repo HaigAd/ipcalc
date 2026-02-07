@@ -30,7 +30,7 @@ const calculateTASBaseDuty = (price: number): number => {
     }
 };
 
-export const calculateTASStampDuty = (price: number, isPPOR: boolean, isFirstHomeBuyer: boolean): number => {
+export const calculateTASStampDuty = (price: number, _isPPOR: boolean, isFirstHomeBuyer: boolean): number => {
     // First home buyer exemption for properties under $750,000
     if (isFirstHomeBuyer && price <= 750000) {
         return 0;
@@ -39,7 +39,7 @@ export const calculateTASStampDuty = (price: number, isPPOR: boolean, isFirstHom
     return calculateTASBaseDuty(price);
 };
 
-export const calculateTASTransferFee = (price: number): number => {
+export const calculateTASTransferFee = (_price: number): number => {
     // Using a default transfer fee calculation until actual TAS transfer fee details are available
     return 233;
 };

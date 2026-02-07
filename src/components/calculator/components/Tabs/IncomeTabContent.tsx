@@ -1,4 +1,3 @@
-import React from 'react';
 import { TabContentProps } from './types';
 import { InvestmentTab } from '../InvestmentTab';
 import { CostStructureForm } from '../CostStructureForm';
@@ -24,9 +23,6 @@ export function IncomeTabContent({
     <div className="space-y-6">
       <InvestmentTab
         propertyDetails={propertyDetails}
-        marketData={marketData}
-        costStructure={costStructure}
-        calculationResults={calculationResults}
         setPropertyDetails={setPropertyDetails}
       />
       <CostStructureForm

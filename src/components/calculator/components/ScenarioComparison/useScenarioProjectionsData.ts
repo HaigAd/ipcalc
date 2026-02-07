@@ -146,7 +146,7 @@ export const useScenarioProjectionsData = (
     });
 
     const processedData = sortedYears.map(year => {
-      const dataPoint: { year: number } & { [key: string]: { netPosition: number, netPositionExRent?: number, afterTaxHolding: number, rentSavingsTotal?: number, offsetBalance: number, cumulativePrincipalPaid: number, netPositionLow?: number, netPositionHigh?: number } | null } = { year };
+      const dataPoint: { year: number; [key: string]: any } = { year };
 
       scenarioProjections.forEach((scenario) => {
         const projection = scenario.projections.find(item => item.year === year);

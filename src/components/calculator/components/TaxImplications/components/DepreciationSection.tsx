@@ -10,7 +10,6 @@ import {
 import { cn } from '../../../../../lib/utils';
 import { DepreciationMode, DepreciationSchedule, YearlyDepreciation } from '../../../utils/depreciation';
 import { RadioGroup, RadioGroupItem } from '../../../../ui/radio-group';
-import { Button } from '../../../../ui/button';
 import { useState } from 'react';
 
 interface DepreciationSectionProps {

@@ -20,7 +20,7 @@ export const useFinancialMetrics = (
     // First year metrics
     const firstYearProjection = yearlyProjections.find((projection) => projection.year === 1) ?? yearlyProjections[1];
     const annualRent = propertyDetails.investmentRent * 52;
-    const annualCosts = costStructure.annualPropertyCosts + (firstYearProjection?.totalCosts ?? 0);
+    const annualCosts = firstYearProjection?.yearlyExpenses ?? costStructure.annualPropertyCosts;
 
     // Return on Investment (ROI)
     const netPositionAtEnd = yearlyProjections[yearlyProjections.length - 1]?.netPosition ?? 0;

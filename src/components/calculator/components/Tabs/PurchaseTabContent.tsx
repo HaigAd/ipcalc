@@ -1,4 +1,3 @@
-import React from 'react';
 import { TabContentProps } from './types';
 import { PurchaseCostsForm } from '../PurchaseCostsForm';
 

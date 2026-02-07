@@ -98,7 +98,6 @@ export function CostStructureForm({
         <div className="col-span-2">
           <OperatingExpensesGrowthSlider
             marketData={marketData}
-            costStructure={costStructure}
             onOperatingExpensesGrowthChange={handleOperatingExpensesGrowthChange}
           />
         </div>

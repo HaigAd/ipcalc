@@ -1,4 +1,3 @@
-import React from 'react';
 import { TabContentProps } from './types';
 import { MarketDataForm } from '../MarketDataForm';
 

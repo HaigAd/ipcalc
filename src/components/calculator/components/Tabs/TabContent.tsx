@@ -1,9 +1,9 @@
-import React from 'react';
 import { TabsContent } from '../../../ui/tabs';
+import { ReactNode } from 'react';
 
 interface TabContentProps {
   value: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function TabContent({ value, children }: TabContentProps) {

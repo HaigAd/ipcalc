@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -81,7 +80,6 @@ export function ScenariosMenu({
 
             {hasChanges && (
               <SaveChangesButton
-                activeScenario={activeScenario}
                 isSaving={isSaving}
                 showGleam={showGleam}
                 onUpdate={handleUpdate}

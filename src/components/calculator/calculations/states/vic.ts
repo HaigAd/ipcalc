@@ -18,7 +18,7 @@ const calculateVICBaseDuty = (price: number): number => {
     }
 };
 
-export const calculateVICStampDuty = (price: number, isPPOR: boolean, isFirstHomeBuyer: boolean): number => {
+export const calculateVICStampDuty = (price: number, _isPPOR: boolean, isFirstHomeBuyer: boolean): number => {
     // First home buyer exemptions
     if (isFirstHomeBuyer) {
         if (price <= 600000) {

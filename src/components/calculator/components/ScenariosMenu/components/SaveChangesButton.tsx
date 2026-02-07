@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '../../../../../components/ui/button';
 import { Save } from 'lucide-react';
@@ -8,7 +7,6 @@ import { SaveChangesButtonProps } from '../types';
 const AnimatedButton = motion(Button);
 
 export function SaveChangesButton({
-  activeScenario,
   isSaving,
   showGleam,
   onUpdate,

@@ -1,17 +1,15 @@
-import { PropertyDetails, MarketData, CostStructure, CalculationResults } from '../types';
+import { PropertyDetails } from '../types';
 import { ManagementFeeSlider } from './ManagementFeeSlider';
 import { InvestmentRentInput } from './InvestmentRentInput';
 import { Card } from '../../ui/card';
 
 interface InvestmentTabProps {
   propertyDetails: PropertyDetails;
-  calculationResults: CalculationResults;
   setPropertyDetails: (details: PropertyDetails) => void;
 }
 
 export function InvestmentTab({
   propertyDetails,
-  calculationResults,
   setPropertyDetails
 }: InvestmentTabProps) {
   const handleInvestmentRentChange = (value: number) => {

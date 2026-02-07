@@ -41,7 +41,7 @@ export const calculateNSWStampDuty = (price: number, isPPOR: boolean, isFirstHom
     return Math.round(duty);
 };
 
-export const calculateNSWTransferFee = (price: number): number => {
+export const calculateNSWTransferFee = (_price: number): number => {
     //FLAT RATE IN NSW
     return 165.40;
 };

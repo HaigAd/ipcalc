@@ -9,14 +9,14 @@ export const calculateCGT = (
   baseProjections: { yearlyProjections: YearlyProjection[] }
 ) => {
   const { yearlyProjections } = baseProjections;
-  const costBase = propertyDetails.otherPropertyCostBase;
+  const costBase = propertyDetails.purchasePrice;
   let previousPPORValue = costBase; // Start from cost base
   let existingPPORValue = costBase; // Start from cost base
 
   const updatedProjections = yearlyProjections.map(projection => {
     let yearlyCGT = 0;
 
-    if (propertyDetails.considerPPORTax) {
+    if (!propertyDetails.isPPOR && !propertyDetails.isCGTExempt) {
       previousPPORValue = existingPPORValue;
       existingPPORValue *= (1 + marketData.propertyGrowthRate / 100);
       

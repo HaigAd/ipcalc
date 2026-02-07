@@ -34,7 +34,6 @@ export function TaxImplications({
     handleIncomeChange,
     handleBlur,
     handleFocus,
-    handleDepreciationChange,
     handleCGTExemptionChange,
     handleCGTDiscountToggle,
     handleCGTDiscountRateChange,

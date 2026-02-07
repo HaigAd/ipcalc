@@ -6,3 +6,7 @@ export const formatNumberWithKMB = (num: number, forceM: boolean = false): strin
   }
   return num.toFixed(2);
 };
+
+export const formatCurrency = (value: number): string => {
+  return `$${Math.round(value).toLocaleString()}`;
+};

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { PropertyDetails, MortgageCalculation } from '../types';
+import { PropertyDetails } from '../types';
+import { MortgageCalculation } from '../types/loan';
 
 export const useMortgageCalculator = (propertyDetails: PropertyDetails): MortgageCalculation => {
   return useMemo(() => {

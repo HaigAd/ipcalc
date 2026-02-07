@@ -138,7 +138,6 @@ export function PropertyCalculator() {
           <div className="mt-4 sm:mt-6 md:mt-8">
             <CombinedMetrics 
               calculationResults={calculationResults}
-              costStructure={costStructure}
               propertyDetails={propertyDetails}
             />
           </div>

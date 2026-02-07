@@ -51,7 +51,7 @@ const getScenarioColor = (id: string) => {
 
 const renderCrossDot = (props: { cx?: number; cy?: number; stroke?: string }) => {
   const { cx, cy, stroke } = props;
-  if (cx == null || cy == null) return null;
+  if (cx == null || cy == null) return <g />;
   const size = 3;
   return (
     <g stroke={stroke} strokeWidth={1.5}>
@@ -542,19 +542,7 @@ const ScenarioComparison = () => {
                     width={45}
                     tickFormatter={(value) => {
                       if (value === undefined || value === null || typeof value !== 'number') return '';
-                      const maxValue = Math.max(
-                        ...(filteredData || []).flatMap(d => 
-                          scenarios
-                            .filter(s => selectedScenarios.has(s.id))
-                            .map(s => {
-                              const scenarioData = d[s.id];
-                              if (!scenarioData) return 0;
-                              const val = scenarioData.netPosition;
-                              return typeof val === 'number' ? val : 0;
-                            })
-                        )
-                      );
-                      return formatNumberWithKMB(value, maxValue >= 1000000);
+                      return formatNumberWithKMB(value, Math.abs(value) >= 1000000);
                     }}
                   />
                   <ReferenceLine y={0} stroke="black" strokeWidth={1} />
@@ -575,18 +563,6 @@ const ScenarioComparison = () => {
                       });
                       const sortedPayload = [...filteredPayload].sort((a, b) => 
                         (b.value as number) - (a.value as number)
-                      );
-                      
-                      // Calculate max value for formatting
-                      const maxValue = Math.max(
-                        ...(filteredData?.flatMap(d => 
-                          scenarios!
-                            .filter(s => selectedScenarios.has(s.id))
-                            .map(s => {
-                              const val = d[s.id]?.netPosition;
-                              return typeof val === 'number' ? val : 0;
-                            })
-                        ) || [0])
                       );
                       
                       return (

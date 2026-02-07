@@ -39,7 +39,7 @@ const calculateSABaseDuty = (price: number): number => {
     }
 };
 
-export const calculateSAStampDuty = (price: number, isPPOR: boolean, isFirstHomeBuyer: boolean): number => {
+export const calculateSAStampDuty = (price: number, _isPPOR: boolean, isFirstHomeBuyer: boolean): number => {
     if (isFirstHomeBuyer) {
         // Full exemption for existing homes up to $650,000
         if (price <= 650000) {
