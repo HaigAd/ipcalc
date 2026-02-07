@@ -12,6 +12,7 @@ import { TaxImplications } from './components/TaxImplications';
 import { ScenariosMenu } from './components/ScenariosMenu/index';
 import { AssumptionsSummary } from './components/AssumptionsSummary';
 import { ChangeImpactSummary } from './components/ChangeImpactSummary';
+import { ExportXlsxButton } from './components/ExportXlsxButton';
 import { CalculationResults, MarketData, PropertyDetails } from './types';
 
 interface AssumptionSnapshot {
@@ -269,6 +270,14 @@ export function PropertyCalculator() {
               onLoad={loadScenario}
               onDelete={deleteScenario}
               onRename={updateScenarioName}
+            />
+            <ExportXlsxButton
+              propertyDetails={propertyDetails}
+              marketData={marketData}
+              costStructure={costStructure}
+              calculationResults={calculationResults}
+              state={state}
+              scenarioName={activeScenario?.name}
             />
             <button
               onClick={resetToDefaults}
