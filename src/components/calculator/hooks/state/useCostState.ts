@@ -49,7 +49,7 @@ export function useCostState(propertyDetails: PropertyDetails, yearlyProjections
         }));
       }
     }
-  }, [yearlyProjections, costStructure.futureSellCostsPercentage]);
+  }, [yearlyProjections, costStructure.futureSellCostsPercentage, costStructure.futureSellCosts]);
 
   const updateCostStructure = (costs: Partial<CostStructure>) => {
     const newCostStructure = {

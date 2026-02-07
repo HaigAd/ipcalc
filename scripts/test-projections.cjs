@@ -78,3 +78,30 @@ runTest('ppor scenario keeps tax and CGT at zero while tracking rent savings', (
   assert.equal(year10.cgtPayable, 0);
   assert.equal(result.finalCGTPayable, 0);
 });
+
+runTest('negative gearing quarantine accumulates losses and defers tax benefit', () => {
+  const quarantinedDetails = {
+    ...defaultPropertyDetails,
+    noNegativeGearing: true,
+    noNegativeGearingStartYear: 1,
+  };
+  const result = calculatePropertyProjections(
+    quarantinedDetails,
+    defaultMarketData,
+    defaultCostStructure,
+    OFFSET_FOR_TEST
+  );
+  const year1 = result.yearlyProjections.find((projection) => projection.year === 1);
+  const year2 = result.yearlyProjections.find((projection) => projection.year === 2);
+  const year30 = result.yearlyProjections.find((projection) => projection.year === 30);
+
+  assert.ok(year1, 'Expected to find year 1 projection');
+  assert.ok(year2, 'Expected to find year 2 projection');
+  assert.ok(year30, 'Expected to find year 30 projection');
+
+  assert.equal(year1.taxBenefit, 0);
+  approxEqual(year1.quarantinedLosses, 44_023.36458386974);
+  approxEqual(year2.quarantinedLosses, 86_413.64369314579);
+  assert.ok(year30.quarantinedLossesUsed > 0, 'Expected quarantined losses to be applied in later profitable years');
+  approxEqual(result.finalCGTPayable, 344_182.4820721778);
+});

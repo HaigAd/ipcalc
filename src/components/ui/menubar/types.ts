@@ -16,8 +16,7 @@ export interface MenubarSubTriggerProps
   inset?: boolean
 }
 
-export interface MenubarShortcutProps
-  extends React.HTMLAttributes<HTMLSpanElement> {}
+export type MenubarShortcutProps = React.HTMLAttributes<HTMLSpanElement>
 
 export interface MenubarContentProps
   extends React.ComponentPropsWithoutRef<typeof MenubarPrimitive.Content> {
@@ -26,8 +25,8 @@ export interface MenubarContentProps
   sideOffset?: number
 }
 
-export interface MenubarCheckboxItemProps
-  extends React.ComponentPropsWithoutRef<typeof MenubarPrimitive.CheckboxItem> {}
+export type MenubarCheckboxItemProps =
+  React.ComponentPropsWithoutRef<typeof MenubarPrimitive.CheckboxItem>
 
-export interface MenubarRadioItemProps
-  extends React.ComponentPropsWithoutRef<typeof MenubarPrimitive.RadioItem> {}
+export type MenubarRadioItemProps =
+  React.ComponentPropsWithoutRef<typeof MenubarPrimitive.RadioItem>

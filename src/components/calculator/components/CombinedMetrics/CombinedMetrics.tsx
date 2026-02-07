@@ -11,7 +11,7 @@ interface CombinedMetricsProps {
 }
 
 export function CombinedMetrics({ calculationResults, propertyDetails }: CombinedMetricsProps) {
-  const { yearlyProjections, monthlyMortgagePayment } = calculationResults;
+  const { yearlyProjections } = calculationResults;
   const [selectedYear, setSelectedYear] = useState(1);
   useEffect(() => {
     if (!yearlyProjections.length) return;
@@ -36,7 +36,7 @@ export function CombinedMetrics({ calculationResults, propertyDetails }: Combine
         totalCost: (current.yearlyExpenses - current.taxBenefit - rentalValue) /12
       }
     };
-  }, [yearlyProjections, monthlyMortgagePayment, selectedYear, propertyDetails.isPPOR]);
+  }, [yearlyProjections, selectedYear, propertyDetails.isPPOR]);
 
   const years = useMemo(() => {
     return yearlyProjections.map((projection) => projection.year);

@@ -2,11 +2,10 @@ import * as React from "react"
 
 import { cn } from "../../lib/utils"
 
-export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {}
+export type InputProps = React.InputHTMLAttributes<HTMLInputElement>
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, value, onChange, ...props }, ref) => {
+  ({ className, type, value, onChange, onFocus, onBlur, ...props }, ref) => {
     const [isEditing, setIsEditing] = React.useState(false);
 
     const handleChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,13 +19,13 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       if (type === 'number' && Number(value) === 0) {
         setIsEditing(true);
       }
-      props.onFocus?.(e);
-    }, [type, value, props.onFocus]);
+      onFocus?.(e);
+    }, [type, value, onFocus]);
 
     const handleBlur = React.useCallback((e: React.FocusEvent<HTMLInputElement>) => {
       setIsEditing(false);
-      props.onBlur?.(e);
-    }, [props.onBlur]);
+      onBlur?.(e);
+    }, [onBlur]);
 
     const displayValue = React.useMemo(() => {
       if (type === 'number' && isEditing && Number(value) === 0) {

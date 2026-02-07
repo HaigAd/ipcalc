@@ -133,5 +133,3 @@ export function ProjectionsGraph({ calculationResults }: ProjectionsGraphProps) 
     </div>
   );
 }
-
-export * from './types';

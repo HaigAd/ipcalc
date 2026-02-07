@@ -68,7 +68,7 @@ export function useCalculatorState() {
         }));
       }
     }
-  }, [calculationResults.yearlyProjections, costStructure.futureSellCostsPercentage]);
+  }, [calculationResults.yearlyProjections, costStructure.futureSellCostsPercentage, costStructure.futureSellCosts]);
 
   const updateCostStructure = (costs: Partial<CostStructure>) => {
     const newCostStructure = {
