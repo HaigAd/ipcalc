@@ -30,12 +30,14 @@ type ScenarioComparisonPoint = {
     | {
         netPosition: number;
         netPositionExRent?: number;
+        graphNetPosition: number;
         afterTaxHolding: number;
         rentSavingsTotal?: number;
         offsetBalance: number;
+        principalTotal: number;
         cumulativePrincipalPaid: number;
-        netPositionLow?: number;
-        netPositionHigh?: number;
+        graphNetPositionLow?: number;
+        graphNetPositionHigh?: number;
       }
     | null;
 };
@@ -74,18 +76,6 @@ const getScenarioColor = (id: string) => {
   return `hsl(${hue} 65% 38%)`;
 };
 
-const renderCrossDot = (props: { cx?: number; cy?: number; stroke?: string }) => {
-  const { cx, cy, stroke } = props;
-  if (cx == null || cy == null) return <g />;
-  const size = 3;
-  return (
-    <g stroke={stroke} strokeWidth={1.5}>
-      <line x1={cx - size} y1={cy - size} x2={cx + size} y2={cy + size} />
-      <line x1={cx - size} y1={cy + size} x2={cx + size} y2={cy - size} />
-    </g>
-  );
-};
-
 const ScenarioComparison = () => {
   const { scenarios } = useCalculatorState();
   const [selectedScenarios, setSelectedScenarios] = useState<Set<string>>(new Set());
@@ -94,6 +84,8 @@ const ScenarioComparison = () => {
   const [hasLoadedPreferences, setHasLoadedPreferences] = useState(false);
   const [hasStoredPreferences, setHasStoredPreferences] = useState(false);
   const [hasInitializedDefaults, setHasInitializedDefaults] = useState(false);
+  const [includeInvestedFunds, setIncludeInvestedFunds] = useState(false);
+  const [includePPORRentSavings, setIncludePPORRentSavings] = useState(true);
 
   const STORAGE_KEY = 'calculator_scenario_comparison_preferences';
 
@@ -119,6 +111,8 @@ const ScenarioComparison = () => {
           sensitivityEnabled?: boolean;
           sensitivitySettings?: SensitivitySettings;
           zoomRange?: [number, number];
+          includeInvestedFunds?: boolean;
+          includePPORRentSavings?: boolean;
         };
         if (parsed.selectedScenarioIds) {
           setSelectedScenarios(new Set(parsed.selectedScenarioIds));
@@ -134,6 +128,12 @@ const ScenarioComparison = () => {
         }
         if (parsed.zoomRange) {
           setZoomRange(parsed.zoomRange);
+        }
+        if (typeof parsed.includeInvestedFunds === 'boolean') {
+          setIncludeInvestedFunds(parsed.includeInvestedFunds);
+        }
+        if (typeof parsed.includePPORRentSavings === 'boolean') {
+          setIncludePPORRentSavings(parsed.includePPORRentSavings);
         }
       }
     } catch {
@@ -191,7 +191,12 @@ const ScenarioComparison = () => {
     rentIncreaseDelta: 1,
     propertyGrowthDelta: 1
   });
-  const processedData = useScenarioProjectionsData(scenarios, sensitivityEnabled, sensitivitySettings);
+  const processedData = useScenarioProjectionsData(
+    scenarios,
+    sensitivityEnabled,
+    sensitivitySettings,
+    { includeInvestedFunds, includePPORRentSavings }
+  );
   const [zoomRange, setZoomRange] = useState<[number, number]>([0, 100]);
   const years = useMemo(() => processedData.map(d => d.year), [processedData]);
 
@@ -254,6 +259,8 @@ const ScenarioComparison = () => {
       sensitivityEnabled,
       sensitivitySettings,
       zoomRange,
+      includeInvestedFunds,
+      includePPORRentSavings,
     };
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
@@ -267,6 +274,8 @@ const ScenarioComparison = () => {
     sensitivityEnabled,
     sensitivitySettings,
     zoomRange,
+    includeInvestedFunds,
+    includePPORRentSavings,
   ]);
 
   const updateSensitivitySetting = (key: keyof SensitivitySettings, value: string) => {
@@ -526,6 +535,29 @@ const ScenarioComparison = () => {
 
         <div className="space-y-4 lg:sticky lg:top-4 self-start">
           <div className="rounded-xl border border-slate-200 bg-white/80 p-4 shadow-sm">
+            <div className="mb-4 space-y-2">
+              <div className="text-sm font-semibold text-slate-900">Graph options</div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="include-invested-funds"
+                  checked={includeInvestedFunds}
+                  onCheckedChange={() => setIncludeInvestedFunds((prev) => !prev)}
+                />
+                <Label htmlFor="include-invested-funds" className="text-sm text-slate-700 cursor-pointer">
+                  Include funds invested (deposit + principal + offset)
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="include-ppor-rent-savings"
+                  checked={includePPORRentSavings}
+                  onCheckedChange={() => setIncludePPORRentSavings((prev) => !prev)}
+                />
+                <Label htmlFor="include-ppor-rent-savings" className="text-sm text-slate-700 cursor-pointer">
+                  Include PPOR rent savings in graphed net position
+                </Label>
+              </div>
+            </div>
             <div className="h-[360px] sm:h-[420px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
@@ -552,7 +584,7 @@ const ScenarioComparison = () => {
                   />
                   <YAxis
                     label={{
-                      value: 'Net Position ($)',
+                      value: includeInvestedFunds ? 'Total Position ($)' : 'Net Position ($)',
                       angle: -90,
                       position: 'insideLeft',
                       style: {
@@ -583,7 +615,7 @@ const ScenarioComparison = () => {
                       
                       const filteredPayload = numericPayload.filter(entry => {
                         const dataKey = typeof entry.dataKey === 'string' ? entry.dataKey : '';
-                        return !dataKey.includes('netPositionLow') && !dataKey.includes('netPositionHigh');
+                        return !dataKey.includes('graphNetPositionLow') && !dataKey.includes('graphNetPositionHigh');
                       });
                       const sortedPayload = [...filteredPayload].sort((a, b) => 
                         (b.value as number) - (a.value as number)
@@ -601,7 +633,6 @@ const ScenarioComparison = () => {
                               const value = typeof entry.value === 'number' ? entry.value : 0;
                               const isPositive = value >= 0;
                               const shouldUseMillions = Math.abs(value) >= 1000000;
-                              const isExRentLine = typeof entry.dataKey === 'string' && entry.dataKey.includes('netPositionExRent');
                               
                               // Calculate year-over-year change
                               const prevYearData = filteredData?.find(
@@ -614,8 +645,8 @@ const ScenarioComparison = () => {
                               const prevValue =
                                 prevScenarioData &&
                                 typeof prevScenarioData === 'object' &&
-                                'netPosition' in prevScenarioData
-                                  ? prevScenarioData.netPosition
+                                'graphNetPosition' in prevScenarioData
+                                  ? prevScenarioData.graphNetPosition
                                   : 0;
                               void prevValue;
                               
@@ -628,9 +659,7 @@ const ScenarioComparison = () => {
                 />
                                     <div className="flex-1">
                                       <div className="text-sm font-medium">
-                                        {isExRentLine
-                                          ? `${scenario?.name || entry.name} (net position excl. rent savings)`
-                                          : (scenario?.name || entry.name)}
+                                        {scenario?.name || entry.name}
                                       </div>
                                       <div className={`text-xs ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
                                         ${formatNumberWithKMB(value, shouldUseMillions)}
@@ -638,7 +667,7 @@ const ScenarioComparison = () => {
                                     </div>
                                   </div>
                                   <div className="pl-4 text-xs space-y-1">
-                                    {!isExRentLine && entry.payload && scenarioId && entry.payload[scenarioId] && (() => {
+                                    {entry.payload && scenarioId && entry.payload[scenarioId] && (() => {
                                       const afterTaxHolding = entry.payload[scenarioId].afterTaxHolding || 0;
                                       const isIncome = afterTaxHolding >= 0;
                                       const label = isIncome
@@ -657,7 +686,9 @@ const ScenarioComparison = () => {
                                             const rentSavingsMillions = Math.abs(rentSavingsTotal) >= 1000000;
                                             return (
                                               <div className="text-gray-500">
-                                                PPOR net position includes rental savings of ${formatNumberWithKMB(rentSavingsTotal, rentSavingsMillions)} total
+                                                {includePPORRentSavings
+                                                  ? `PPOR net position includes rental savings of $${formatNumberWithKMB(rentSavingsTotal, rentSavingsMillions)} total`
+                                                  : `PPOR net position excludes rental savings of $${formatNumberWithKMB(rentSavingsTotal, rentSavingsMillions)} total`}
                                               </div>
                                             );
                                           })()}
@@ -666,21 +697,34 @@ const ScenarioComparison = () => {
                                     })()}
                                     {entry.payload && scenarioId && entry.payload[scenarioId] && (() => {
                                       const offsetBalance = entry.payload[scenarioId].offsetBalance || 0;
-                                      const depositAmount = scenario?.state.propertyDetails.depositAmount || 0;
-                                      const cumulativePrincipalPaid = entry.payload[scenarioId].cumulativePrincipalPaid || 0;
-                                      const principalTotal = depositAmount + cumulativePrincipalPaid;
+                                      const principalTotal = entry.payload[scenarioId].principalTotal || 0;
                                       const offsetMillions = Math.abs(offsetBalance) >= 1000000;
                                       const principalMillions = Math.abs(principalTotal) >= 1000000;
                                       return (
                                         <>
-                                          {offsetBalance > 0 && (
-                                            <div className="text-gray-500">
-                                              Excludes offset balance of ${formatNumberWithKMB(offsetBalance, offsetMillions)}
-                                            </div>
+                                          {includeInvestedFunds ? (
+                                            <>
+                                              {offsetBalance > 0 && (
+                                                <div className="text-gray-500">
+                                                  Includes offset balance of ${formatNumberWithKMB(offsetBalance, offsetMillions)}
+                                                </div>
+                                              )}
+                                              <div className="text-gray-500">
+                                                Includes principal payments of ${formatNumberWithKMB(principalTotal, principalMillions)} (incl. deposit)
+                                              </div>
+                                            </>
+                                          ) : (
+                                            <>
+                                              {offsetBalance > 0 && (
+                                                <div className="text-gray-500">
+                                                  Excludes offset balance of ${formatNumberWithKMB(offsetBalance, offsetMillions)}
+                                                </div>
+                                              )}
+                                              <div className="text-gray-500">
+                                                Excludes principal payments of ${formatNumberWithKMB(principalTotal, principalMillions)} (incl. deposit)
+                                              </div>
+                                            </>
                                           )}
-                                          <div className="text-gray-500">
-                                            Excludes principal payments of ${formatNumberWithKMB(principalTotal, principalMillions)} (incl. deposit)
-                                          </div>
                                         </>
                                       );
                                     })()}
@@ -702,36 +746,26 @@ const ScenarioComparison = () => {
                     .filter(scenario => selectedScenarios.has(scenario.id))
                     .map((scenario) => {
                     const color = getScenarioColor(scenario.id);
+                    const lineName = scenario.state.propertyDetails.isPPOR && !includePPORRentSavings
+                      ? `${scenario.name} (excl. rent savings)`
+                      : scenario.name;
                     return (
                       <React.Fragment key={scenario.id}>
                         <Line
                           type="monotone"
-                          dataKey={`${scenario.id}.netPosition`}
-                          name={scenario.name}
+                          dataKey={`${scenario.id}.graphNetPosition`}
+                          name={lineName}
                           stroke={color}
                           strokeWidth={2}
                           dot={false}
                           connectNulls={false}
                         />
-                        {scenario.state.propertyDetails.isPPOR && (
-                          <Line
-                            type="monotone"
-                            dataKey={`${scenario.id}.netPositionExRent`}
-                            name={`${scenario.name} (net position excl. rent savings)`}
-                            stroke={color}
-                            strokeWidth={1.5}
-                            strokeOpacity={0.6}
-                            dot={renderCrossDot}
-                            activeDot={false}
-                            connectNulls={false}
-                          />
-                        )}
                         {sensitivityEnabled && scenarioSensitivityDisplay.has(scenario.id) && (
                           <>
                             <Line
                               type="monotone"
-                              dataKey={`${scenario.id}.netPositionLow`}
-                              name={`${scenario.name} (low)`}
+                              dataKey={`${scenario.id}.graphNetPositionLow`}
+                              name={`${lineName} (low)`}
                               stroke={color}
                               strokeWidth={1.5}
                               strokeDasharray="4 4"
@@ -742,8 +776,8 @@ const ScenarioComparison = () => {
                             />
                             <Line
                               type="monotone"
-                              dataKey={`${scenario.id}.netPositionHigh`}
-                              name={`${scenario.name} (high)`}
+                              dataKey={`${scenario.id}.graphNetPositionHigh`}
+                              name={`${lineName} (high)`}
                               stroke={color}
                               strokeWidth={1.5}
                               strokeDasharray="4 4"

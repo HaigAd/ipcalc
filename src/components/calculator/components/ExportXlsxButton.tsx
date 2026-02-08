@@ -31,7 +31,8 @@ const createChartImage = (
   title: string,
   subtitle: string,
   lineColor: string,
-  includeYearZero: boolean = true
+  includeYearZero: boolean = true,
+  yAxisLabel: string = 'Net Position ($)'
 ): string | null => {
   if (typeof document === 'undefined' || yearlyProjections.length === 0) {
     return null;
@@ -144,7 +145,7 @@ const createChartImage = (
   ctx.save();
   ctx.translate(24, height / 2 + 20);
   ctx.rotate(-Math.PI / 2);
-  ctx.fillText('Net Position ($)', 0, 0);
+  ctx.fillText(yAxisLabel, 0, 0);
   ctx.restore();
 
   return canvas.toDataURL('image/png');
@@ -429,10 +430,25 @@ export function ExportXlsxButton({
         'Scenario Yearly Cash Flow',
         'Annual cash flow by year after operating income, costs, and tax impact',
         '#16a34a',
-        false
+        false,
+        'Cash Flow ($)'
+      );
+      const holdingResultChart = createChartImage(
+        calculationResults.yearlyProjections,
+        (row) =>
+          (propertyDetails.isPPOR ? row.rentSavings : row.rentalIncome) -
+          row.yearlyExpenses +
+          row.taxBenefit,
+        'Yearly Net Holding Result (After Tax)',
+        propertyDetails.isPPOR
+          ? 'Formula: rent savings - yearly expenses + tax benefit'
+          : 'Formula: rental income - yearly expenses + tax benefit',
+        '#0284c7',
+        false,
+        'Net Holding Result ($)'
       );
 
-      if (netPositionChart || cashFlowChart) {
+      if (netPositionChart || cashFlowChart || holdingResultChart) {
         const chartSheet = workbook.addWorksheet('Scenario Chart', {
           views: [{ showGridLines: false }],
         });
@@ -470,6 +486,17 @@ export function ExportXlsxButton({
           });
           chartSheet.addImage(imageId, {
             tl: { col: 0, row: 27 },
+            ext: { width: 1000, height: 430 },
+          });
+        }
+
+        if (holdingResultChart) {
+          const imageId = workbook.addImage({
+            base64: holdingResultChart,
+            extension: 'png',
+          });
+          chartSheet.addImage(imageId, {
+            tl: { col: 0, row: 51 },
             ext: { width: 1000, height: 430 },
           });
         }

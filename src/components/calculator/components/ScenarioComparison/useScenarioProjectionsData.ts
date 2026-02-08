@@ -12,15 +12,22 @@ export interface SensitivitySettings {
   propertyGrowthDelta: number;
 }
 
+export interface GraphDisplaySettings {
+  includeInvestedFunds: boolean;
+  includePPORRentSavings: boolean;
+}
+
 interface ScenarioPoint {
   netPosition: number;
   netPositionExRent?: number;
+  graphNetPosition: number;
   afterTaxHolding: number;
   rentSavingsTotal?: number;
   offsetBalance: number;
+  principalTotal: number;
   cumulativePrincipalPaid: number;
-  netPositionLow?: number;
-  netPositionHigh?: number;
+  graphNetPositionLow?: number;
+  graphNetPositionHigh?: number;
 }
 
 type ProcessedScenarioDataPoint = {
@@ -30,7 +37,11 @@ type ProcessedScenarioDataPoint = {
 export const useScenarioProjectionsData = (
   scenarios?: Scenario[],
   sensitivityEnabled: boolean = false,
-  sensitivitySettings?: SensitivitySettings
+  sensitivitySettings?: SensitivitySettings,
+  graphDisplaySettings: GraphDisplaySettings = {
+    includeInvestedFunds: false,
+    includePPORRentSavings: true
+  }
 ) => {
     const safeScenarios = useMemo(() => scenarios ?? [], [scenarios]);
     const scenarioProjections = safeScenarios.map(scenario => {
@@ -132,6 +143,7 @@ export const useScenarioProjectionsData = (
         return {
           scenarioId: scenario.id,
           isPPOR: scenario.state.propertyDetails.isPPOR,
+          depositAmount: scenario.state.propertyDetails.depositAmount,
           projections: baseProjections,
           lowProjections,
           highProjections
@@ -149,6 +161,8 @@ export const useScenarioProjectionsData = (
     const sortedYears = Array.from(allYears).sort((a, b) => a - b);
 
     const rentSavingsByScenario = new Map<string, Map<number, number>>();
+    const lowRentSavingsByScenario = new Map<string, Map<number, number>>();
+    const highRentSavingsByScenario = new Map<string, Map<number, number>>();
     scenarioProjections.forEach((scenario) => {
       if (!scenario.isPPOR) return;
       let cumulative = 0;
@@ -158,6 +172,26 @@ export const useScenarioProjectionsData = (
         totalsByYear.set(projection.year, cumulative);
       });
       rentSavingsByScenario.set(scenario.scenarioId, totalsByYear);
+
+      if (scenario.lowProjections) {
+        let lowCumulative = 0;
+        const lowTotalsByYear = new Map<number, number>();
+        scenario.lowProjections.forEach((projection) => {
+          lowCumulative += projection.rentSavings;
+          lowTotalsByYear.set(projection.year, lowCumulative);
+        });
+        lowRentSavingsByScenario.set(scenario.scenarioId, lowTotalsByYear);
+      }
+
+      if (scenario.highProjections) {
+        let highCumulative = 0;
+        const highTotalsByYear = new Map<number, number>();
+        scenario.highProjections.forEach((projection) => {
+          highCumulative += projection.rentSavings;
+          highTotalsByYear.set(projection.year, highCumulative);
+        });
+        highRentSavingsByScenario.set(scenario.scenarioId, highTotalsByYear);
+      }
     });
 
     const processedData = sortedYears.map((year) => {
@@ -173,15 +207,58 @@ export const useScenarioProjectionsData = (
             : 0;
           const lowProjection = scenario.lowProjections?.find(item => item.year === year);
           const highProjection = scenario.highProjections?.find(item => item.year === year);
+          const lowRentSavingsTotal = scenario.isPPOR
+            ? lowRentSavingsByScenario.get(scenario.scenarioId)?.get(year) ?? 0
+            : 0;
+          const highRentSavingsTotal = scenario.isPPOR
+            ? highRentSavingsByScenario.get(scenario.scenarioId)?.get(year) ?? 0
+            : 0;
+          const netPositionExRent = scenario.isPPOR ? projection.netPosition - rentSavingsTotal : projection.netPosition;
+          const selectedNetPosition = graphDisplaySettings.includePPORRentSavings
+            ? projection.netPosition
+            : netPositionExRent;
+          const principalTotal = scenario.depositAmount + projection.cumulativePrincipalPaid;
+          const totalInvestedFunds = principalTotal + projection.offsetBalance;
+          const graphNetPosition = graphDisplaySettings.includeInvestedFunds
+            ? selectedNetPosition + totalInvestedFunds
+            : selectedNetPosition;
+          const lowNetPositionExRent = scenario.isPPOR && lowProjection
+            ? lowProjection.netPosition - lowRentSavingsTotal
+            : lowProjection?.netPosition;
+          const highNetPositionExRent = scenario.isPPOR && highProjection
+            ? highProjection.netPosition - highRentSavingsTotal
+            : highProjection?.netPosition;
+          const selectedLowNetPosition = graphDisplaySettings.includePPORRentSavings
+            ? lowProjection?.netPosition
+            : lowNetPositionExRent;
+          const selectedHighNetPosition = graphDisplaySettings.includePPORRentSavings
+            ? highProjection?.netPosition
+            : highNetPositionExRent;
+          const lowPrincipalTotal = lowProjection
+            ? scenario.depositAmount + lowProjection.cumulativePrincipalPaid
+            : 0;
+          const highPrincipalTotal = highProjection
+            ? scenario.depositAmount + highProjection.cumulativePrincipalPaid
+            : 0;
           dataPoint[scenario.scenarioId] = {
             netPosition: projection.netPosition,
-            netPositionExRent: scenario.isPPOR ? projection.netPosition - rentSavingsTotal : undefined,
+            netPositionExRent: scenario.isPPOR ? netPositionExRent : undefined,
+            graphNetPosition,
             afterTaxHolding,
             rentSavingsTotal,
             offsetBalance: projection.offsetBalance,
+            principalTotal,
             cumulativePrincipalPaid: projection.cumulativePrincipalPaid,
-            netPositionLow: lowProjection?.netPosition,
-            netPositionHigh: highProjection?.netPosition
+            graphNetPositionLow: selectedLowNetPosition === undefined
+              ? undefined
+              : (graphDisplaySettings.includeInvestedFunds
+                ? selectedLowNetPosition + lowPrincipalTotal + (lowProjection?.offsetBalance ?? 0)
+                : selectedLowNetPosition),
+            graphNetPositionHigh: selectedHighNetPosition === undefined
+              ? undefined
+              : (graphDisplaySettings.includeInvestedFunds
+                ? selectedHighNetPosition + highPrincipalTotal + (highProjection?.offsetBalance ?? 0)
+                : selectedHighNetPosition)
           };
         } else {
           dataPoint[scenario.scenarioId] = null;
@@ -192,5 +269,5 @@ export const useScenarioProjectionsData = (
     });
 
     return processedData;
-  }, [safeScenarios, scenarioProjections]);
+  }, [graphDisplaySettings.includeInvestedFunds, graphDisplaySettings.includePPORRentSavings, safeScenarios, scenarioProjections]);
 };
