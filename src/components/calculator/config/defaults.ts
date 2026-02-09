@@ -8,18 +8,20 @@ export const defaultDepreciationSchedule: DepreciationSchedule = {
 };
 
 export const defaultPropertyDetails: PropertyDetails = {
-  purchasePrice: 1180000,
-  depositAmount: 118000, // 10% default
-  availableSavings: 300000,
-  interestRate: 6.17,
+  purchasePrice: 750000,
+  depositAmount: 75000, // 10% default
+  interestRate: 6.0,
   loanTerm: 30,
   loanType: 'principal-and-interest', // Default to P&I loans
+  waiveLMI: false,
+  lmiCalculationMode: 'auto',
+  manualLMIAmount: 0,
   investmentRent: 750, // Weekly rental income
   offsetContribution: {
     amount: 0,
     frequency: 'monthly'
   },
-  manualOffsetAmount: undefined, // Default to automatic calculation
+  manualOffsetAmount: 0,
   interestRateChanges: [], // Initialize empty array for interest rate changes
   managementFee: {
     type: 'percentage',
@@ -29,6 +31,18 @@ export const defaultPropertyDetails: PropertyDetails = {
   taxableIncome: 120000,
   isCGTExempt: false,  // Default to not using 6-year rule
   isPPOR: false,
+  includeLandTax: false,
+  landTaxCalculationMode: 'auto',
+  landValue: 450000,
+  otherTaxableLandValue: 0,
+  landValueGrowthMode: 'property-growth-rate',
+  customLandValueGrowthRate: 3,
+  manualLandTaxAmount: 0,
+  homeBuyerType: 'first-home-buyer',
+  propertyPurchaseType: 'established',
+  grantApplicantAge18OrOver: true,
+  grantApplicantCitizenOrPR: true,
+  grantWillOccupyProperty: true,
   useCustomCGTDiscount: false,
   cgtDiscountRate: 0.5,
   noNegativeGearing: false,
@@ -49,7 +63,14 @@ export const defaultCostStructure: CostStructure = {
     conveyancingFee: 2000,
     buildingAndPestFee: 500,
     transferFee: 0,
+    lmi: 0,
+    stampDutyBeforeConcessions: 0,
+    stampDutyConcession: 0,
     stampDuty: 0,
+    homeBuyerGrant: 0,
+    homeBuyerGrantProgram: null,
+    homeBuyerGrantBlockedByPrecisionInputs: false,
+    netPurchaseCostBenefits: 0,
     mortgageRegistrationFee: 224,
     total: 2500,
     state: 'NSW'
@@ -57,10 +78,10 @@ export const defaultCostStructure: CostStructure = {
   waterCost: 800,
   ratesCost: 3000,
   maintenancePercentage: 1,
-  maintenanceCost: 11800, // 1% of default purchase price
+  maintenanceCost: 7500, // 1% of default purchase price
   insuranceCost: 2500,
-  annualPropertyCosts: 18100, // Sum of water, rates, maintenance, and insurance
-  futureSellCosts: 29500,
+  annualPropertyCosts: 13800, // Sum of water, rates, maintenance, and insurance
+  futureSellCosts: 18750,
   futureSellCostsPercentage: 2.5,
-  costBase: 1182500  // Purchase price + purchase costs by default
+  costBase: 752500  // Purchase price + purchase costs by default
 };

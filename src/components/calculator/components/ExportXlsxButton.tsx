@@ -288,11 +288,13 @@ export function ExportXlsxButton({
         ['Use Case', propertyDetails.isPPOR ? 'PPOR' : 'Investment'],
         ['Purchase Price', propertyDetails.purchasePrice],
         ['Deposit Amount', propertyDetails.depositAmount],
-        ['Available Savings', propertyDetails.availableSavings],
       ]);
 
       addSection('Loan & Offset', [
         ['Loan Type', propertyDetails.loanType],
+        ['Waive LMI', propertyDetails.waiveLMI ? 'Yes' : 'No'],
+        ['LMI Calculation Mode', propertyDetails.lmiCalculationMode],
+        ['Manual LMI Amount', propertyDetails.manualLMIAmount],
         ['Interest Rate (%)', propertyDetails.interestRate],
         ['Loan Term (years)', propertyDetails.loanTerm],
         [
@@ -301,7 +303,6 @@ export function ExportXlsxButton({
             ? propertyDetails.interestRateChanges.map((change) => `Year ${change.year}: ${change.rate}%`).join(' | ')
             : 'None',
         ],
-        ['Offset Mode', propertyDetails.manualOffsetAmount !== undefined ? 'Manual' : 'Auto'],
         ['Offset Amount', calculationResults.offsetAmount],
         ['Offset Contribution', `${propertyDetails.offsetContribution.amount} / ${propertyDetails.offsetContribution.frequency}`],
       ]);
@@ -333,7 +334,13 @@ export function ExportXlsxButton({
         ['Conveyancing Fee', costStructure.purchaseCosts.conveyancingFee],
         ['Building & Pest Fee', costStructure.purchaseCosts.buildingAndPestFee],
         ['Transfer Fee', costStructure.purchaseCosts.transferFee],
+        ['LMI', costStructure.purchaseCosts.lmi],
+        ['Stamp Duty (Before Concessions)', costStructure.purchaseCosts.stampDutyBeforeConcessions],
+        ['Stamp Duty Concession', costStructure.purchaseCosts.stampDutyConcession],
         ['Stamp Duty', costStructure.purchaseCosts.stampDuty],
+        ['Home Buyer Grant', costStructure.purchaseCosts.homeBuyerGrant],
+        ['Home Buyer Grant Program', costStructure.purchaseCosts.homeBuyerGrantProgram ?? 'N/A'],
+        ['Net Purchase Cost Benefits', costStructure.purchaseCosts.netPurchaseCostBenefits],
         ['Mortgage Registration Fee', costStructure.purchaseCosts.mortgageRegistrationFee],
         ['Total Purchase Costs', costStructure.purchaseCosts.total],
         ['Water Cost', costStructure.waterCost],
@@ -356,7 +363,7 @@ export function ExportXlsxButton({
         ['Final Net Position', 'Excludes principal contributions and reflects net money made/lost after operating cash flows, sale costs, and CGT.'],
         ['Tax Benefit', 'Tax impact from property income/loss under the selected tax policy (including loss quarantine if enabled).'],
         ['CGT Payable', 'Estimated CGT on disposal for each year based on selected CGT settings and taxable gain.'],
-        ['Offset Amount', 'Starting offset balance used in the model. Auto mode derives from available savings less upfront costs.'],
+        ['Offset Amount', 'Starting offset balance used in the model.'],
       ]);
 
       const projectionColumns: ProjectionColumn[] = [
@@ -517,7 +524,7 @@ export function ExportXlsxButton({
   return (
     <button
       onClick={handleExport}
-      className="inline-flex items-center gap-2 bg-gradient-to-b from-emerald-50 to-emerald-100 px-3 sm:px-4 py-2 sm:py-2.5 text-sm font-medium text-emerald-800 border border-emerald-200 rounded-lg shadow-sm hover:from-emerald-100 hover:to-emerald-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-200"
+      className="inline-flex h-9 items-center gap-2 rounded-md border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
       type="button"
       disabled={isExporting}
       title={`${scenarioLabel} -> XLSX`}
@@ -530,12 +537,7 @@ export function ExportXlsxButton({
           d="M12 16V4m0 12l-4-4m4 4l4-4M4 20h16"
         />
       </svg>
-      <span className="flex flex-col leading-tight text-left">
-        <span>{isExporting ? 'Preparing...' : 'Export Scenario'}</span>
-        <span className="text-[11px] font-normal text-emerald-700/80">
-          {isExporting ? 'XLSX' : `XLSX · ${scenarioLabel}`}
-        </span>
-      </span>
+      <span>{isExporting ? 'Preparing export...' : 'Export XLSX'}</span>
     </button>
   );
 }

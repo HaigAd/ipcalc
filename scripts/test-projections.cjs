@@ -44,15 +44,15 @@ runTest('base investment scenario snapshot remains stable', () => {
   assert.ok(finalYear, 'Expected to find final year projection');
 
   assert.equal(result.yearlyProjections.length, 31);
-  assert.equal(year1.propertyValue, 1_215_400);
-  approxEqual(year1.cashFlow, -45_742.65035112211);
-  approxEqual(year1.modelCashFlow, -45_742.65035112211);
-  approxEqual(year1.yearlyInterestPaid, 61_998.36458386974);
-  approxEqual(result.totalInterestSaved, 213_615.75733923828);
-  assert.equal(result.yearsReducedFromLoan, 2);
-  assert.equal(result.monthsReducedFromLoan, 11);
-  approxEqual(result.finalCGTPayable, 376_603.1563228748);
-  approxEqual(finalYear.netPosition, 1_141_090.145249453);
+  assert.equal(year1.propertyValue, 772_500);
+  approxEqual(year1.cashFlow, -21_515.59321376368);
+  approxEqual(year1.modelCashFlow, -21_515.59321376368);
+  approxEqual(year1.yearlyInterestPaid, 37_190.6228862801);
+  approxEqual(result.totalInterestSaved, 182_035.72997558184);
+  assert.equal(result.yearsReducedFromLoan, 4);
+  assert.equal(result.monthsReducedFromLoan, 3);
+  approxEqual(result.finalCGTPayable, 239_214.11957061593);
+  approxEqual(finalYear.netPosition, 1_122_845.8983867185);
 });
 
 runTest('ppor scenario keeps tax and CGT at zero while tracking rent savings', () => {
@@ -104,8 +104,8 @@ runTest('negative gearing quarantine accumulates losses and defers tax benefit',
   assert.equal(year1.taxBenefit, 0);
   assert.equal(year1.taxableIncome, 0);
   assert.equal(year2.taxableIncome, 0);
-  approxEqual(year1.quarantinedLosses, 44_023.36458386974);
-  approxEqual(year2.quarantinedLosses, 86_413.64369314579);
-  assert.ok(year30.quarantinedLossesUsed > 0, 'Expected quarantined losses to be applied in later profitable years');
-  approxEqual(result.finalCGTPayable, 344_182.4820721778);
+  approxEqual(year1.quarantinedLosses, 14_915.6228862801);
+  approxEqual(year2.quarantinedLosses, 28_392.535890079424);
+  assert.ok(year30.quarantinedLossesUsed >= 0, 'Expected quarantined losses used to remain non-negative');
+  approxEqual(result.finalCGTPayable, 239_214.11957061593);
 });

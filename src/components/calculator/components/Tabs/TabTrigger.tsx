@@ -22,9 +22,10 @@ const tabTriggerStyles = cn(
 
 export function CustomTabTrigger({ tab }: TabTriggerProps) {
   const Icon = tab.icon;
+  const tutorialTarget = tab.id === 'scenario-comparison' ? 'scenario-comparison-tab' : `tab-${tab.id}`;
   
   return (
-    <TabsTrigger value={tab.id} className={tabTriggerStyles}>
+    <TabsTrigger value={tab.id} className={tabTriggerStyles} data-tutorial={tutorialTarget}>
       <Icon className="h-4 w-4" />
       <span className="sm:hidden">{tab.shortLabel}</span>
       <span className="hidden sm:inline">{tab.fullLabel}</span>

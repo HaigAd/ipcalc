@@ -2,11 +2,14 @@ export interface LoanDetails {
   interestRate: number;
   loanTerm: number;
   loanType: 'principal-and-interest' | 'interest-only';
+  waiveLMI: boolean;
+  lmiCalculationMode: 'auto' | 'manual';
+  manualLMIAmount: number;
   offsetContribution: {
     amount: number;
     frequency: 'weekly' | 'monthly' | 'yearly';
   };
-  manualOffsetAmount?: number;  // Optional manual override for offset amount
+  manualOffsetAmount?: number;
 }
 
 export interface MortgageCalculation {

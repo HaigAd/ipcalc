@@ -41,6 +41,7 @@ export function CGTExemptionToggle({ isExempt, isPPOR, discountPercent, onToggle
         </div>
         <Switch
           id="cgt-exempt"
+          data-tutorial="cgt-exempt-switch"
           checked={isExempt}
           onCheckedChange={onToggle}
           disabled={isPPOR}

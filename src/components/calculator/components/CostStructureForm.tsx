@@ -52,6 +52,7 @@ export function CostStructureForm({
           <Label htmlFor="waterCost">Water Costs ($)</Label>
           <Input
             id="waterCost"
+            data-tutorial="water-cost-input"
             type="number"
             value={costStructure.waterCost}
             onChange={(e) => handleCostChange('waterCost', Number(e.target.value))}
@@ -61,6 +62,7 @@ export function CostStructureForm({
           <Label htmlFor="ratesCost">Council Rates ($)</Label>
           <Input
             id="ratesCost"
+            data-tutorial="rates-cost-input"
             type="number"
             value={costStructure.ratesCost}
             onChange={(e) => handleCostChange('ratesCost', Number(e.target.value))}
@@ -70,6 +72,7 @@ export function CostStructureForm({
           <Label htmlFor="insuranceCost">Insurance ($)</Label>
           <Input
             id="insuranceCost"
+            data-tutorial="insurance-cost-input"
             type="number"
             value={costStructure.insuranceCost}
             onChange={(e) => handleCostChange('insuranceCost', Number(e.target.value))}

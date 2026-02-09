@@ -21,6 +21,7 @@ export function SaveChangesButton({
     >
       <AnimatedButton
         variant="outline"
+        data-tutorial="save-scenario-changes-button"
         onClick={() => {
           onUpdate();
           triggerGleam('update');
@@ -31,13 +32,12 @@ export function SaveChangesButton({
         variants={buttonVariants}
         className={`
           relative overflow-hidden
-          flex items-center gap-2 px-4 py-2.5 h-auto
-          bg-gradient-to-b from-green-50 to-green-100 
-          hover:from-green-100 hover:to-green-200 
-          border-green-200 text-green-700
+          flex items-center gap-2 px-3 py-2 h-9
+          bg-white hover:bg-emerald-50
+          border-emerald-300 text-emerald-700
           transition-all duration-300
           ${isSaving ? 'opacity-80' : 'opacity-100'}
-          text-sm md:text-base
+          text-sm
         `}
       >
         <Save className={`h-4 w-4 text-green-600 transition-transform duration-300 ${isSaving ? 'scale-90' : 'scale-100'}`} />

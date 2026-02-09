@@ -2,7 +2,7 @@ import { MoneyInput } from './MoneyInput';
 import { PurchaseCosts } from '../../types';
 
 interface CostSummaryProps {
-  costs: Pick<PurchaseCosts, 'transferFee' | 'stampDuty' | 'mortgageRegistrationFee' | 'total'>;
+  costs: Pick<PurchaseCosts, 'transferFee' | 'lmi' | 'stampDuty' | 'mortgageRegistrationFee' | 'total'>;
 }
 
 export function CostSummary({ costs }: CostSummaryProps) {
@@ -18,6 +18,12 @@ export function CostSummary({ costs }: CostSummaryProps) {
         id="stampDuty"
         label="Stamp Duty ($)"
         value={costs.stampDuty}
+        disabled
+      />
+      <MoneyInput
+        id="lmi"
+        label="LMI ($)"
+        value={costs.lmi}
         disabled
       />
       <MoneyInput

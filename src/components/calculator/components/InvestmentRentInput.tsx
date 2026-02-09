@@ -26,6 +26,7 @@ export function InvestmentRentInput({
           <span className="absolute left-3 top-1/2 -translate-y-1/2">$</span>
           <Input
             id="investmentRent"
+            data-tutorial="investment-rent-input"
             type="number"
             value={propertyDetails.investmentRent}
             onChange={handleChange}

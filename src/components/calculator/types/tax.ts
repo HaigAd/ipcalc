@@ -4,6 +4,16 @@ export interface TaxDetails {
   taxableIncome: number;  // User's taxable income for negative gearing calculations
   isCGTExempt: boolean;  // 6-year CGT exemption rule flag
   isPPOR: boolean;  // Treat property as principal place of residence (CGT exempt)
+  includeLandTax: boolean;  // Include annual land tax in operating expenses
+  landTaxCalculationMode: 'auto' | 'manual';  // Auto estimate by state/land value or manual amount
+  landValue: number;  // Land value basis for land tax estimation
+  otherTaxableLandValue: number;  // Other taxable land holdings used to determine marginal/incremental land tax
+  landValueGrowthMode: 'property-growth-rate' | 'custom-rate';  // How land value grows year-to-year for land tax modelling
+  customLandValueGrowthRate: number;  // Custom annual land value growth rate (%)
+  manualLandTaxAmount: number;  // Manual annual land tax override
+  grantApplicantAge18OrOver: boolean;  // Grant eligibility precision control
+  grantApplicantCitizenOrPR: boolean;  // Grant eligibility precision control
+  grantWillOccupyProperty: boolean;  // Grant eligibility precision control
   useCustomCGTDiscount: boolean;  // Use a custom CGT discount rate instead of the standard rule
   cgtDiscountRate: number;  // CGT discount rate as a decimal (0.5 = 50%)
   noNegativeGearing: boolean;  // Disallow offsetting property losses against personal income

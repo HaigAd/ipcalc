@@ -1,7 +1,7 @@
 import { Label } from '../../ui/label';
 import { Slider } from '../../ui/slider';
 import { PropertyDetails, PurchaseCosts } from '../types';
-import { useMemo, useCallback, useState, useEffect, useRef } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { cn } from '../../../lib/utils';
 import { Input } from '../../ui/input';
 import { Pencil } from 'lucide-react';
@@ -10,10 +10,15 @@ interface DepositSliderProps {
   propertyDetails: PropertyDetails;
   purchaseCosts: PurchaseCosts;
   onDepositChange: (value: number[]) => void;
-  onStateClick?: () => void;
+  onOpenPurchaseCostsDetails?: () => void;
 }
 
-export function DepositSlider({ propertyDetails, purchaseCosts, onDepositChange, onStateClick }: DepositSliderProps) {
+export function DepositSlider({
+  propertyDetails,
+  purchaseCosts,
+  onDepositChange,
+  onOpenPurchaseCostsDetails,
+}: DepositSliderProps) {
   const [inputValue, setInputValue] = useState(propertyDetails.depositAmount.toLocaleString());
   const [isEditing, setIsEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -23,9 +28,8 @@ export function DepositSlider({ propertyDetails, purchaseCosts, onDepositChange,
   }, [propertyDetails.purchasePrice]);
 
   const maxDepositAmount = useMemo(() => {
-    const availableForDeposit = Math.max(propertyDetails.availableSavings - purchaseCosts.total, 0);
-    return Math.min(availableForDeposit, propertyDetails.purchasePrice);
-  }, [propertyDetails.purchasePrice, propertyDetails.availableSavings, purchaseCosts.total]);
+    return propertyDetails.purchasePrice;
+  }, [propertyDetails.purchasePrice]);
 
   const depositPercentage = useMemo(() => {
     return (propertyDetails.depositAmount / propertyDetails.purchasePrice) * 100;
@@ -34,15 +38,15 @@ export function DepositSlider({ propertyDetails, purchaseCosts, onDepositChange,
   const totalUpfrontCosts = useMemo(() => {
     return propertyDetails.depositAmount + purchaseCosts.total;
   }, [propertyDetails.depositAmount, purchaseCosts.total]);
-
-  const cashRemaining = useMemo(() => {
-    return propertyDetails.availableSavings - totalUpfrontCosts;
-  }, [propertyDetails.availableSavings, totalUpfrontCosts]);
-
-  const handleStateClick = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    onStateClick?.();
-  }, [onStateClick]);
+  const lmiTotal = purchaseCosts.lmi;
+  const taxesAndFeesTotal =
+    purchaseCosts.transferFee +
+    purchaseCosts.stampDuty +
+    purchaseCosts.mortgageRegistrationFee;
+  const otherTotal =
+    purchaseCosts.conveyancingFee +
+    purchaseCosts.buildingAndPestFee -
+    purchaseCosts.homeBuyerGrant;
 
   // Update input value when deposit amount changes externally
   useEffect(() => {
@@ -100,6 +104,7 @@ export function DepositSlider({ propertyDetails, purchaseCosts, onDepositChange,
             <span className="text-2xl font-semibold text-slate-900 mr-1">$</span>
             <Input
               ref={inputRef}
+              data-tutorial="deposit-amount-input"
               value={isEditing ? inputValue : Number(inputValue.replace(/,/g, '')).toLocaleString()}
               onChange={handleInputChange}
               onBlur={handleInputBlur}
@@ -143,21 +148,33 @@ export function DepositSlider({ propertyDetails, purchaseCosts, onDepositChange,
         </div>
 
         <div className="space-y-3 rounded-lg bg-slate-50 p-4">
-          <h3 className="text-sm font-medium text-slate-700">Cost Breakdown</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-medium text-slate-700">Cost Breakdown</h3>
+            {onOpenPurchaseCostsDetails && (
+              <button
+                type="button"
+                onClick={onOpenPurchaseCostsDetails}
+                className="text-xs font-medium text-blue-700 hover:text-blue-800"
+              >
+                View details
+              </button>
+            )}
+          </div>
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-slate-600">
-                Purchase Costs{' '}
-                <button
-                  onClick={handleStateClick}
-                  className={cn(
-                    "inline-flex items-center text-slate-500 hover:text-slate-700 transition-colors",
-                    "underline decoration-dotted underline-offset-4"
-                  )}
-                >
-                  [{purchaseCosts.state}]
-                </button>
-              </span>
+              <span className="text-slate-600">LMI</span>
+              <span className="font-medium text-slate-900">${Math.round(lmiTotal).toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-600">Taxes & Fees</span>
+              <span className="font-medium text-slate-900">${Math.round(taxesAndFeesTotal).toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-600">Other</span>
+              <span className="font-medium text-slate-900">${Math.round(otherTotal).toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-600">Purchase Costs [{purchaseCosts.state}]</span>
               <span className="font-medium text-slate-900">${purchaseCosts.total.toLocaleString()}</span>
             </div>
             <div className="flex justify-between text-sm">
@@ -166,9 +183,9 @@ export function DepositSlider({ propertyDetails, purchaseCosts, onDepositChange,
             </div>
             <div className="pt-2 border-t border-slate-200">
               <div className="flex justify-between text-sm">
-                <span className="text-slate-600">Cash Remaining</span>
-                <span className={`font-medium ${cashRemaining >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  ${cashRemaining.toLocaleString()}
+                <span className="text-slate-600">Loan Principal</span>
+                <span className="font-medium text-slate-900">
+                  ${(Math.max(propertyDetails.purchasePrice - propertyDetails.depositAmount, 0)).toLocaleString()}
                 </span>
               </div>
             </div>

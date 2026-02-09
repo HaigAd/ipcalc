@@ -23,4 +23,5 @@ export interface TabContentProps {
   components?: { id: ComponentId; title: string; isFullWidth?: boolean }[];
   onStateClick?: () => void;
   shouldFlash?: boolean;
+  shouldOpenDetails?: boolean;
 }

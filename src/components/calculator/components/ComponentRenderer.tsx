@@ -2,7 +2,7 @@ import { ComponentId } from '../hooks/useComponentOrder';
 import { PropertyPriceForm } from './PropertyPriceForm';
 import { LoanDetailsForm } from './LoanDetailsForm';
 import { TaxImplications } from './TaxImplications';
-import { PropertyDetails, CostStructure } from '../types';
+import { PropertyDetails, CostStructure, AustralianState } from '../types';
 import { RenderComponentExtraProps } from './Tabs';
 
 interface ComponentRendererProps {
@@ -10,6 +10,7 @@ interface ComponentRendererProps {
   propertyDetails: PropertyDetails;
   setPropertyDetails: (details: PropertyDetails) => void;
   costStructure: CostStructure;
+  onStateChange?: (state: AustralianState) => void;
   extraProps?: RenderComponentExtraProps;
 }
 
@@ -18,6 +19,7 @@ export function ComponentRenderer({
   propertyDetails,
   setPropertyDetails,
   costStructure,
+  onStateChange,
   extraProps 
 }: ComponentRendererProps) {
   const renderContent = () => {
@@ -30,7 +32,8 @@ export function ComponentRenderer({
               propertyDetails={propertyDetails}
               setPropertyDetails={setPropertyDetails}
               purchaseCosts={costStructure.purchaseCosts}
-              onStateClick={extraProps?.onStateClick}
+              onStateChange={onStateChange || (() => undefined)}
+              onOpenPurchaseCostsDetails={extraProps?.onStateClick}
             />
           </div>
         );
@@ -41,7 +44,6 @@ export function ComponentRenderer({
             <LoanDetailsForm
               propertyDetails={propertyDetails}
               setPropertyDetails={setPropertyDetails}
-              costStructure={costStructure}
             />
           </div>
         );
@@ -50,6 +52,8 @@ export function ComponentRenderer({
           <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
             <h2 className="text-2xl font-semibold mb-6 text-slate-900">Tax Implications</h2>
             <TaxImplications
+              state={costStructure.purchaseCosts.state}
+              propertyGrowthRate={3}
               propertyDetails={propertyDetails}
               yearlyProjections={extraProps?.yearlyProjections || []}
               onPropertyDetailsChange={setPropertyDetails}

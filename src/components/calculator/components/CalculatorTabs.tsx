@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Tabs, TabsList } from '../../ui/tabs';
 import { PropertyDetails, MarketData, CostStructure, PurchaseCosts, CalculationResults, AustralianState } from '../types';
 import { ComponentId } from '../hooks/useComponentOrder';
+import { Scenario } from '../types/scenario';
 import {
   TAB_CONFIG,
   CustomTabTrigger,
@@ -29,6 +30,9 @@ interface CalculatorTabsProps {
   onStateChange: (state: AustralianState) => void;
   setPropertyDetails: (details: PropertyDetails) => void;
   renderComponent: (id: ComponentId, extraProps?: RenderComponentExtraProps) => React.ReactNode;
+  scenarios: Scenario[];
+  activeTab?: string;
+  onActiveTabChange?: (tabId: string) => void;
 }
 
 export function CalculatorTabs({
@@ -44,19 +48,29 @@ export function CalculatorTabs({
   onCostStructureChange,
   onStateChange,
   setPropertyDetails,
-  renderComponent
+  renderComponent,
+  scenarios,
+  activeTab,
+  onActiveTabChange,
 }: CalculatorTabsProps) {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [internalActiveTab, setInternalActiveTab] = useState('overview');
   const [shouldFlashStateSelector, setShouldFlashStateSelector] = useState(false);
+  const [shouldOpenPurchaseDetails, setShouldOpenPurchaseDetails] = useState(false);
+  const resolvedActiveTab = activeTab ?? internalActiveTab;
+  const setResolvedActiveTab = onActiveTabChange ?? setInternalActiveTab;
 
   const navigateToPurchaseTab = useCallback(() => {
-    setActiveTab('purchase');
+    setResolvedActiveTab('purchase');
     setShouldFlashStateSelector(true);
-  }, []);
+    setShouldOpenPurchaseDetails(true);
+  }, [setResolvedActiveTab]);
 
   const handleTabChange = (value: string) => {
-    setActiveTab(value);
+    setResolvedActiveTab(value);
     setShouldFlashStateSelector(false);
+    if (value !== 'purchase') {
+      setShouldOpenPurchaseDetails(false);
+    }
   };
 
   return (
@@ -73,7 +87,7 @@ export function CalculatorTabs({
           }
         `}
       </style>
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+      <Tabs value={resolvedActiveTab} onValueChange={handleTabChange} className="w-full">
         <TabsList className="h-auto min-h-10 flex flex-wrap gap-1 w-full bg-slate-100/80 backdrop-blur supports-[backdrop-filter]:bg-slate-100/80 p-1 rounded-lg">
           {TAB_CONFIG.map(tab => (
             <CustomTabTrigger key={tab.id} tab={tab} />
@@ -113,15 +127,18 @@ export function CalculatorTabs({
 
         <TabContent value="purchase">
           <PurchaseTabContent
+            propertyDetails={propertyDetails}
+            setPropertyDetails={setPropertyDetails}
             purchaseCosts={purchaseCosts}
             onConveyancingFeeChange={onConveyancingFeeChange}
             onBuildingAndPestFeeChange={onBuildingAndPestFeeChange}
             onStateChange={onStateChange}
             shouldFlash={shouldFlashStateSelector}
+            shouldOpenDetails={shouldOpenPurchaseDetails}
           />
         </TabContent>
         <TabContent value="scenario-comparison">
-          <ScenarioComparison />
+          <ScenarioComparison scenarios={scenarios} />
         </TabContent>
       </Tabs>
     </>

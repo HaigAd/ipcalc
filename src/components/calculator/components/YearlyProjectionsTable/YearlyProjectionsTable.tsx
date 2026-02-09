@@ -49,7 +49,7 @@ export function YearlyProjectionsTable({ yearlyProjections, marketData, property
         />
       </div>
       
-      <div className="relative max-h-[70vh] overflow-auto -mx-3 sm:mx-0">
+      <div className="relative max-h-[70vh] overflow-auto -mx-3 sm:mx-0" data-tutorial="amortization-table-grid">
         <div className="overflow-visible">
           <div className="inline-block min-w-full align-middle">
             <div className="border border-gray-200 rounded-lg shadow-sm">

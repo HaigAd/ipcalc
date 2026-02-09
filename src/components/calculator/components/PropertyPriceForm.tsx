@@ -1,17 +1,26 @@
 import { Input } from '../../ui/input';
 import { Label } from '../../ui/label';
-import { PropertyDetails, PurchaseCosts } from '../types';
+import { AustralianState, PropertyDetails, PurchaseCosts } from '../types';
 import { DepositSlider } from './DepositSlider';
 import { Switch } from '../../ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
+import { PPORBenefitsPanel } from './PPORBenefitsPanel';
 
 interface PropertyPriceFormProps {
   propertyDetails: PropertyDetails;
   setPropertyDetails: (details: PropertyDetails) => void;
   purchaseCosts: PurchaseCosts;
-  onStateClick?: () => void;
+  onStateChange: (state: AustralianState) => void;
+  onOpenPurchaseCostsDetails?: () => void;
 }
 
-export function PropertyPriceForm({ propertyDetails, setPropertyDetails, purchaseCosts, onStateClick }: PropertyPriceFormProps) {
+export function PropertyPriceForm({
+  propertyDetails,
+  setPropertyDetails,
+  purchaseCosts,
+  onStateChange,
+  onOpenPurchaseCostsDetails,
+}: PropertyPriceFormProps) {
   const handleDepositChange = (value: number[]) => {
     setPropertyDetails({
       ...propertyDetails,
@@ -19,10 +28,9 @@ export function PropertyPriceForm({ propertyDetails, setPropertyDetails, purchas
     });
   };
 
-  const calculateValidDepositAmount = (price: number, savings: number, currentDeposit: number) => {
+  const calculateValidDepositAmount = (price: number, currentDeposit: number) => {
     const minDeposit = Math.max(price * 0.05, 0);
-    const availableForDeposit = Math.max(savings - purchaseCosts.total, 0);
-    const maxDeposit = Math.min(availableForDeposit, price);
+    const maxDeposit = Math.max(price, minDeposit);
     return Math.min(Math.max(currentDeposit, minDeposit), maxDeposit);
   };
 
@@ -37,6 +45,7 @@ export function PropertyPriceForm({ propertyDetails, setPropertyDetails, purchas
         </Label>
         <Input
           id="purchasePrice"
+          data-tutorial="purchase-price-input"
           type="number"
           inputMode="decimal"
           value={propertyDetails.purchasePrice}
@@ -45,7 +54,6 @@ export function PropertyPriceForm({ propertyDetails, setPropertyDetails, purchas
             const newPrice = Number(e.target.value);
             const newDepositAmount = calculateValidDepositAmount(
               newPrice,
-              propertyDetails.availableSavings,
               propertyDetails.depositAmount
             );
             
@@ -58,40 +66,35 @@ export function PropertyPriceForm({ propertyDetails, setPropertyDetails, purchas
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="availableSavings" className={labelClasses}>
-          Available Savings ($)
-        </Label>
-        <Input
-          id="availableSavings"
-          type="number"
-          inputMode="decimal"
-          value={propertyDetails.availableSavings}
-          className={inputClasses}
-          onChange={(e) => {
-            const newSavings = Number(e.target.value);
-            const newDepositAmount = calculateValidDepositAmount(
-              propertyDetails.purchasePrice,
-              newSavings,
-              propertyDetails.depositAmount
-            );
-
-            setPropertyDetails({
-              ...propertyDetails,
-              availableSavings: newSavings,
-              depositAmount: newDepositAmount
-            });
-          }}
-        />
-      </div>
-
       <div className="py-2 sm:py-3">
         <DepositSlider
           propertyDetails={propertyDetails}
           purchaseCosts={purchaseCosts}
           onDepositChange={handleDepositChange}
-          onStateClick={onStateClick}
+          onOpenPurchaseCostsDetails={onOpenPurchaseCostsDetails}
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label className={labelClasses}>Property State</Label>
+        <Select value={purchaseCosts.state} onValueChange={(value) => onStateChange(value as AustralianState)}>
+          <SelectTrigger
+            data-tutorial="state-select-trigger"
+            className="h-12 sm:h-11 border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <SelectValue placeholder="Select state" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="NSW">NSW</SelectItem>
+            <SelectItem value="VIC">VIC</SelectItem>
+            <SelectItem value="QLD">QLD</SelectItem>
+            <SelectItem value="SA">SA</SelectItem>
+            <SelectItem value="WA">WA</SelectItem>
+            <SelectItem value="TAS">TAS</SelectItem>
+            <SelectItem value="NT">NT</SelectItem>
+            <SelectItem value="ACT">ACT</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="flex items-center justify-between">
@@ -100,6 +103,7 @@ export function PropertyPriceForm({ propertyDetails, setPropertyDetails, purchas
         </Label>
         <Switch
           id="isPPOR"
+          data-tutorial="ppor-switch"
           checked={propertyDetails.isPPOR}
           onCheckedChange={(checked) =>
             setPropertyDetails({
@@ -109,6 +113,15 @@ export function PropertyPriceForm({ propertyDetails, setPropertyDetails, purchas
           }
         />
       </div>
+
+      {propertyDetails.isPPOR && (
+        <PPORBenefitsPanel
+          state={purchaseCosts.state}
+          propertyDetails={propertyDetails}
+          purchaseCosts={purchaseCosts}
+          onPropertyDetailsChange={setPropertyDetails}
+        />
+      )}
     </div>
   );
 }

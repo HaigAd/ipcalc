@@ -8,6 +8,7 @@ import {
 } from './projectionUtils';
 import { getDepreciation } from '../utils/depreciation';
 import {calculateYearlyRates} from '../utils/interest';
+import { calculateEffectiveLandTax } from '../calculations/landTax';
 
 export const calculatePropertyProjections = (
   propertyDetails: PropertyDetails,
@@ -30,6 +31,8 @@ export const calculatePropertyProjections = (
     let currentPropertyValue = propertyDetails.purchasePrice;
     let annualRent = propertyDetails.investmentRent * 52;
     let currentAnnualPropertyCosts = costStructure.annualPropertyCosts;
+    let currentLandValue = Math.max(0, propertyDetails.landValue);
+    let currentOtherTaxableLandValue = Math.max(0, propertyDetails.otherTaxableLandValue);
     let cumulativePrincipalPaid = 0;
     let cumulativeInterestSaved = 0;
     let cumulativeOffsetContributions = 0;
@@ -209,12 +212,21 @@ export const calculatePropertyProjections = (
         : getDepreciation(propertyDetails.depreciationSchedule, projectionYear);
       const totalDepreciation = depreciation.capitalWorks + depreciation.plantEquipment;
       cumulativeDepreciation += totalDepreciation;
+      const yearlyLandTax = calculateEffectiveLandTax(
+        propertyDetails,
+        costStructure.purchaseCosts.state,
+        {
+          landValue: currentLandValue,
+          otherTaxableLandValue: currentOtherTaxableLandValue,
+        }
+      ).amount;
 
       // Calculate yearly expenses (including all costs)
       const yearlyExpenses = 
         yearlyInterestPaid +                   // Interest cost
         managementFees +                       // Property management
-        currentAnnualPropertyCosts;            // Other property costs (maintenance, insurance, etc.) with growth
+        currentAnnualPropertyCosts +           // Other property costs (maintenance, insurance, etc.) with growth
+        yearlyLandTax;                         // State-specific land tax (advanced tax settings)
 
       // Calculate property income (rental income minus deductible expenses and depreciation) - tax purposes
       const propertyIncome = rentalIncomeForTax - 
@@ -278,7 +290,13 @@ export const calculatePropertyProjections = (
         : (anchorGrowthRate !== null && yearIndex < (anchorYear ?? 0)
           ? anchorGrowthRate
           : marketData.propertyGrowthRate);
+      const landValueGrowthRate =
+        propertyDetails.landValueGrowthMode === 'custom-rate'
+          ? propertyDetails.customLandValueGrowthRate
+          : propertyGrowthRate;
       currentPropertyValue *= (1 + propertyGrowthRate / 100);
+      currentLandValue *= (1 + landValueGrowthRate / 100);
+      currentOtherTaxableLandValue *= (1 + landValueGrowthRate / 100);
       annualRent *= (1 + marketData.rentIncreaseRate / 100);
       currentAnnualPropertyCosts *= (1 + marketData.operatingExpensesGrowthRate / 100);
 

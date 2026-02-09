@@ -34,6 +34,7 @@ export function MarketDataForm({ marketData, setMarketData }: MarketDataFormProp
           <div className="pt-2 px-1">
             <Slider
               id="propertyGrowthRate"
+              data-tutorial="property-growth-slider"
               min={-3}
               max={10}
               step={0.1}
@@ -57,6 +58,7 @@ export function MarketDataForm({ marketData, setMarketData }: MarketDataFormProp
           <div className="pt-2 px-1">
             <Slider
               id="rentIncreaseRate"
+              data-tutorial="rent-growth-slider"
               min={-3}
               max={10}
               step={0.1}
@@ -79,6 +81,7 @@ export function MarketDataForm({ marketData, setMarketData }: MarketDataFormProp
           </Label>
           <Input
             id="currentValueYear"
+            data-tutorial="market-current-year-input"
             type="number"
             min="0"
             step="1"
@@ -98,6 +101,7 @@ export function MarketDataForm({ marketData, setMarketData }: MarketDataFormProp
           </Label>
           <Input
             id="currentPropertyValue"
+            data-tutorial="market-current-value-input"
             type="number"
             min="0"
             step="1000"

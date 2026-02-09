@@ -54,7 +54,7 @@ export function ScenariosMenu({
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="flex items-center gap-2 flex-wrap"
+      className="flex items-center gap-2 shrink-0"
     >
       <AnimatePresence mode="popLayout">
         {activeScenario && (
@@ -63,29 +63,13 @@ export function ScenariosMenu({
             initial="initial"
             animate="animate"
             exit="exit"
-            className="flex items-center gap-2 flex-wrap"
+            className="inline-flex h-9 max-w-[320px] items-center gap-2 rounded-md border border-sky-200 bg-sky-50 px-3 text-sm text-sky-900"
           >
-            <motion.div 
-              layout
-              className="text-sm bg-blue-50 px-3 py-1.5 rounded-md border border-blue-100 max-w-[200px] flex-1 truncate"
-            >
-              <span className="text-blue-600">Current:</span>{" "}
-              <motion.span
-                layout
-                className="font-medium text-blue-700"
-              >
-                {activeScenario.name}
-              </motion.span>
-            </motion.div>
-
-            {hasChanges && (
-              <SaveChangesButton
-                isSaving={isSaving}
-                showGleam={showGleam}
-                onUpdate={handleUpdate}
-                triggerGleam={triggerGleam}
-              />
-            )}
+            <span className="h-2 w-2 rounded-full bg-sky-500" />
+            <span className="text-sky-700">Editing:</span>
+            <motion.span layout className="font-semibold text-sky-900 truncate">
+              {activeScenario.name}
+            </motion.span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -97,11 +81,12 @@ export function ScenariosMenu({
             whileHover="hover"
             whileTap="tap"
             variants={buttonVariants}
-            className="relative overflow-hidden flex items-center gap-2 px-4 py-2.5 h-auto bg-gradient-to-b from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 border-blue-200 text-sm md:text-base"
+            data-tutorial="scenarios-menu-trigger"
+            className="relative overflow-hidden flex items-center gap-2 px-3 py-2 h-9 border-slate-300 bg-white text-sm text-slate-700 hover:bg-slate-50"
             onClick={() => triggerGleam('menu')}
           >
-            <FolderOpen className="h-4 w-4 text-blue-600" />
-            <span className="text-blue-700 ">Scenarios</span>
+            <FolderOpen className="h-4 w-4 text-slate-600" />
+            <span className="font-medium">Scenarios</span>
             <AnimatePresence>
               {showGleam === 'menu' && (
                 <motion.div
@@ -129,7 +114,7 @@ export function ScenariosMenu({
           {scenarios.length > 0 && (
             <>
               <DropdownMenuSeparator />
-              <DropdownMenuLabel className="text-blue-700">Load Scenario</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-slate-700">Load Scenario</DropdownMenuLabel>
               <AnimatePresence mode="popLayout">
                 {scenarios.map((scenario) => (
                   <motion.div
@@ -157,6 +142,15 @@ export function ScenariosMenu({
           )}
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {activeScenario && hasChanges && (
+        <SaveChangesButton
+          isSaving={isSaving}
+          showGleam={showGleam}
+          onUpdate={handleUpdate}
+          triggerGleam={triggerGleam}
+        />
+      )}
     </motion.div>
   );
 }

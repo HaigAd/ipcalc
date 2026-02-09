@@ -57,6 +57,7 @@ export function TaxableIncomeSection({
         <span className="text-lg font-medium text-slate-900">$</span>
         <Input
           id="taxableIncome"
+          data-tutorial="taxable-income-input"
           type="text"
           value={inputValue}
           onChange={(e) => onInputChange(e.target.value)}

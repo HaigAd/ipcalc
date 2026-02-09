@@ -12,11 +12,7 @@ export const usePropertyCalculator = (
   marketData: MarketData,
   costStructure: CostStructure
 ): CalculationResults => {
-  // Calculate offset amount
-  const totalUpfrontCosts = propertyDetails.depositAmount + costStructure.purchaseCosts.total;
-  const calculatedOffset = Math.max(0, propertyDetails.availableSavings - totalUpfrontCosts);
-  // Use manual offset if provided, otherwise use calculated offset
-  const offsetAmount = propertyDetails.manualOffsetAmount ?? calculatedOffset;
+  const offsetAmount = Math.max(0, propertyDetails.manualOffsetAmount ?? 0);
 
   // Get projections with all calculations including investment metrics and CGT
   const projections = usePropertyProjections(propertyDetails, marketData, costStructure, offsetAmount);

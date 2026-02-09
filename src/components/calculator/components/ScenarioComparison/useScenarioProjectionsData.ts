@@ -3,6 +3,8 @@ import { calculatePropertyProjections } from '../../hooks/usePropertyProjections
 import { Scenario } from '../../types/scenario';
 import { calculateStampDuty } from '../../calculations/stampDuty';
 import { calculateTransferFee } from '../../calculations/transferFee';
+import { calculateHomeBuyerBenefits } from '../../calculations/homeBuyerBenefits';
+import { calculateEffectiveLMI } from '../../calculations/lmi';
 
 const MORTGAGE_REGISTRATION_FEE = 224;
 
@@ -45,27 +47,58 @@ export const useScenarioProjectionsData = (
 ) => {
     const safeScenarios = useMemo(() => scenarios ?? [], [scenarios]);
     const scenarioProjections = safeScenarios.map(scenario => {
-        const stampDuty = calculateStampDuty(
+        const isFirstHomeBuyer =
+          scenario.state.propertyDetails.isPPOR &&
+          scenario.state.propertyDetails.homeBuyerType === 'first-home-buyer';
+        const stampDutyBeforeConcessions = calculateStampDuty(
           scenario.state.propertyDetails.purchasePrice,
           false,
           false,
           scenario.state.state
         );
+        const stampDuty = calculateStampDuty(
+          scenario.state.propertyDetails.purchasePrice,
+          scenario.state.propertyDetails.isPPOR,
+          isFirstHomeBuyer,
+          scenario.state.state
+        );
+        const benefits = calculateHomeBuyerBenefits({
+          state: scenario.state.state,
+          propertyDetails: scenario.state.propertyDetails,
+          stampDutyBeforeConcessions,
+          stampDutyAfterConcessions: stampDuty,
+        });
         const transferFee = calculateTransferFee(
           scenario.state.propertyDetails.purchasePrice,
           scenario.state.state
         );
+        const lmi = calculateEffectiveLMI(
+          scenario.state.propertyDetails.purchasePrice,
+          scenario.state.propertyDetails.depositAmount,
+          scenario.state.propertyDetails.waiveLMI,
+          scenario.state.propertyDetails.lmiCalculationMode,
+          scenario.state.propertyDetails.manualLMIAmount
+        );
         const purchaseCosts = {
           ...scenario.state.costStructure.purchaseCosts,
           transferFee,
+          lmi,
+          stampDutyBeforeConcessions: benefits.stampDutyBeforeConcessions,
+          stampDutyConcession: benefits.stampDutyConcession,
           stampDuty,
+          homeBuyerGrant: benefits.grantAmount,
+          homeBuyerGrantProgram: benefits.grantProgram,
+          homeBuyerGrantBlockedByPrecisionInputs: benefits.grantBlockedByPrecisionInputs,
+          netPurchaseCostBenefits: benefits.netBenefit,
           mortgageRegistrationFee: MORTGAGE_REGISTRATION_FEE,
           total:
             scenario.state.costStructure.purchaseCosts.conveyancingFee +
             scenario.state.costStructure.purchaseCosts.buildingAndPestFee +
             transferFee +
+            lmi +
             stampDuty +
-            MORTGAGE_REGISTRATION_FEE,
+            MORTGAGE_REGISTRATION_FEE -
+            benefits.grantAmount,
           state: scenario.state.state,
         };
         const maintenanceCost = (scenario.state.propertyDetails.purchasePrice * scenario.state.costStructure.maintenancePercentage) / 100;
@@ -80,9 +113,7 @@ export const useScenarioProjectionsData = (
           maintenanceCost,
           annualPropertyCosts
         };
-        const totalUpfrontCosts = scenario.state.propertyDetails.depositAmount + purchaseCosts.total;
-        const calculatedOffset = Math.max(0, scenario.state.propertyDetails.availableSavings - totalUpfrontCosts);
-        const offsetAmount = scenario.state.propertyDetails.manualOffsetAmount ?? calculatedOffset;
+        const offsetAmount = Math.max(0, scenario.state.propertyDetails.manualOffsetAmount ?? 0);
 
         const applySensitivity = (deltas: { interest: number; rent: number; growth: number }) => {
           const updatedPropertyDetails = {

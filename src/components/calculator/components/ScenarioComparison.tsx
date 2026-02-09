@@ -8,8 +8,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '..
 import { Tooltip as UiTooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '../../ui/popover';
 import { Info } from 'lucide-react';
-import { useCalculatorState } from '../hooks/useCalculatorState';
 import { SensitivitySettings, useScenarioProjectionsData } from './ScenarioComparison/useScenarioProjectionsData';
+import { Scenario } from '../types/scenario';
 import {
   LineChart,
   Line,
@@ -50,6 +50,14 @@ type ComparisonTooltipEntry = {
   payload?: Record<string, unknown>;
 };
 
+type PortfolioDefinition = {
+  id: string;
+  name: string;
+  scenarioIds: string[];
+};
+
+const PORTFOLIO_KEY_PREFIX = 'portfolio:';
+
 const getScenarioColor = (id: string) => {
   // Use a curated palette for readability and a stable hash for fallback.
   const palette = [
@@ -76,8 +84,11 @@ const getScenarioColor = (id: string) => {
   return `hsl(${hue} 65% 38%)`;
 };
 
-const ScenarioComparison = () => {
-  const { scenarios } = useCalculatorState();
+interface ScenarioComparisonProps {
+  scenarios: Scenario[];
+}
+
+const ScenarioComparison = ({ scenarios }: ScenarioComparisonProps) => {
   const [selectedScenarios, setSelectedScenarios] = useState<Set<string>>(new Set());
   const [scenarioSensitivityDisplay, setScenarioSensitivityDisplay] = useState<Set<string>>(new Set());
   const [scenarioFilter, setScenarioFilter] = useState('');
@@ -86,6 +97,11 @@ const ScenarioComparison = () => {
   const [hasInitializedDefaults, setHasInitializedDefaults] = useState(false);
   const [includeInvestedFunds, setIncludeInvestedFunds] = useState(false);
   const [includePPORRentSavings, setIncludePPORRentSavings] = useState(true);
+  const [portfolios, setPortfolios] = useState<PortfolioDefinition[]>([]);
+  const [selectedPortfolios, setSelectedPortfolios] = useState<Set<string>>(new Set());
+  const [newPortfolioName, setNewPortfolioName] = useState('');
+  const [newPortfolioScenarioIds, setNewPortfolioScenarioIds] = useState<Set<string>>(new Set());
+  const [isAddingPortfolio, setIsAddingPortfolio] = useState(false);
 
   const STORAGE_KEY = 'calculator_scenario_comparison_preferences';
 
@@ -113,6 +129,8 @@ const ScenarioComparison = () => {
           zoomRange?: [number, number];
           includeInvestedFunds?: boolean;
           includePPORRentSavings?: boolean;
+          portfolios?: PortfolioDefinition[];
+          selectedPortfolioIds?: string[];
         };
         if (parsed.selectedScenarioIds) {
           setSelectedScenarios(new Set(parsed.selectedScenarioIds));
@@ -134,6 +152,18 @@ const ScenarioComparison = () => {
         }
         if (typeof parsed.includePPORRentSavings === 'boolean') {
           setIncludePPORRentSavings(parsed.includePPORRentSavings);
+        }
+        if (Array.isArray(parsed.portfolios)) {
+          setPortfolios(
+            parsed.portfolios.filter((portfolio) =>
+              typeof portfolio.id === 'string' &&
+              typeof portfolio.name === 'string' &&
+              Array.isArray(portfolio.scenarioIds)
+            )
+          );
+        }
+        if (parsed.selectedPortfolioIds) {
+          setSelectedPortfolios(new Set(parsed.selectedPortfolioIds));
         }
       }
     } catch {
@@ -174,6 +204,55 @@ const ScenarioComparison = () => {
         newSet.add(scenarioId);
       }
       return newSet;
+    });
+  };
+
+  const handleNewPortfolioScenarioToggle = (scenarioId: string) => {
+    setNewPortfolioScenarioIds(prev => {
+      const next = new Set(prev);
+      if (next.has(scenarioId)) {
+        next.delete(scenarioId);
+      } else {
+        next.add(scenarioId);
+      }
+      return next;
+    });
+  };
+
+  const handlePortfolioToggle = (portfolioId: string) => {
+    setSelectedPortfolios(prev => {
+      const next = new Set(prev);
+      if (next.has(portfolioId)) {
+        next.delete(portfolioId);
+      } else {
+        next.add(portfolioId);
+      }
+      return next;
+    });
+  };
+
+  const handleCreatePortfolio = () => {
+    const name = newPortfolioName.trim();
+    const scenarioIds = Array.from(newPortfolioScenarioIds);
+    if (!name || scenarioIds.length === 0) return;
+    const portfolio: PortfolioDefinition = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      name,
+      scenarioIds,
+    };
+    setPortfolios(prev => [...prev, portfolio]);
+    setSelectedPortfolios(prev => new Set(prev).add(portfolio.id));
+    setNewPortfolioName('');
+    setNewPortfolioScenarioIds(new Set());
+    setIsAddingPortfolio(false);
+  };
+
+  const handleDeletePortfolio = (portfolioId: string) => {
+    setPortfolios(prev => prev.filter(portfolio => portfolio.id !== portfolioId));
+    setSelectedPortfolios(prev => {
+      const next = new Set(prev);
+      next.delete(portfolioId);
+      return next;
     });
   };
 
@@ -235,6 +314,58 @@ const ScenarioComparison = () => {
     );
   }, [processedData, zoomDomain]);
 
+  const chartData = useMemo(() => {
+    if (!portfolios.length) return filteredData;
+
+    return filteredData.map((point) => {
+      const nextPoint: ScenarioComparisonPoint = { ...point };
+      portfolios.forEach((portfolio) => {
+        let graphNetPosition = 0;
+        let afterTaxHolding = 0;
+        let rentSavingsTotal = 0;
+        let offsetBalance = 0;
+        let principalTotal = 0;
+        let cumulativePrincipalPaid = 0;
+        let graphNetPositionLow = 0;
+        let graphNetPositionHigh = 0;
+        let hasLow = false;
+        let hasHigh = false;
+
+        portfolio.scenarioIds.forEach((scenarioId) => {
+          const scenarioPoint = point[scenarioId];
+          if (!scenarioPoint || typeof scenarioPoint !== 'object') return;
+          graphNetPosition += scenarioPoint.graphNetPosition ?? 0;
+          afterTaxHolding += scenarioPoint.afterTaxHolding ?? 0;
+          rentSavingsTotal += scenarioPoint.rentSavingsTotal ?? 0;
+          offsetBalance += scenarioPoint.offsetBalance ?? 0;
+          principalTotal += scenarioPoint.principalTotal ?? 0;
+          cumulativePrincipalPaid += scenarioPoint.cumulativePrincipalPaid ?? 0;
+          if (typeof scenarioPoint.graphNetPositionLow === 'number') {
+            hasLow = true;
+            graphNetPositionLow += scenarioPoint.graphNetPositionLow;
+          }
+          if (typeof scenarioPoint.graphNetPositionHigh === 'number') {
+            hasHigh = true;
+            graphNetPositionHigh += scenarioPoint.graphNetPositionHigh;
+          }
+        });
+
+        nextPoint[`${PORTFOLIO_KEY_PREFIX}${portfolio.id}`] = {
+          netPosition: graphNetPosition,
+          graphNetPosition,
+          afterTaxHolding,
+          rentSavingsTotal,
+          offsetBalance,
+          principalTotal,
+          cumulativePrincipalPaid,
+          graphNetPositionLow: hasLow ? graphNetPositionLow : undefined,
+          graphNetPositionHigh: hasHigh ? graphNetPositionHigh : undefined,
+        };
+      });
+      return nextPoint;
+    });
+  }, [filteredData, portfolios]);
+
   useEffect(() => {
     setScenarioSensitivityDisplay(prev => {
       const next = new Set<string>();
@@ -250,6 +381,24 @@ const ScenarioComparison = () => {
     });
   }, [selectedScenarios]);
 
+  useEffect(() => {
+    if (!scenarios?.length) return;
+    const scenarioIds = new Set(scenarios.map(s => s.id));
+    setPortfolios(prev => prev
+      .map((portfolio) => ({
+        ...portfolio,
+        scenarioIds: portfolio.scenarioIds.filter((id) => scenarioIds.has(id)),
+      }))
+      .filter((portfolio) => portfolio.scenarioIds.length > 0));
+  }, [scenarios]);
+
+  useEffect(() => {
+    setSelectedPortfolios(prev => {
+      const portfolioIds = new Set(portfolios.map(portfolio => portfolio.id));
+      return new Set(Array.from(prev).filter(id => portfolioIds.has(id)));
+    });
+  }, [portfolios]);
+
   // Persist preferences.
   useEffect(() => {
     if (!hasLoadedPreferences) return;
@@ -261,6 +410,8 @@ const ScenarioComparison = () => {
       zoomRange,
       includeInvestedFunds,
       includePPORRentSavings,
+      portfolios,
+      selectedPortfolioIds: Array.from(selectedPortfolios),
     };
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
@@ -276,6 +427,8 @@ const ScenarioComparison = () => {
     zoomRange,
     includeInvestedFunds,
     includePPORRentSavings,
+    portfolios,
+    selectedPortfolios,
   ]);
 
   const updateSensitivitySetting = (key: keyof SensitivitySettings, value: string) => {
@@ -299,7 +452,7 @@ const ScenarioComparison = () => {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
         <div className="space-y-4 self-start lg:max-h-[calc(100vh-140px)] lg:overflow-y-auto lg:pr-1">
-          <div className="rounded-xl border border-slate-200 bg-white/80 p-4 shadow-sm">
+          <div className="rounded-xl border border-slate-200 bg-white/80 p-4 shadow-sm" data-tutorial="scenario-grapher-scenarios">
             <div className="flex items-center justify-between mb-3">
               <div>
                 <div className="text-sm font-semibold text-slate-900">Scenarios</div>
@@ -436,6 +589,143 @@ const ScenarioComparison = () => {
             </TooltipProvider>
           </div>
 
+          <div className="rounded-xl border border-slate-200 bg-white/80 p-4 shadow-sm" data-tutorial="scenario-grapher-portfolios">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <div className="text-sm font-semibold text-slate-900">Portfolios</div>
+                <div className="text-xs text-slate-500">
+                  {selectedPortfolios.size} of {portfolios.length} selected
+                </div>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setIsAddingPortfolio((prev) => !prev)}
+              >
+                {isAddingPortfolio ? 'Close' : '+ Add portfolio'}
+              </Button>
+            </div>
+            {isAddingPortfolio && (
+              <div className="space-y-2 mb-3 rounded-md border border-slate-200 p-3">
+                <Label htmlFor="new-portfolio-name" className="text-xs text-slate-600">
+                  Portfolio name
+                </Label>
+                <Input
+                  id="new-portfolio-name"
+                  value={newPortfolioName}
+                  onChange={(event) => setNewPortfolioName(event.target.value)}
+                  placeholder="e.g. PPOR + Brisbane IP"
+                />
+                <div className="text-xs text-slate-600">Scenarios in portfolio</div>
+                <div className="max-h-32 overflow-auto rounded-md border border-slate-200 p-2 space-y-1">
+                  {scenarios.map((scenario) => (
+                    <div key={`portfolio-source-${scenario.id}`} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`portfolio-source-${scenario.id}`}
+                        checked={newPortfolioScenarioIds.has(scenario.id)}
+                        onCheckedChange={() => handleNewPortfolioScenarioToggle(scenario.id)}
+                      />
+                      <Label htmlFor={`portfolio-source-${scenario.id}`} className="text-xs text-slate-700 cursor-pointer truncate">
+                        {scenario.name}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    onClick={handleCreatePortfolio}
+                    disabled={!newPortfolioName.trim() || newPortfolioScenarioIds.size === 0}
+                  >
+                    Create portfolio
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setIsAddingPortfolio(false);
+                      setNewPortfolioName('');
+                      setNewPortfolioScenarioIds(new Set());
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+            <div className="space-y-2 max-h-44 overflow-auto">
+              {portfolios.map((portfolio) => {
+                const checked = selectedPortfolios.has(portfolio.id);
+                const color = getScenarioColor(`${PORTFOLIO_KEY_PREFIX}${portfolio.id}`);
+                const members = portfolio.scenarioIds
+                  .map((id) => scenarios.find((scenario) => scenario.id === id)?.name)
+                  .filter(Boolean)
+                  .join(', ');
+                return (
+                  <div key={portfolio.id} className="rounded-md border border-slate-200 px-2 py-2">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id={`portfolio-${portfolio.id}`}
+                        checked={checked}
+                        onCheckedChange={() => handlePortfolioToggle(portfolio.id)}
+                      />
+                      <span
+                        className="h-2.5 w-2.5 rounded-full"
+                        style={{ backgroundColor: color }}
+                      />
+                      <Label
+                        htmlFor={`portfolio-${portfolio.id}`}
+                        className="text-sm text-slate-700 cursor-pointer flex-1 truncate"
+                      >
+                        {portfolio.name}
+                      </Label>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs text-red-600 hover:text-red-700"
+                        onClick={() => handleDeletePortfolio(portfolio.id)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                    <div className="mt-1 text-[11px] text-slate-500 truncate">
+                      {members || 'No scenarios'}
+                    </div>
+                  </div>
+                );
+              })}
+              {portfolios.length === 0 && (
+                <div className="text-xs text-slate-500">No portfolios created yet.</div>
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-slate-200 bg-white/80 p-4 shadow-sm" data-tutorial="scenario-grapher-options">
+            <div className="space-y-2">
+              <div className="text-sm font-semibold text-slate-900">Graph options</div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="include-invested-funds"
+                  checked={includeInvestedFunds}
+                  onCheckedChange={() => setIncludeInvestedFunds((prev) => !prev)}
+                />
+                <Label htmlFor="include-invested-funds" className="text-sm text-slate-700 cursor-pointer">
+                  Include funds invested (deposit + principal + offset)
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="include-ppor-rent-savings"
+                  checked={includePPORRentSavings}
+                  onCheckedChange={() => setIncludePPORRentSavings((prev) => !prev)}
+                />
+                <Label htmlFor="include-ppor-rent-savings" className="text-sm text-slate-700 cursor-pointer">
+                  Include PPOR rent savings in graphed net position
+                </Label>
+              </div>
+            </div>
+          </div>
+
           <div className="rounded-xl border border-slate-200 bg-white/80 p-4 shadow-sm">
             <Accordion type="single" collapsible>
               <AccordionItem value="sensitivity">
@@ -534,34 +824,11 @@ const ScenarioComparison = () => {
         </div>
 
         <div className="space-y-4 lg:sticky lg:top-4 self-start">
-          <div className="rounded-xl border border-slate-200 bg-white/80 p-4 shadow-sm">
-            <div className="mb-4 space-y-2">
-              <div className="text-sm font-semibold text-slate-900">Graph options</div>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="include-invested-funds"
-                  checked={includeInvestedFunds}
-                  onCheckedChange={() => setIncludeInvestedFunds((prev) => !prev)}
-                />
-                <Label htmlFor="include-invested-funds" className="text-sm text-slate-700 cursor-pointer">
-                  Include funds invested (deposit + principal + offset)
-                </Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="include-ppor-rent-savings"
-                  checked={includePPORRentSavings}
-                  onCheckedChange={() => setIncludePPORRentSavings((prev) => !prev)}
-                />
-                <Label htmlFor="include-ppor-rent-savings" className="text-sm text-slate-700 cursor-pointer">
-                  Include PPOR rent savings in graphed net position
-                </Label>
-              </div>
-            </div>
+          <div className="rounded-xl border border-slate-200 bg-white/80 p-4 shadow-sm" data-tutorial="scenario-grapher">
             <div className="h-[360px] sm:h-[420px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
-                  data={filteredData}
+                  data={chartData}
                   margin={{
                     top: 5,
                     right: 30,
@@ -630,12 +897,20 @@ const ScenarioComparison = () => {
                             {sortedPayload.map((entry, index) => {
                               const scenarioId = typeof entry.dataKey === 'string' ? entry.dataKey.split('.')[0] : undefined;
                               const scenario = scenarioId ? scenarios!.find(s => s.id === scenarioId) : undefined;
+                              const safeDataKey = scenarioId ?? '';
+                              const isPortfolioLine = safeDataKey.startsWith(PORTFOLIO_KEY_PREFIX);
+                              const portfolioId = isPortfolioLine
+                                ? safeDataKey.replace(PORTFOLIO_KEY_PREFIX, '')
+                                : '';
+                              const portfolio = isPortfolioLine
+                                ? portfolios.find((item) => item.id === portfolioId)
+                                : undefined;
                               const value = typeof entry.value === 'number' ? entry.value : 0;
                               const isPositive = value >= 0;
                               const shouldUseMillions = Math.abs(value) >= 1000000;
                               
                               // Calculate year-over-year change
-                              const prevYearData = filteredData?.find(
+                              const prevYearData = chartData?.find(
                                 (d): d is ScenarioComparisonPoint => d.year === Number(label) - 1
                               );
                               const prevScenarioData =
@@ -659,10 +934,10 @@ const ScenarioComparison = () => {
                 />
                                     <div className="flex-1">
                                       <div className="text-sm font-medium">
-                                        {scenario?.name || entry.name}
+                                        {portfolio?.name || scenario?.name || entry.name}
                                       </div>
                                       <div className={`text-xs ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                                        ${formatNumberWithKMB(value, shouldUseMillions)}
+                                        Graphed value ({includeInvestedFunds ? 'total position' : 'net position'}): ${formatNumberWithKMB(value, shouldUseMillions)}
                                       </div>
                                     </div>
                                   </div>
@@ -670,9 +945,11 @@ const ScenarioComparison = () => {
                                     {entry.payload && scenarioId && entry.payload[scenarioId] && (() => {
                                       const afterTaxHolding = entry.payload[scenarioId].afterTaxHolding || 0;
                                       const isIncome = afterTaxHolding >= 0;
-                                      const label = isIncome
-                                        ? (scenario?.state.propertyDetails.isPPOR ? 'After-tax savings' : 'After-tax income')
-                                        : 'After-tax holding cost';
+                                      const label = isPortfolioLine
+                                        ? 'After-tax holding result (year)'
+                                        : (isIncome
+                                          ? (scenario?.state.propertyDetails.isPPOR ? 'After-tax savings (year)' : 'After-tax income (year)')
+                                          : 'After-tax holding cost (year)');
                                       const valueClass = isIncome ? 'text-green-600' : 'text-red-600';
                                       const shouldUseMillions = Math.abs(afterTaxHolding) >= 1000000;
                                       return (
@@ -686,9 +963,28 @@ const ScenarioComparison = () => {
                                             const rentSavingsMillions = Math.abs(rentSavingsTotal) >= 1000000;
                                             return (
                                               <div className="text-gray-500">
-                                                {includePPORRentSavings
-                                                  ? `PPOR net position includes rental savings of $${formatNumberWithKMB(rentSavingsTotal, rentSavingsMillions)} total`
-                                                  : `PPOR net position excludes rental savings of $${formatNumberWithKMB(rentSavingsTotal, rentSavingsMillions)} total`}
+                                                Cumulative rent savings to date: ${formatNumberWithKMB(rentSavingsTotal, rentSavingsMillions)} ({includePPORRentSavings ? 'included' : 'excluded'} from graphed value)
+                                              </div>
+                                            );
+                                          })()}
+                                          {isPortfolioLine && (() => {
+                                            const rentSavingsTotal = entry.payload[scenarioId].rentSavingsTotal || 0;
+                                            if (rentSavingsTotal === 0) return null;
+                                            const rentSavingsMillions = Math.abs(rentSavingsTotal) >= 1000000;
+                                            return (
+                                              <div className="text-gray-500">
+                                                Portfolio cumulative rent savings: ${formatNumberWithKMB(rentSavingsTotal, rentSavingsMillions)} ({includePPORRentSavings ? 'included' : 'excluded'} from graphed value)
+                                              </div>
+                                            );
+                                          })()}
+                                          {isPortfolioLine && portfolio && (() => {
+                                            const members = portfolio.scenarioIds
+                                              .map((id) => scenarios.find((s) => s.id === id)?.name)
+                                              .filter(Boolean)
+                                              .join(', ');
+                                            return (
+                                              <div className="text-gray-500">
+                                                Portfolio members: {members || 'None'}
                                               </div>
                                             );
                                           })()}
@@ -704,31 +1000,27 @@ const ScenarioComparison = () => {
                                         <>
                                           {includeInvestedFunds ? (
                                             <>
-                                              {offsetBalance > 0 && (
-                                                <div className="text-gray-500">
-                                                  Includes offset balance of ${formatNumberWithKMB(offsetBalance, offsetMillions)}
-                                                </div>
-                                              )}
                                               <div className="text-gray-500">
-                                                Includes principal payments of ${formatNumberWithKMB(principalTotal, principalMillions)} (incl. deposit)
+                                                Principal invested to date (deposit + principal repaid): ${formatNumberWithKMB(principalTotal, principalMillions)} (included)
+                                              </div>
+                                              <div className="text-gray-500">
+                                                Offset balance to date: ${formatNumberWithKMB(offsetBalance, offsetMillions)} (included)
                                               </div>
                                             </>
                                           ) : (
                                             <>
-                                              {offsetBalance > 0 && (
-                                                <div className="text-gray-500">
-                                                  Excludes offset balance of ${formatNumberWithKMB(offsetBalance, offsetMillions)}
-                                                </div>
-                                              )}
                                               <div className="text-gray-500">
-                                                Excludes principal payments of ${formatNumberWithKMB(principalTotal, principalMillions)} (incl. deposit)
+                                                Principal invested to date (deposit + principal repaid): ${formatNumberWithKMB(principalTotal, principalMillions)} (excluded)
+                                              </div>
+                                              <div className="text-gray-500">
+                                                Offset balance to date: ${formatNumberWithKMB(offsetBalance, offsetMillions)} (excluded)
                                               </div>
                                             </>
                                           )}
                                         </>
                                       );
                                     })()}
-                                    {scenario?.metadata?.description && (
+                                    {scenario?.metadata?.description && !isPortfolioLine && (
                                       <div className="text-gray-500 italic">
                                         {scenario.metadata.description}
                                       </div>
@@ -742,6 +1034,52 @@ const ScenarioComparison = () => {
                       );
                     }}
                   />
+                  {portfolios
+                    .filter((portfolio) => selectedPortfolios.has(portfolio.id))
+                    .map((portfolio) => {
+                      const color = getScenarioColor(`${PORTFOLIO_KEY_PREFIX}${portfolio.id}`);
+                      return (
+                        <React.Fragment key={portfolio.id}>
+                          <Line
+                            type="monotone"
+                            dataKey={`${PORTFOLIO_KEY_PREFIX}${portfolio.id}.graphNetPosition`}
+                            name={portfolio.name}
+                            stroke={color}
+                            strokeWidth={3}
+                            dot={false}
+                            connectNulls={false}
+                          />
+                          {sensitivityEnabled && (
+                            <>
+                              <Line
+                                type="monotone"
+                                dataKey={`${PORTFOLIO_KEY_PREFIX}${portfolio.id}.graphNetPositionLow`}
+                                name={`${portfolio.name} (low)`}
+                                stroke={color}
+                                strokeWidth={1.5}
+                                strokeDasharray="4 4"
+                                strokeOpacity={0.65}
+                                dot={false}
+                                connectNulls={false}
+                                legendType="none"
+                              />
+                              <Line
+                                type="monotone"
+                                dataKey={`${PORTFOLIO_KEY_PREFIX}${portfolio.id}.graphNetPositionHigh`}
+                                name={`${portfolio.name} (high)`}
+                                stroke={color}
+                                strokeWidth={1.5}
+                                strokeDasharray="4 4"
+                                strokeOpacity={0.65}
+                                dot={false}
+                                connectNulls={false}
+                                legendType="none"
+                              />
+                            </>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
                   {scenarios
                     .filter(scenario => selectedScenarios.has(scenario.id))
                     .map((scenario) => {

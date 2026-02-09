@@ -17,16 +17,18 @@ export function CreateScenario({
 }: CreateScenarioProps) {
   return (
     <>
-      <DropdownMenuLabel className="text-blue-700">Create New Scenario</DropdownMenuLabel>
+      <DropdownMenuLabel className="text-slate-700">Create New Scenario</DropdownMenuLabel>
       <div className="px-2 py-1.5 flex gap-2">
         <Input
           value={newScenarioName}
           onChange={(e) => setNewScenarioName(e.target.value)}
           placeholder="Scenario name"
+          data-tutorial="scenario-name-input"
           className="h-8"
         />
         <AnimatedButton
           size="sm"
+          data-tutorial="save-scenario-button"
           onClick={() => {
             onSave();
             triggerGleam('save-new');
